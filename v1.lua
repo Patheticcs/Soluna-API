@@ -1,1 +1,1 @@
-loadstring(game:HttpGet("https://github.com/Patheticcs/Soluna-API/blob/main/v1.lua",true))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/v1.lua",true))()
