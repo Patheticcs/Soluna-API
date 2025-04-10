@@ -164,7 +164,7 @@ end)
 
 NewButton.MouseButton1Click:Connect(function()
     closeLoader()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/main.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/api/main.lua"))()
 end)
 
 FixedButton.MouseButton1Click:Connect(function()
