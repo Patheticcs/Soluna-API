@@ -139,7 +139,7 @@ FixedButton.BackgroundTransparency = 0.8
 FixedButton.Position = UDim2.new(0.1, 0, 0.68, 0)
 FixedButton.Size = UDim2.new(0.8, 0, 0, 50)
 FixedButton.Font = Enum.Font.GothamSemibold
-FixedButton.Text = "FIXED"
+FixedButton.Text = "Close"
 FixedButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 FixedButton.TextSize = 18
 FixedButton.AutoButtonColor = false
@@ -152,17 +152,6 @@ FixedStroke.Thickness = 1
 
 FixedCorner.CornerRadius = UDim.new(0, 10)
 FixedCorner.Parent = FixedButton
-
-FixedDescription.Name = "FixedDescription"
-FixedDescription.Parent = MainFrame
-FixedDescription.BackgroundTransparency = 1
-FixedDescription.Position = UDim2.new(0.1, 0, 0.68, 55)
-FixedDescription.Size = UDim2.new(0.8, 0, 0, 20)
-FixedDescription.Font = Enum.Font.Gotham
-FixedDescription.Text = "Fixed Version - No lag but ESP/AutoShoot broken"
-FixedDescription.TextColor3 = Color3.fromRGB(200, 200, 200)
-FixedDescription.TextSize = 12
-FixedDescription.TextTransparency = 0.2
 
 local function createGlassmorphicButtonEffect(button, stroke)
     button.MouseEnter:Connect(function()
@@ -278,7 +267,6 @@ end)
 
 FixedButton.MouseButton1Click:Connect(function()
     closeLoader()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/api/fixed.lua"))()
 end)
 
 MainFrame.Position = UDim2.new(0.5, -225, 1.5, 0)
