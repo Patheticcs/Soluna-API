@@ -12,9 +12,38 @@ local NewDescription = Instance.new("TextLabel")
 local FixedButton = Instance.new("TextButton")
 local FixedCorner = Instance.new("UICorner")
 local FixedDescription = Instance.new("TextLabel")
+local AutoLoadToggle = Instance.new("TextButton")
+local AutoLoadCorner = Instance.new("UICorner")
+local AutoLoadLabel = Instance.new("TextLabel")
 local UIBlur = Instance.new("BlurEffect")
 local UIStroke = Instance.new("UIStroke")
 local UIGradient = Instance.new("UIGradient")
+
+local Settings = {
+    AutoLoadEnabled = false,
+    SelectedVersion = nil 
+}
+
+local success, savedSettings = pcall(function()
+    return game:GetService("HttpService"):JSONDecode(readfile("SolunaLoaderSettings.json"))
+end)
+
+if success and savedSettings then
+    Settings = savedSettings
+end
+
+local function saveSettings()
+    writefile("SolunaLoaderSettings.json", game:GetService("HttpService"):JSONEncode(Settings))
+end
+
+if Settings.AutoLoadEnabled and Settings.SelectedVersion then
+    if Settings.SelectedVersion == "old" then
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/v1.lua"))()
+    elseif Settings.SelectedVersion == "new" then
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/api/main.lua"))()
+    end
+    return 
+end
 
 ScreenGui.Parent = game.CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -25,7 +54,7 @@ MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 MainFrame.BackgroundTransparency = 0.85 
 MainFrame.BorderSizePixel = 0
 MainFrame.Position = UDim2.new(0.5, -225, 0.5, -200)
-MainFrame.Size = UDim2.new(0, 450, 0, 400)
+MainFrame.Size = UDim2.new(0, 450, 0, 450) 
 MainFrame.ClipsDescendants = true
 
 UICorner.CornerRadius = UDim.new(0, 15)
@@ -132,11 +161,44 @@ NewDescription.TextColor3 = Color3.fromRGB(200, 200, 200)
 NewDescription.TextSize = 12
 NewDescription.TextTransparency = 0.2
 
+AutoLoadToggle.Name = "AutoLoadToggle"
+AutoLoadToggle.Parent = MainFrame
+AutoLoadToggle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+AutoLoadToggle.BackgroundTransparency = 0.8
+AutoLoadToggle.Position = UDim2.new(0.1, 0, 0.68, 0)
+AutoLoadToggle.Size = UDim2.new(0.35, 0, 0, 30)
+AutoLoadToggle.Font = Enum.Font.GothamSemibold
+AutoLoadToggle.Text = Settings.AutoLoadEnabled and "ON" or "OFF"
+AutoLoadToggle.TextColor3 = Settings.AutoLoadEnabled and Color3.fromRGB(100, 255, 100) or Color3.fromRGB(255, 100, 100)
+AutoLoadToggle.TextSize = 14
+AutoLoadToggle.AutoButtonColor = false
+
+local AutoLoadStroke = Instance.new("UIStroke")
+AutoLoadStroke.Parent = AutoLoadToggle
+AutoLoadStroke.Color = Color3.fromRGB(255, 255, 255)
+AutoLoadStroke.Transparency = 0.7
+AutoLoadStroke.Thickness = 1
+
+AutoLoadCorner.CornerRadius = UDim.new(0, 10)
+AutoLoadCorner.Parent = AutoLoadToggle
+
+AutoLoadLabel.Name = "AutoLoadLabel"
+AutoLoadLabel.Parent = MainFrame
+AutoLoadLabel.BackgroundTransparency = 1
+AutoLoadLabel.Position = UDim2.new(0.5, 0, 0.68, 0)
+AutoLoadLabel.Size = UDim2.new(0.45, 0, 0, 30)
+AutoLoadLabel.Font = Enum.Font.Gotham
+AutoLoadLabel.Text = "Auto Load Selected"
+AutoLoadLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+AutoLoadLabel.TextSize = 12
+AutoLoadLabel.TextXAlignment = Enum.TextXAlignment.Left
+AutoLoadLabel.TextTransparency = 0.2
+
 FixedButton.Name = "FixedButton"
 FixedButton.Parent = MainFrame
 FixedButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 FixedButton.BackgroundTransparency = 0.8
-FixedButton.Position = UDim2.new(0.1, 0, 0.68, 0)
+FixedButton.Position = UDim2.new(0.1, 0, 0.8, 0)
 FixedButton.Size = UDim2.new(0.8, 0, 0, 50)
 FixedButton.Font = Enum.Font.GothamSemibold
 FixedButton.Text = "Close"
@@ -196,6 +258,7 @@ end
 createGlassmorphicButtonEffect(OldButton, OldStroke)
 createGlassmorphicButtonEffect(NewButton, NewStroke)
 createGlassmorphicButtonEffect(FixedButton, FixedStroke)
+createGlassmorphicButtonEffect(AutoLoadToggle, AutoLoadStroke)
 
 local function createGlassReflection(parent)
     local reflection = Instance.new("Frame")
@@ -221,7 +284,6 @@ end
 createGlassReflection(MainFrame)
 
 local function closeLoader()
-
     local fadeTween = game:GetService("TweenService"):Create(
         MainFrame, 
         TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), 
@@ -255,14 +317,33 @@ local function closeLoader()
     ScreenGui:Destroy()
 end
 
+local function loadVersion(version)
+    if version == "old" then
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/v1.lua"))()
+    elseif version == "new" then
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/api/main.lua"))()
+    end
+end
+
+AutoLoadToggle.MouseButton1Click:Connect(function()
+    Settings.AutoLoadEnabled = not Settings.AutoLoadEnabled
+    AutoLoadToggle.Text = Settings.AutoLoadEnabled and "ON" or "OFF"
+    AutoLoadToggle.TextColor3 = Settings.AutoLoadEnabled and Color3.fromRGB(100, 255, 100) or Color3.fromRGB(255, 100, 100)
+    saveSettings()
+end)
+
 OldButton.MouseButton1Click:Connect(function()
+    Settings.SelectedVersion = "old"
+    saveSettings()
     closeLoader()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/v1.lua"))()
+    loadVersion("old")
 end)
 
 NewButton.MouseButton1Click:Connect(function()
+    Settings.SelectedVersion = "new"
+    saveSettings()
     closeLoader()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/api/main.lua"))()
+    loadVersion("new")
 end)
 
 FixedButton.MouseButton1Click:Connect(function()
