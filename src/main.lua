@@ -1,5 +1,3 @@
-remove the autoload feature: 
-
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local UICorner = Instance.new("UICorner")
