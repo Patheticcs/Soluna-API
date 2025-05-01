@@ -43,98 +43,120 @@ function FluentGlass:CreateWindow(options)
         Position = options.Position or UDim2.fromScale(0.5, 0.5),
         Acrylic = options.Acrylic == nil and true or options.Acrylic,
         Theme = options.Theme or "Dark",
-        MinimizeKey = options.MinimizeKey or Enum.KeyCode.RightControl
+        MinimizeKey = options.MinimizeKey or Enum.KeyCode.RightControl,
+        CurrentTheme = FluentGlass.Themes[options.Theme or "Dark"]
     }
-
+    
+    -- Create main screen GUI
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "FluentGlassUI"
+    ScreenGui.Name = "FluentGlassUI_"..tostring(math.random(1000,9999))
     ScreenGui.ResetOnSpawn = false
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
     ScreenGui.Parent = game:GetService("CoreGui")
-
+    
+    -- Create acrylic blur effect
     if window.Acrylic then
         local blur = Instance.new("BlurEffect")
         blur.Name = "AcrylicBlur"
         blur.Size = 12
         blur.Parent = ScreenGui
     end
-
+    
+    -- Main window container with glass effect
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
     MainFrame.Size = window.Size
     MainFrame.Position = window.Position
     MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-    MainFrame.BackgroundColor3 = FluentGlass.Themes[window.Theme].Secondary
+    MainFrame.BackgroundColor3 = window.CurrentTheme.Secondary
     MainFrame.BackgroundTransparency = 0.5
     MainFrame.BorderSizePixel = 0
     MainFrame.ClipsDescendants = true
     MainFrame.ZIndex = 1
-
+    
+    -- Glass effect elements
     local UICorner = Instance.new("UICorner")
     UICorner.CornerRadius = UDim.new(0, 8)
     UICorner.Parent = MainFrame
-
+    
     local UIStroke = Instance.new("UIStroke")
     UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     UIStroke.Color = Color3.fromRGB(255, 255, 255)
     UIStroke.Transparency = 0.9
     UIStroke.Thickness = 1
     UIStroke.Parent = MainFrame
-
+    
+    -- Title bar with gradient
     local TitleBar = Instance.new("Frame")
     TitleBar.Name = "TitleBar"
     TitleBar.Size = UDim2.new(1, 0, 0, 40)
-    TitleBar.BackgroundColor3 = FluentGlass.Themes[window.Theme].Primary
     TitleBar.BackgroundTransparency = 0.7
     TitleBar.BorderSizePixel = 0
     TitleBar.ZIndex = 2
-
+    
+    local Gradient = Instance.new("UIGradient")
+    Gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, window.CurrentTheme.Primary),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(
+            math.floor(window.CurrentTheme.Primary.R * 255 * 0.8),
+            math.floor(window.CurrentTheme.Primary.G * 255 * 0.8),
+            math.floor(window.CurrentTheme.Primary.B * 255 * 0.8)
+        ))
+    })
+    Gradient.Rotation = 90
+    Gradient.Parent = TitleBar
+    
+    -- Title text
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Name = "TitleLabel"
     TitleLabel.Size = UDim2.new(1, -100, 1, 0)
-    TitleLabel.Position = UDim2.new(0, 10, 0, 0)
+    TitleLabel.Position = UDim2.new(0, 15, 0, 0)
     TitleLabel.BackgroundTransparency = 1
     TitleLabel.Text = window.Title
-    TitleLabel.TextColor3 = FluentGlass.Themes[window.Theme].Text
+    TitleLabel.TextColor3 = window.CurrentTheme.Text
     TitleLabel.TextSize = 18
     TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
     TitleLabel.Font = Enum.Font.GothamSemibold
     TitleLabel.ZIndex = 3
-
+    
+    -- Subtitle text
     local SubTitleLabel = Instance.new("TextLabel")
     SubTitleLabel.Name = "SubTitleLabel"
     SubTitleLabel.Size = UDim2.new(1, -100, 0, 14)
-    SubTitleLabel.Position = UDim2.new(0, 10, 0, 20)
+    SubTitleLabel.Position = UDim2.new(0, 15, 0, 20)
     SubTitleLabel.BackgroundTransparency = 1
     SubTitleLabel.Text = window.SubTitle
-    SubTitleLabel.TextColor3 = FluentGlass.Themes[window.Theme].SubText
+    SubTitleLabel.TextColor3 = window.CurrentTheme.SubText
     SubTitleLabel.TextSize = 12
     SubTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
     SubTitleLabel.Font = Enum.Font.Gotham
     SubTitleLabel.ZIndex = 3
-
+    
+    -- Close button with animation
     local CloseButton = Instance.new("TextButton")
     CloseButton.Name = "CloseButton"
     CloseButton.Size = UDim2.new(0, 40, 0, 40)
     CloseButton.Position = UDim2.new(1, -40, 0, 0)
     CloseButton.BackgroundTransparency = 1
-    CloseButton.TextColor3 = FluentGlass.Themes[window.Theme].Text
+    CloseButton.TextColor3 = window.CurrentTheme.Text
     CloseButton.Text = "×"
     CloseButton.TextSize = 24
     CloseButton.Font = Enum.Font.GothamSemibold
     CloseButton.ZIndex = 3
-
+    
+    -- Minimize button
     local MinimizeButton = Instance.new("TextButton")
     MinimizeButton.Name = "MinimizeButton"
     MinimizeButton.Size = UDim2.new(0, 40, 0, 40)
     MinimizeButton.Position = UDim2.new(1, -80, 0, 0)
     MinimizeButton.BackgroundTransparency = 1
-    MinimizeButton.TextColor3 = FluentGlass.Themes[window.Theme].Text
-    MinimizeButton.Text = "-"
+    MinimizeButton.TextColor3 = window.CurrentTheme.Text
+    MinimizeButton.Text = "─"
     MinimizeButton.TextSize = 24
     MinimizeButton.Font = Enum.Font.GothamSemibold
     MinimizeButton.ZIndex = 3
-
+    
+    -- Tab container
     local TabContainer = Instance.new("Frame")
     TabContainer.Name = "TabContainer"
     TabContainer.Size = UDim2.new(1, 0, 0, 40)
@@ -142,7 +164,8 @@ function FluentGlass:CreateWindow(options)
     TabContainer.BackgroundTransparency = 1
     TabContainer.BorderSizePixel = 0
     TabContainer.ZIndex = 2
-
+    
+    -- Content frame
     local ContentFrame = Instance.new("Frame")
     ContentFrame.Name = "ContentFrame"
     ContentFrame.Size = UDim2.new(1, 0, 1, -80)
@@ -150,7 +173,8 @@ function FluentGlass:CreateWindow(options)
     ContentFrame.BackgroundTransparency = 1
     ContentFrame.BorderSizePixel = 0
     ContentFrame.ZIndex = 1
-
+    
+    -- Assemble UI
     TitleBar.Parent = MainFrame
     TitleLabel.Parent = TitleBar
     SubTitleLabel.Parent = TitleBar
@@ -159,24 +183,27 @@ function FluentGlass:CreateWindow(options)
     TabContainer.Parent = MainFrame
     ContentFrame.Parent = MainFrame
     MainFrame.Parent = ScreenGui
-
+    
+    -- Draggable window implementation
     local UserInputService = game:GetService("UserInputService")
-    local dragging
-    local dragInput
-    local dragStart
-    local startPos
-
+    local dragging, dragInput, dragStart, startPos
+    
     local function update(input)
         local delta = input.Position - dragStart
-        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        MainFrame.Position = UDim2.new(
+            startPos.X.Scale, 
+            startPos.X.Offset + delta.X, 
+            startPos.Y.Scale, 
+            startPos.Y.Offset + delta.Y
+        )
     end
-
+    
     TitleBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
             dragStart = input.Position
             startPos = MainFrame.Position
-
+            
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     dragging = false
@@ -184,47 +211,56 @@ function FluentGlass:CreateWindow(options)
             end)
         end
     end)
-
+    
     TitleBar.InputChanged:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement then
             dragInput = input
         end
     end)
-
+    
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             update(input)
         end
     end)
-
+    
+    -- Button hover animations
     local function buttonHover(button)
         button.MouseEnter:Connect(function()
             Tween(button, {TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.2)
         end)
-
+        
         button.MouseLeave:Connect(function()
-            Tween(button, {TextColor3 = FluentGlass.Themes[window.Theme].Text}, 0.2)
+            Tween(button, {TextColor3 = window.CurrentTheme.Text}, 0.2)
         end)
     end
-
+    
     buttonHover(CloseButton)
     buttonHover(MinimizeButton)
-
+    
+    -- Close button functionality
     CloseButton.MouseButton1Click:Connect(function()
-        Tween(MainFrame, {Size = UDim2.new(0, 0, 0, 0)}, 0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
-        wait(0.3)
-        ScreenGui:Destroy()
+        Tween(MainFrame, {
+            Size = UDim2.new(0, 0, 0, 0),
+            Position = UDim2.new(0.5, 0, 0.5, 0)
+        }, 0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
+        task.delay(0.3, function()
+            ScreenGui:Destroy()
+        end)
     end)
-
+    
+    -- Minimize button functionality
     local minimized = false
     MinimizeButton.MouseButton1Click:Connect(function()
         minimized = not minimized
         if minimized then
-            Tween(MainFrame, {Size = UDim2.new(MainFrame.Size.X.Scale, MainFrame.Size.X.Offset, 0, 80)}, 0.3)
-            Tween(ContentFrame, {BackgroundTransparency = 1}, 0.3)
+            Tween(MainFrame, {
+                Size = UDim2.new(MainFrame.Size.X.Scale, MainFrame.Size.X.Offset, 0, 80)
+            }, 0.3)
         else
-            Tween(MainFrame, {Size = window.Size}, 0.3)
-            Tween(ContentFrame, {BackgroundTransparency = 0}, 0.3)
+            Tween(MainFrame, {
+                Size = window.Size
+            }, 0.3)
         end
     end)
 
@@ -559,22 +595,35 @@ function FluentGlass:CreateWindow(options)
 
     function window:SetTheme(themeName)
         if FluentGlass.Themes[themeName] then
-            window.Theme = themeName
-
+            window.CurrentTheme = FluentGlass.Themes[themeName]
+            -- Update all UI elements with new theme colors
+            TitleBar.Gradient.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, window.CurrentTheme.Primary),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(
+                    math.floor(window.CurrentTheme.Primary.R * 255 * 0.8),
+                    math.floor(window.CurrentTheme.Primary.G * 255 * 0.8),
+                    math.floor(window.CurrentTheme.Primary.B * 255 * 0.8)
+                ))
+            })
+            TitleLabel.TextColor3 = window.CurrentTheme.Text
+            SubTitleLabel.TextColor3 = window.CurrentTheme.SubText
+            CloseButton.TextColor3 = window.CurrentTheme.Text
+            MinimizeButton.TextColor3 = window.CurrentTheme.Text
+            MainFrame.BackgroundColor3 = window.CurrentTheme.Secondary
         end
     end
-
+    
     function window:ToggleAcrylic(enabled)
         window.Acrylic = enabled
         if ScreenGui:FindFirstChild("AcrylicBlur") then
             ScreenGui.AcrylicBlur.Enabled = enabled
         end
     end
-
+    
     function window:Destroy()
         ScreenGui:Destroy()
     end
-
+    
     return window
 end
 
@@ -583,96 +632,127 @@ function FluentGlass:Notify(options)
     local notification = {
         Title = options.Title or "Notification",
         Content = options.Content or "This is a notification",
-        Duration = options.Duration or 5
+        Duration = options.Duration or 5,
+        Theme = options.Theme or "Dark"
     }
-
+    
+    local currentTheme = FluentGlass.Themes[notification.Theme]
+    
+    -- Create notification GUI
     local NotifGui = Instance.new("ScreenGui")
-    NotifGui.Name = "Notification"
+    NotifGui.Name = "Notification_"..tostring(math.random(1000,9999))
     NotifGui.Parent = game:GetService("CoreGui")
-
+    
+    -- Main frame with glass effect
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
     MainFrame.Size = UDim2.new(0, 300, 0, 0)
     MainFrame.Position = UDim2.new(1, -320, 1, -80)
     MainFrame.AnchorPoint = Vector2.new(1, 1)
-    MainFrame.BackgroundColor3 = FluentGlass.Themes["Dark"].Secondary
+    MainFrame.BackgroundColor3 = currentTheme.Secondary
     MainFrame.BackgroundTransparency = 0.5
     MainFrame.BorderSizePixel = 0
     MainFrame.ClipsDescendants = true
     MainFrame.ZIndex = 10
-
+    
+    -- Glass effect elements
     local UICorner = Instance.new("UICorner")
     UICorner.CornerRadius = UDim.new(0, 8)
     UICorner.Parent = MainFrame
-
+    
     local UIStroke = Instance.new("UIStroke")
     UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     UIStroke.Color = Color3.fromRGB(255, 255, 255)
     UIStroke.Transparency = 0.9
     UIStroke.Thickness = 1
     UIStroke.Parent = MainFrame
-
+    
+    -- Title label
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Name = "TitleLabel"
     TitleLabel.Size = UDim2.new(1, -20, 0, 20)
-    TitleLabel.Position = UDim2.new(0, 10, 0, 10)
+    TitleLabel.Position = UDim2.new(0, 15, 0, 10)
     TitleLabel.BackgroundTransparency = 1
     TitleLabel.Text = notification.Title
-    TitleLabel.TextColor3 = FluentGlass.Themes["Dark"].Text
+    TitleLabel.TextColor3 = currentTheme.Text
     TitleLabel.TextSize = 16
     TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
     TitleLabel.Font = Enum.Font.GothamSemibold
     TitleLabel.ZIndex = 11
-
+    
+    -- Content label
     local ContentLabel = Instance.new("TextLabel")
     ContentLabel.Name = "ContentLabel"
     ContentLabel.Size = UDim2.new(1, -20, 0, 0)
-    ContentLabel.Position = UDim2.new(0, 10, 0, 35)
+    ContentLabel.Position = UDim2.new(0, 15, 0, 35)
     ContentLabel.AutomaticSize = Enum.AutomaticSize.Y
     ContentLabel.BackgroundTransparency = 1
     ContentLabel.Text = notification.Content
-    ContentLabel.TextColor3 = FluentGlass.Themes["Dark"].SubText
+    ContentLabel.TextColor3 = currentTheme.SubText
     ContentLabel.TextSize = 14
     ContentLabel.TextXAlignment = Enum.TextXAlignment.Left
     ContentLabel.TextYAlignment = Enum.TextYAlignment.Top
     ContentLabel.Font = Enum.Font.Gotham
     ContentLabel.ZIndex = 11
-
+    
+    -- Progress bar
     local ProgressBar = Instance.new("Frame")
     ProgressBar.Name = "ProgressBar"
     ProgressBar.Size = UDim2.new(1, 0, 0, 2)
     ProgressBar.Position = UDim2.new(0, 0, 1, -2)
-    ProgressBar.BackgroundColor3 = FluentGlass.Themes["Dark"].Primary
+    ProgressBar.BackgroundColor3 = currentTheme.Primary
     ProgressBar.BorderSizePixel = 0
     ProgressBar.ZIndex = 11
-
+    
+    -- Assemble notification
     TitleLabel.Parent = MainFrame
     ContentLabel.Parent = MainFrame
     ProgressBar.Parent = MainFrame
     MainFrame.Parent = NotifGui
-
-    MainFrame.Size = UDim2.new(0, 300, 0, 0)
-    local contentHeight = ContentLabel.TextBounds.Y + 45
-    Tween(MainFrame, {Size = UDim2.new(0, 300, 0, contentHeight)}, 0.3)
-
+    
+    -- Calculate content height
+    local textBounds = TextService:GetTextSize(
+        ContentLabel.Text,
+        ContentLabel.TextSize,
+        ContentLabel.Font,
+        Vector2.new(ContentLabel.AbsoluteSize.X, math.huge)
+    )
+    local contentHeight = math.max(textBounds.Y + 55, 80)
+    
+    -- Animate in
+    Tween(MainFrame, {
+        Size = UDim2.new(0, 300, 0, contentHeight)
+    }, 0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+    
+    -- Animate progress bar if duration is set
     if notification.Duration then
-        Tween(ProgressBar, {Size = UDim2.new(0, 0, 0, 2)}, notification.Duration)
-
+        Tween(ProgressBar, {
+            Size = UDim2.new(0, 0, 0, 2)
+        }, notification.Duration, Enum.EasingStyle.Linear)
+        
+        -- Auto-close after duration
         task.delay(notification.Duration, function()
-            Tween(MainFrame, {Size = UDim2.new(0, 300, 0, 0)}, 0.3)
-            wait(0.3)
-            NotifGui:Destroy()
+            Tween(MainFrame, {
+                Size = UDim2.new(0, 300, 0, 0)
+            }, 0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
+            task.delay(0.3, function()
+                NotifGui:Destroy()
+            end)
         end)
     end
-
+    
+    -- Click to close
     MainFrame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            Tween(MainFrame, {Size = UDim2.new(0, 300, 0, 0)}, 0.3)
-            wait(0.3)
-            NotifGui:Destroy()
+            Tween(MainFrame, {
+                Size = UDim2.new(0, 300, 0, 0)
+            }, 0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
+            task.delay(0.3, function()
+                NotifGui:Destroy()
+            end)
         end
     end)
-
+    
     return notification
 end
 
