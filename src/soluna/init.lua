@@ -3,10 +3,10 @@
     A modern, elegant UI library for Roblox exploits
 ]]
 
--- Load components using loadstring
+-- Load components using loadstring (Updated to load)
 local function LoadComponent(url)
     local success, result = pcall(function()
-        return loadstring(game:HttpGet(url))()
+        return load(game:HttpGet(url))()
     end)
     
     if not success then
