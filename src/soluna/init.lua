@@ -3,13 +3,10 @@
     A modern, elegant UI library for Roblox exploits
 ]]
 
--- Base URL for raw GitHub content
-local GITHUB_RAW = "https://raw.githubusercontent.com/Patheticcs/Soluna-API/main/src/soluna/"
-
--- Import function using GitHub raw content
-local function ImportFromGithub(path)
+-- Local imports
+local function ImportLocal(path)
     local success, result = pcall(function()
-        return loadstring(game:HttpGet(GITHUB_RAW .. path))()
+        return require(path)
     end)
     
     if not success then
@@ -22,27 +19,27 @@ local function ImportFromGithub(path)
 end
 
 local components = {
-    Window = ImportFromGithub("components/window.lua"),
-    Tab = ImportFromGithub("components/tab.lua"),
-    Notification = ImportFromGithub("components/notification.lua"),
-    Button = ImportFromGithub("components/button.lua"),
-    Toggle = ImportFromGithub("components/toggle.lua"),
-    Slider = ImportFromGithub("components/slider.lua"),
-    Dropdown = ImportFromGithub("components/dropdown.lua"),
-    ColorPicker = ImportFromGithub("components/colorpicker.lua"),
-    Keybind = ImportFromGithub("components/keybind.lua"),
-    Input = ImportFromGithub("components/input.lua"),
-    Paragraph = ImportFromGithub("components/paragraph.lua"),
+    Window = ImportLocal("soluna/components/window"),
+    Tab = ImportLocal("soluna/components/tab"),
+    Notification = ImportLocal("soluna/components/notification"),
+    Button = ImportLocal("soluna/components/button"),
+    Toggle = ImportLocal("soluna/components/toggle"),
+    Slider = ImportLocal("soluna/components/slider"),
+    Dropdown = ImportLocal("soluna/components/dropdown"),
+    ColorPicker = ImportLocal("soluna/components/colorpicker"),
+    Keybind = ImportLocal("soluna/components/keybind"),
+    Input = ImportLocal("soluna/components/input"),
+    Paragraph = ImportLocal("soluna/components/paragraph"),
 }
 
 local managers = {
-    SaveManager = ImportFromGithub("managers/savemanager.lua"),
-    InterfaceManager = ImportFromGithub("managers/interfacemanager.lua"),
+    SaveManager = ImportLocal("soluna/managers/savemanager"),
+    InterfaceManager = ImportLocal("soluna/managers/interfacemanager"),
 }
 
 local utils = {
-    Theme = ImportFromGithub("utils/theme.lua"),
-    Icons = ImportFromGithub("utils/icons.lua"),
+    Theme = ImportLocal("soluna/utils/theme"),
+    Icons = ImportLocal("soluna/utils/icons"),
 }
 
 -- Create Soluna object
