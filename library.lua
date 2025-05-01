@@ -1,208 +1,313 @@
-local FluentGlass = {}
-
-FluentGlass.Version = "1.0.0"
-
-FluentGlass.Options = {}
-
-FluentGlass.Themes = {
-    Dark = {
-        Primary = Color3.fromRGB(0, 120, 215),
-        Background = Color3.fromRGB(32, 32, 32),
-        Secondary = Color3.fromRGB(40, 40, 40),
-        Text = Color3.fromRGB(255, 255, 255),
-        SubText = Color3.fromRGB(200, 200, 200)
-    },
-    Light = {
-        Primary = Color3.fromRGB(0, 120, 215),
-        Background = Color3.fromRGB(240, 240, 240),
-        Secondary = Color3.fromRGB(255, 255, 255),
-        Text = Color3.fromRGB(0, 0, 0),
-        SubText = Color3.fromRGB(80, 80, 80)
-    },
-    Amethyst = {
-        Primary = Color3.fromRGB(156, 39, 176),
-        Background = Color3.fromRGB(32, 32, 32),
-        Secondary = Color3.fromRGB(40, 40, 40),
-        Text = Color3.fromRGB(255, 255, 255),
-        SubText = Color3.fromRGB(200, 200, 200)
-    }
+-- Soluna/init.lua
+local Soluna = {
+    Version = "1.0.0",
+    Components = {},
+    Themes = {},
+    Config = {},
+    Utility = {}
 }
 
-local function Tween(obj, props, duration, style, direction)
-    style = style or Enum.EasingStyle.Quint
-    direction = direction or Enum.EasingDirection.Out
-    game:GetService("TweenService"):Create(obj, TweenInfo.new(duration, style, direction), props):Play()
+-- Import dependencies
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
+
+-- Utility functions
+function Soluna.Utility.Create(instanceType, properties)
+    local instance = Instance.new(instanceType)
+    for property, value in pairs(properties) do
+        instance[property] = value
+    end
+    return instance
 end
 
-function FluentGlass:CreateWindow(options)
-    options = options or {}
-    local window = {
-        Title = options.Title or "Fluent Glass",
-        SubTitle = options.SubTitle or "by Developer",
-        Size = options.Size or UDim2.fromOffset(580, 460),
-        Position = options.Position or UDim2.fromScale(0.5, 0.5),
-        Acrylic = options.Acrylic == nil and true or options.Acrylic,
-        Theme = options.Theme or "Dark",
-        MinimizeKey = options.MinimizeKey or Enum.KeyCode.RightControl,
-        CurrentTheme = FluentGlass.Themes[options.Theme or "Dark"]
-    }
-    
-    -- Create main screen GUI
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "FluentGlassUI_"..tostring(math.random(1000,9999))
-    ScreenGui.ResetOnSpawn = false
-    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-    ScreenGui.Parent = game:GetService("CoreGui")
-    
-    -- Create acrylic blur effect
-    if window.Acrylic then
-        local blur = Instance.new("BlurEffect")
-        blur.Name = "AcrylicBlur"
-        blur.Size = 12
-        blur.Parent = ScreenGui
+function Soluna.Utility.DeepCopy(original)
+    local copy = {}
+    for k, v in pairs(original) do
+        if type(v) == "table" then
+            v = Soluna.Utility.DeepCopy(v)
+        end
+        copy[k] = v
     end
-    
-    -- Main window container with glass effect
-    local MainFrame = Instance.new("Frame")
-    MainFrame.Name = "MainFrame"
-    MainFrame.Size = window.Size
-    MainFrame.Position = window.Position
-    MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-    MainFrame.BackgroundColor3 = window.CurrentTheme.Secondary
-    MainFrame.BackgroundTransparency = 0.5
-    MainFrame.BorderSizePixel = 0
-    MainFrame.ClipsDescendants = true
-    MainFrame.ZIndex = 1
-    
-    -- Glass effect elements
-    local UICorner = Instance.new("UICorner")
-    UICorner.CornerRadius = UDim.new(0, 8)
-    UICorner.Parent = MainFrame
-    
-    local UIStroke = Instance.new("UIStroke")
-    UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    UIStroke.Color = Color3.fromRGB(255, 255, 255)
-    UIStroke.Transparency = 0.9
-    UIStroke.Thickness = 1
-    UIStroke.Parent = MainFrame
-    
-    -- Title bar with gradient
-    local TitleBar = Instance.new("Frame")
-    TitleBar.Name = "TitleBar"
-    TitleBar.Size = UDim2.new(1, 0, 0, 40)
-    TitleBar.BackgroundTransparency = 0.7
-    TitleBar.BorderSizePixel = 0
-    TitleBar.ZIndex = 2
-    
-    local Gradient = Instance.new("UIGradient")
-    Gradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, window.CurrentTheme.Primary),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(
-            math.floor(window.CurrentTheme.Primary.R * 255 * 0.8),
-            math.floor(window.CurrentTheme.Primary.G * 255 * 0.8),
-            math.floor(window.CurrentTheme.Primary.B * 255 * 0.8)
-        ))
+    return copy
+end
+
+-- Theme management
+Soluna.Themes.Current = {
+    Primary = Color3.fromRGB(0, 120, 215),
+    Secondary = Color3.fromRGB(30, 30, 30),
+    Background = Color3.fromRGB(20, 20, 20),
+    Text = Color3.fromRGB(240, 240, 240),
+    Accent = Color3.fromRGB(0, 180, 255),
+    Error = Color3.fromRGB(255, 60, 60),
+    Success = Color3.fromRGB(60, 255, 60),
+    Warning = Color3.fromRGB(255, 180, 60)
+}
+
+function Soluna.Themes.SetTheme(themeTable)
+    Soluna.Themes.Current = Soluna.Utility.DeepCopy(themeTable)
+end
+
+-- Configuration management
+function Soluna.Config.Save(name, data, ignoreTheme)
+    local saveData = Soluna.Utility.DeepCopy(data)
+    if ignoreTheme then
+        saveData.Theme = nil
+    end
+    local json = HttpService:JSONEncode(saveData)
+    -- Implementation for saving to Roblox datastores or files
+end
+
+function Soluna.Config.Load(name)
+    -- Implementation for loading from Roblox datastores or files
+    -- Return decoded data
+end
+
+-- Window component
+function Soluna.Components.Window(options)
+    local window = {
+        Title = options.Title or "Window",
+        SubTitle = options.SubTitle or "",
+        Size = options.Size or UDim2.new(0, 400, 0, 500),
+        Position = options.Position or UDim2.new(0.5, -200, 0.5, -250),
+        Acrylic = options.Acrylic or false,
+        Minimized = false,
+        ToggleKey = options.ToggleKey or Enum.KeyCode.RightShift,
+        Tabs = {},
+        ActiveTab = nil
+    }
+
+    -- Create UI elements
+    local screenGui = Soluna.Utility.Create("ScreenGui", {
+        Name = "SolunaWindow_" .. window.Title,
+        ResetOnSpawn = false
     })
-    Gradient.Rotation = 90
-    Gradient.Parent = TitleBar
-    
-    -- Title text
-    local TitleLabel = Instance.new("TextLabel")
-    TitleLabel.Name = "TitleLabel"
-    TitleLabel.Size = UDim2.new(1, -100, 1, 0)
-    TitleLabel.Position = UDim2.new(0, 15, 0, 0)
-    TitleLabel.BackgroundTransparency = 1
-    TitleLabel.Text = window.Title
-    TitleLabel.TextColor3 = window.CurrentTheme.Text
-    TitleLabel.TextSize = 18
-    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    TitleLabel.Font = Enum.Font.GothamSemibold
-    TitleLabel.ZIndex = 3
-    
-    -- Subtitle text
-    local SubTitleLabel = Instance.new("TextLabel")
-    SubTitleLabel.Name = "SubTitleLabel"
-    SubTitleLabel.Size = UDim2.new(1, -100, 0, 14)
-    SubTitleLabel.Position = UDim2.new(0, 15, 0, 20)
-    SubTitleLabel.BackgroundTransparency = 1
-    SubTitleLabel.Text = window.SubTitle
-    SubTitleLabel.TextColor3 = window.CurrentTheme.SubText
-    SubTitleLabel.TextSize = 12
-    SubTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    SubTitleLabel.Font = Enum.Font.Gotham
-    SubTitleLabel.ZIndex = 3
-    
-    -- Close button with animation
-    local CloseButton = Instance.new("TextButton")
-    CloseButton.Name = "CloseButton"
-    CloseButton.Size = UDim2.new(0, 40, 0, 40)
-    CloseButton.Position = UDim2.new(1, -40, 0, 0)
-    CloseButton.BackgroundTransparency = 1
-    CloseButton.TextColor3 = window.CurrentTheme.Text
-    CloseButton.Text = "×"
-    CloseButton.TextSize = 24
-    CloseButton.Font = Enum.Font.GothamSemibold
-    CloseButton.ZIndex = 3
-    
-    -- Minimize button
-    local MinimizeButton = Instance.new("TextButton")
-    MinimizeButton.Name = "MinimizeButton"
-    MinimizeButton.Size = UDim2.new(0, 40, 0, 40)
-    MinimizeButton.Position = UDim2.new(1, -80, 0, 0)
-    MinimizeButton.BackgroundTransparency = 1
-    MinimizeButton.TextColor3 = window.CurrentTheme.Text
-    MinimizeButton.Text = "─"
-    MinimizeButton.TextSize = 24
-    MinimizeButton.Font = Enum.Font.GothamSemibold
-    MinimizeButton.ZIndex = 3
-    
+
+    local mainFrame = Soluna.Utility.Create("Frame", {
+        Name = "MainFrame",
+        Size = window.Size,
+        Position = window.Position,
+        BackgroundColor3 = Soluna.Themes.Current.Background,
+        BackgroundTransparency = window.Acrylic and 0.2 or 0,
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Parent = screenGui
+    })
+
+    -- Add blur effect if acrylic
+    if window.Acrylic then
+        local blur = Soluna.Utility.Create("BlurEffect", {
+            Name = "Blur",
+            Size = 10,
+            Parent = mainFrame
+        })
+    end
+
+    -- Title bar
+    local titleBar = Soluna.Utility.Create("Frame", {
+        Name = "TitleBar",
+        Size = UDim2.new(1, 0, 0, 40),
+        BackgroundColor3 = Soluna.Themes.Current.Primary,
+        BackgroundTransparency = 0,
+        Parent = mainFrame
+    })
+
+    -- Add title text
+    local titleText = Soluna.Utility.Create("TextLabel", {
+        Name = "TitleText",
+        Size = UDim2.new(0.7, 0, 1, 0),
+        Position = UDim2.new(0, 10, 0, 0),
+        BackgroundTransparency = 1,
+        Text = window.Title,
+        TextColor3 = Soluna.Themes.Current.Text,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Font = Enum.Font.GothamBold,
+        TextSize = 18,
+        Parent = titleBar
+    })
+
+    -- Add subtitle text if exists
+    if window.SubTitle ~= "" then
+        local subTitleText = Soluna.Utility.Create("TextLabel", {
+            Name = "SubTitleText",
+            Size = UDim2.new(0.7, 0, 1, 0),
+            Position = UDim2.new(0, 10, 0, 20),
+            BackgroundTransparency = 1,
+            Text = window.SubTitle,
+            TextColor3 = Color3.new(0.8, 0.8, 0.8),
+            TextXAlignment = Enum.TextXAlignment.Left,
+            Font = Enum.Font.Gotham,
+            TextSize = 14,
+            Parent = titleBar
+        })
+    end
+
+    -- Add close button
+    local closeButton = Soluna.Utility.Create("TextButton", {
+        Name = "CloseButton",
+        Size = UDim2.new(0, 40, 0, 40),
+        Position = UDim2.new(1, -40, 0, 0),
+        BackgroundColor3 = Color3.new(1, 0.2, 0.2),
+        BackgroundTransparency = 0,
+        Text = "X",
+        TextColor3 = Color3.new(1, 1, 1),
+        Font = Enum.Font.GothamBold,
+        TextSize = 18,
+        Parent = titleBar
+    })
+
+    closeButton.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+    end)
+
+    -- Add minimize button
+    local minimizeButton = Soluna.Utility.Create("TextButton", {
+        Name = "MinimizeButton",
+        Size = UDim2.new(0, 40, 0, 40),
+        Position = UDim2.new(1, -80, 0, 0),
+        BackgroundColor3 = Soluna.Themes.Current.Secondary,
+        BackgroundTransparency = 0,
+        Text = "_",
+        TextColor3 = Color3.new(1, 1, 1),
+        Font = Enum.Font.GothamBold,
+        TextSize = 18,
+        Parent = titleBar
+    })
+
     -- Tab container
-    local TabContainer = Instance.new("Frame")
-    TabContainer.Name = "TabContainer"
-    TabContainer.Size = UDim2.new(1, 0, 0, 40)
-    TabContainer.Position = UDim2.new(0, 0, 0, 40)
-    TabContainer.BackgroundTransparency = 1
-    TabContainer.BorderSizePixel = 0
-    TabContainer.ZIndex = 2
-    
-    -- Content frame
-    local ContentFrame = Instance.new("Frame")
-    ContentFrame.Name = "ContentFrame"
-    ContentFrame.Size = UDim2.new(1, 0, 1, -80)
-    ContentFrame.Position = UDim2.new(0, 0, 0, 80)
-    ContentFrame.BackgroundTransparency = 1
-    ContentFrame.BorderSizePixel = 0
-    ContentFrame.ZIndex = 1
-    
-    -- Assemble UI
-    TitleBar.Parent = MainFrame
-    TitleLabel.Parent = TitleBar
-    SubTitleLabel.Parent = TitleBar
-    CloseButton.Parent = TitleBar
-    MinimizeButton.Parent = TitleBar
-    TabContainer.Parent = MainFrame
-    ContentFrame.Parent = MainFrame
-    MainFrame.Parent = ScreenGui
-    
-    -- Draggable window implementation
-    local UserInputService = game:GetService("UserInputService")
-    local dragging, dragInput, dragStart, startPos
-    
+    local tabContainer = Soluna.Utility.Create("Frame", {
+        Name = "TabContainer",
+        Size = UDim2.new(1, 0, 0, 40),
+        Position = UDim2.new(0, 0, 0, 40),
+        BackgroundColor3 = Soluna.Themes.Current.Secondary,
+        BackgroundTransparency = 0,
+        Parent = mainFrame
+    })
+
+    local tabListLayout = Soluna.Utility.Create("UIListLayout", {
+        Name = "TabListLayout",
+        FillDirection = Enum.FillDirection.Horizontal,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Parent = tabContainer
+    })
+
+    -- Content area
+    local contentArea = Soluna.Utility.Create("Frame", {
+        Name = "ContentArea",
+        Size = UDim2.new(1, -20, 1, -100),
+        Position = UDim2.new(0, 10, 0, 90),
+        BackgroundTransparency = 1,
+        ClipsDescendants = true,
+        Parent = mainFrame
+    })
+
+    local contentScrolling = Soluna.Utility.Create("ScrollingFrame", {
+        Name = "ContentScrolling",
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundTransparency = 1,
+        ScrollBarThickness = 5,
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        Parent = contentArea
+    })
+
+    local contentLayout = Soluna.Utility.Create("UIListLayout", {
+        Name = "ContentLayout",
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Padding = UDim.new(0, 5),
+        Parent = contentScrolling
+    })
+
+    -- Add tab function
+    function window:AddTab(name, icon)
+        local tab = {
+            Name = name,
+            Icon = icon,
+            Content = {}
+        }
+
+        local tabButton = Soluna.Utility.Create("TextButton", {
+            Name = "Tab_" .. name,
+            Size = UDim2.new(0, 100, 1, 0),
+            BackgroundColor3 = Soluna.Themes.Current.Secondary,
+            BackgroundTransparency = 0,
+            Text = name,
+            TextColor3 = Soluna.Themes.Current.Text,
+            Font = Enum.Font.Gotham,
+            TextSize = 14,
+            LayoutOrder = #window.Tabs + 1,
+            Parent = tabContainer
+        })
+
+        -- Add icon if provided
+        if icon then
+            -- Implementation for Lucide icons would go here
+            -- This would involve creating ImageLabels with the appropriate icons
+        end
+
+        -- Tab selection logic
+        tabButton.MouseButton1Click:Connect(function()
+            window:SetActiveTab(name)
+        end)
+
+        table.insert(window.Tabs, tab)
+        
+        if #window.Tabs == 1 then
+            window:SetActiveTab(name)
+        end
+
+        return tab
+    end
+
+    -- Set active tab function
+    function window:SetActiveTab(name)
+        for _, tab in ipairs(self.Tabs) do
+            local tabButton = tabContainer:FindFirstChild("Tab_" .. tab.Name)
+            if tabButton then
+                if tab.Name == name then
+                    tabButton.BackgroundColor3 = Soluna.Themes.Current.Primary
+                    self.ActiveTab = tab
+                    -- Show content for this tab
+                else
+                    tabButton.BackgroundColor3 = Soluna.Themes.Current.Secondary
+                    -- Hide content for other tabs
+                end
+            end
+        end
+    end
+
+    -- Minimize toggle function
+    function window:ToggleMinimize()
+        self.Minimized = not self.Minimized
+        if self.Minimized then
+            -- Tween to minimized state
+        else
+            -- Tween to normal state
+        end
+    end
+
+    -- Keybind for minimize toggle
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if not gameProcessed and input.KeyCode == window.ToggleKey then
+            window:ToggleMinimize()
+        end
+    end)
+
+    -- Make window draggable
+    local dragging
+    local dragInput
+    local dragStart
+    local startPos
+
     local function update(input)
         local delta = input.Position - dragStart
-        MainFrame.Position = UDim2.new(
-            startPos.X.Scale, 
-            startPos.X.Offset + delta.X, 
-            startPos.Y.Scale, 
-            startPos.Y.Offset + delta.Y
-        )
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
-    
-    TitleBar.InputBegan:Connect(function(input)
+
+    titleBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
             dragStart = input.Position
-            startPos = MainFrame.Position
+            startPos = mainFrame.Position
             
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
@@ -211,549 +316,505 @@ function FluentGlass:CreateWindow(options)
             end)
         end
     end)
-    
-    TitleBar.InputChanged:Connect(function(input)
+
+    titleBar.InputChanged:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement then
             dragInput = input
         end
     end)
-    
+
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             update(input)
         end
     end)
-    
-    -- Button hover animations
-    local function buttonHover(button)
-        button.MouseEnter:Connect(function()
-            Tween(button, {TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.2)
-        end)
-        
-        button.MouseLeave:Connect(function()
-            Tween(button, {TextColor3 = window.CurrentTheme.Text}, 0.2)
-        end)
-    end
-    
-    buttonHover(CloseButton)
-    buttonHover(MinimizeButton)
-    
-    -- Close button functionality
-    CloseButton.MouseButton1Click:Connect(function()
-        Tween(MainFrame, {
-            Size = UDim2.new(0, 0, 0, 0),
-            Position = UDim2.new(0.5, 0, 0.5, 0)
-        }, 0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
-        task.delay(0.3, function()
-            ScreenGui:Destroy()
-        end)
-    end)
-    
-    -- Minimize button functionality
-    local minimized = false
-    MinimizeButton.MouseButton1Click:Connect(function()
-        minimized = not minimized
-        if minimized then
-            Tween(MainFrame, {
-                Size = UDim2.new(MainFrame.Size.X.Scale, MainFrame.Size.X.Offset, 0, 80)
-            }, 0.3)
-        else
-            Tween(MainFrame, {
-                Size = window.Size
-            }, 0.3)
-        end
-    end)
 
-    function window:AddTab(options)
-        options = options or {}
-        local tab = {
-            Title = options.Title or "Tab",
-            Icon = options.Icon or ""
-        }
-
-        local TabButton = Instance.new("TextButton")
-        TabButton.Name = "TabButton_" .. tab.Title
-        TabButton.Size = UDim2.new(0, 100, 1, 0)
-        TabButton.Position = UDim2.new(0, (#TabContainer:GetChildren() - 1) * 100, 0, 0)
-        TabButton.BackgroundTransparency = 1
-        TabButton.Text = tab.Title
-        TabButton.TextColor3 = FluentGlass.Themes[window.Theme].Text
-        TabButton.TextSize = 14
-        TabButton.Font = Enum.Font.GothamSemibold
-        TabButton.ZIndex = 3
-
-        local TabContent = Instance.new("ScrollingFrame")
-        TabContent.Name = "TabContent_" .. tab.Title
-        TabContent.Size = UDim2.new(1, 0, 1, 0)
-        TabContent.Position = UDim2.new(0, 0, 0, 0)
-        TabContent.BackgroundTransparency = 1
-        TabContent.BorderSizePixel = 0
-        TabContent.ScrollBarThickness = 3
-        TabContent.ScrollBarImageColor3 = FluentGlass.Themes[window.Theme].Primary
-        TabContent.ScrollBarImageTransparency = 0.7
-        TabContent.Visible = false
-        TabContent.AutomaticCanvasSize = Enum.AutomaticSize.Y
-        TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
-        TabContent.ZIndex = 1
-
-        local UIListLayout = Instance.new("UIListLayout")
-        UIListLayout.Padding = UDim.new(0, 10)
-        UIListLayout.Parent = TabContent
-
-        TabButton.Parent = TabContainer
-        TabContent.Parent = ContentFrame
-
-        buttonHover(TabButton)
-
-        TabButton.MouseButton1Click:Connect(function()
-            for _, child in ipairs(ContentFrame:GetChildren()) do
-                if child:IsA("ScrollingFrame") then
-                    child.Visible = false
-                end
-            end
-            TabContent.Visible = true
-
-            for _, btn in ipairs(TabContainer:GetChildren()) do
-                if btn:IsA("TextButton") then
-                    Tween(btn, {TextColor3 = FluentGlass.Themes[window.Theme].SubText}, 0.2)
-                end
-            end
-            Tween(TabButton, {TextColor3 = FluentGlass.Themes[window.Theme].Primary}, 0.2)
-        end)
-
-        function tab:AddSection(options)
-            options = options or {}
-            local section = {
-                Title = options.Title or "Section"
-            }
-
-            local SectionFrame = Instance.new("Frame")
-            SectionFrame.Name = "Section_" .. section.Title
-            SectionFrame.Size = UDim2.new(1, -20, 0, 0)
-            SectionFrame.AutomaticSize = Enum.AutomaticSize.Y
-            SectionFrame.BackgroundColor3 = FluentGlass.Themes[window.Theme].Secondary
-            SectionFrame.BackgroundTransparency = 0.7
-            SectionFrame.BorderSizePixel = 0
-            SectionFrame.ZIndex = 2
-
-            local UICorner = Instance.new("UICorner")
-            UICorner.CornerRadius = UDim.new(0, 6)
-            UICorner.Parent = SectionFrame
-
-            local UIStroke = Instance.new("UIStroke")
-            UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            UIStroke.Color = Color3.fromRGB(255, 255, 255)
-            UIStroke.Transparency = 0.9
-            UIStroke.Thickness = 1
-            UIStroke.Parent = SectionFrame
-
-            local SectionTitle = Instance.new("TextLabel")
-            SectionTitle.Name = "SectionTitle"
-            SectionTitle.Size = UDim2.new(1, -20, 0, 30)
-            SectionTitle.Position = UDim2.new(0, 10, 0, 0)
-            SectionTitle.BackgroundTransparency = 1
-            SectionTitle.Text = section.Title
-            SectionTitle.TextColor3 = FluentGlass.Themes[window.Theme].Text
-            SectionTitle.TextSize = 16
-            SectionTitle.TextXAlignment = Enum.TextXAlignment.Left
-            SectionTitle.Font = Enum.Font.GothamSemibold
-            SectionTitle.ZIndex = 3
-
-            local SectionContent = Instance.new("Frame")
-            SectionContent.Name = "SectionContent"
-            SectionContent.Size = UDim2.new(1, -20, 0, 0)
-            SectionContent.Position = UDim2.new(0, 10, 0, 30)
-            SectionContent.AutomaticSize = Enum.AutomaticSize.Y
-            SectionContent.BackgroundTransparency = 1
-            SectionContent.BorderSizePixel = 0
-            SectionContent.ZIndex = 2
-
-            local UIListLayout = Instance.new("UIListLayout")
-            UIListLayout.Padding = UDim.new(0, 10)
-            UIListLayout.Parent = SectionContent
-
-            SectionTitle.Parent = SectionFrame
-            SectionContent.Parent = SectionFrame
-            SectionFrame.Parent = TabContent
-
-            function section:AddButton(options)
-                options = options or {}
-                local button = {
-                    Title = options.Title or "Button",
-                    Description = options.Description or "",
-                    Callback = options.Callback or function() end
-                }
-
-                local ButtonFrame = Instance.new("Frame")
-                ButtonFrame.Name = "Button_" .. button.Title
-                ButtonFrame.Size = UDim2.new(1, 0, 0, 40)
-                ButtonFrame.BackgroundColor3 = FluentGlass.Themes[window.Theme].Secondary
-                ButtonFrame.BackgroundTransparency = 0.8
-                ButtonFrame.BorderSizePixel = 0
-                ButtonFrame.ZIndex = 3
-
-                local UICorner = Instance.new("UICorner")
-                UICorner.CornerRadius = UDim.new(0, 4)
-                UICorner.Parent = ButtonFrame
-
-                local ButtonTitle = Instance.new("TextLabel")
-                ButtonTitle.Name = "ButtonTitle"
-                ButtonTitle.Size = UDim2.new(1, -20, 0.5, 0)
-                ButtonTitle.Position = UDim2.new(0, 10, 0, 0)
-                ButtonTitle.BackgroundTransparency = 1
-                ButtonTitle.Text = button.Title
-                ButtonTitle.TextColor3 = FluentGlass.Themes[window.Theme].Text
-                ButtonTitle.TextSize = 14
-                ButtonTitle.TextXAlignment = Enum.TextXAlignment.Left
-                ButtonTitle.Font = Enum.Font.GothamSemibold
-                ButtonTitle.ZIndex = 4
-
-                local ButtonDesc = Instance.new("TextLabel")
-                ButtonDesc.Name = "ButtonDesc"
-                ButtonDesc.Size = UDim2.new(1, -20, 0.5, 0)
-                ButtonDesc.Position = UDim2.new(0, 10, 0.5, 0)
-                ButtonDesc.BackgroundTransparency = 1
-                ButtonDesc.Text = button.Description
-                ButtonDesc.TextColor3 = FluentGlass.Themes[window.Theme].SubText
-                ButtonDesc.TextSize = 12
-                ButtonDesc.TextXAlignment = Enum.TextXAlignment.Left
-                ButtonDesc.Font = Enum.Font.Gotham
-                ButtonDesc.ZIndex = 4
-
-                local ButtonHighlight = Instance.new("Frame")
-                ButtonHighlight.Name = "ButtonHighlight"
-                ButtonHighlight.Size = UDim2.new(1, 0, 1, 0)
-                ButtonHighlight.BackgroundTransparency = 1
-                ButtonHighlight.BackgroundColor3 = FluentGlass.Themes[window.Theme].Primary
-                ButtonHighlight.BackgroundTransparency = 1
-                ButtonHighlight.BorderSizePixel = 0
-                ButtonHighlight.ZIndex = 3
-
-                local UICorner = Instance.new("UICorner")
-                UICorner.CornerRadius = UDim.new(0, 4)
-                UICorner.Parent = ButtonHighlight
-
-                local ButtonClick = Instance.new("TextButton")
-                ButtonClick.Name = "ButtonClick"
-                ButtonClick.Size = UDim2.new(1, 0, 1, 0)
-                ButtonClick.BackgroundTransparency = 1
-                ButtonClick.Text = ""
-                ButtonClick.ZIndex = 5
-
-                ButtonTitle.Parent = ButtonFrame
-                ButtonDesc.Parent = ButtonFrame
-                ButtonHighlight.Parent = ButtonFrame
-                ButtonClick.Parent = ButtonFrame
-                ButtonFrame.Parent = SectionContent
-
-                ButtonClick.MouseEnter:Connect(function()
-                    Tween(ButtonHighlight, {BackgroundTransparency = 0.9}, 0.2)
-                end)
-
-                ButtonClick.MouseLeave:Connect(function()
-                    Tween(ButtonHighlight, {BackgroundTransparency = 1}, 0.2)
-                end)
-
-                ButtonClick.MouseButton1Down:Connect(function()
-                    Tween(ButtonHighlight, {BackgroundTransparency = 0.8}, 0.1)
-                end)
-
-                ButtonClick.MouseButton1Up:Connect(function()
-                    Tween(ButtonHighlight, {BackgroundTransparency = 0.9}, 0.1)
-                    button.Callback()
-                end)
-
-                return button
-            end
-
-            function section:AddToggle(options)
-                options = options or {}
-                local toggle = {
-                    Title = options.Title or "Toggle",
-                    Description = options.Description or "",
-                    Default = options.Default or false,
-                    Callback = options.Callback or function() end
-                }
-
-                local ToggleFrame = Instance.new("Frame")
-                ToggleFrame.Name = "Toggle_" .. toggle.Title
-                ToggleFrame.Size = UDim2.new(1, 0, 0, 40)
-                ToggleFrame.BackgroundTransparency = 1
-                ToggleFrame.BorderSizePixel = 0
-                ToggleFrame.ZIndex = 3
-
-                local ToggleTitle = Instance.new("TextLabel")
-                ToggleTitle.Name = "ToggleTitle"
-                ToggleTitle.Size = UDim2.new(1, -60, 0.5, 0)
-                ToggleTitle.Position = UDim2.new(0, 10, 0, 0)
-                ToggleTitle.BackgroundTransparency = 1
-                ToggleTitle.Text = toggle.Title
-                ToggleTitle.TextColor3 = FluentGlass.Themes[window.Theme].Text
-                ToggleTitle.TextSize = 14
-                ToggleTitle.TextXAlignment = Enum.TextXAlignment.Left
-                ToggleTitle.Font = Enum.Font.GothamSemibold
-                ToggleTitle.ZIndex = 4
-
-                local ToggleDesc = Instance.new("TextLabel")
-                ToggleDesc.Name = "ToggleDesc"
-                ToggleDesc.Size = UDim2.new(1, -60, 0.5, 0)
-                ToggleDesc.Position = UDim2.new(0, 10, 0.5, 0)
-                ToggleDesc.BackgroundTransparency = 1
-                ToggleDesc.Text = toggle.Description
-                ToggleDesc.TextColor3 = FluentGlass.Themes[window.Theme].SubText
-                ToggleDesc.TextSize = 12
-                ToggleDesc.TextXAlignment = Enum.TextXAlignment.Left
-                ToggleDesc.Font = Enum.Font.Gotham
-                ToggleDesc.ZIndex = 4
-
-                local ToggleSwitch = Instance.new("Frame")
-                ToggleSwitch.Name = "ToggleSwitch"
-                ToggleSwitch.Size = UDim2.new(0, 40, 0, 20)
-                ToggleSwitch.Position = UDim2.new(1, -50, 0.5, -10)
-                ToggleSwitch.BackgroundColor3 = FluentGlass.Themes[window.Theme].Secondary
-                ToggleSwitch.BackgroundTransparency = 0.7
-                ToggleSwitch.BorderSizePixel = 0
-                ToggleSwitch.ZIndex = 4
-
-                local UICorner = Instance.new("UICorner")
-                UICorner.CornerRadius = UDim.new(1, 0)
-                UICorner.Parent = ToggleSwitch
-
-                local ToggleKnob = Instance.new("Frame")
-                ToggleKnob.Name = "ToggleKnob"
-                ToggleKnob.Size = UDim2.new(0, 16, 0, 16)
-                ToggleKnob.Position = UDim2.new(0, 2, 0.5, -8)
-                ToggleKnob.BackgroundColor3 = FluentGlass.Themes[window.Theme].Text
-                ToggleKnob.BorderSizePixel = 0
-                ToggleKnob.ZIndex = 5
-
-                local UICorner = Instance.new("UICorner")
-                UICorner.CornerRadius = UDim.new(1, 0)
-                UICorner.Parent = ToggleKnob
-
-                local ToggleClick = Instance.new("TextButton")
-                ToggleClick.Name = "ToggleClick"
-                ToggleClick.Size = UDim2.new(1, 0, 1, 0)
-                ToggleClick.BackgroundTransparency = 1
-                ToggleClick.Text = ""
-                ToggleClick.ZIndex = 6
-
-                local state = toggle.Default
-                if state then
-                    Tween(ToggleSwitch, {BackgroundColor3 = FluentGlass.Themes[window.Theme].Primary}, 0.1)
-                    Tween(ToggleKnob, {Position = UDim2.new(1, -18, 0.5, -8)}, 0.1)
-                end
-
-                ToggleTitle.Parent = ToggleFrame
-                ToggleDesc.Parent = ToggleFrame
-                ToggleSwitch.Parent = ToggleFrame
-                ToggleKnob.Parent = ToggleSwitch
-                ToggleClick.Parent = ToggleFrame
-                ToggleFrame.Parent = SectionContent
-
-                ToggleClick.MouseButton1Click:Connect(function()
-                    state = not state
-                    if state then
-                        Tween(ToggleSwitch, {BackgroundColor3 = FluentGlass.Themes[window.Theme].Primary}, 0.2)
-                        Tween(ToggleKnob, {Position = UDim2.new(1, -18, 0.5, -8)}, 0.2)
-                    else
-                        Tween(ToggleSwitch, {BackgroundColor3 = FluentGlass.Themes[window.Theme].Secondary}, 0.2)
-                        Tween(ToggleKnob, {Position = UDim2.new(0, 2, 0.5, -8)}, 0.2)
-                    end
-                    toggle.Callback(state)
-                end)
-
-                function toggle:SetValue(newState)
-                    state = newState
-                    if state then
-                        Tween(ToggleSwitch, {BackgroundColor3 = FluentGlass.Themes[window.Theme].Primary}, 0.2)
-                        Tween(ToggleKnob, {Position = UDim2.new(1, -18, 0.5, -8)}, 0.2)
-                    else
-                        Tween(ToggleSwitch, {BackgroundColor3 = FluentGlass.Themes[window.Theme].Secondary}, 0.2)
-                        Tween(ToggleKnob, {Position = UDim2.new(0, 2, 0.5, -8)}, 0.2)
-                    end
-                    toggle.Callback(state)
-                end
-
-                function toggle:GetValue()
-                    return state
-                end
-
-                return toggle
-            end
-
-            return section
-        end
-
-        if #TabContainer:GetChildren() == 1 then
-            TabButton.TextColor3 = FluentGlass.Themes[window.Theme].Primary
-            TabContent.Visible = true
-        end
-
-        return tab
-    end
-
-    function window:SetTheme(themeName)
-        if FluentGlass.Themes[themeName] then
-            window.CurrentTheme = FluentGlass.Themes[themeName]
-            -- Update all UI elements with new theme colors
-            TitleBar.Gradient.Color = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, window.CurrentTheme.Primary),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(
-                    math.floor(window.CurrentTheme.Primary.R * 255 * 0.8),
-                    math.floor(window.CurrentTheme.Primary.G * 255 * 0.8),
-                    math.floor(window.CurrentTheme.Primary.B * 255 * 0.8)
-                ))
-            })
-            TitleLabel.TextColor3 = window.CurrentTheme.Text
-            SubTitleLabel.TextColor3 = window.CurrentTheme.SubText
-            CloseButton.TextColor3 = window.CurrentTheme.Text
-            MinimizeButton.TextColor3 = window.CurrentTheme.Text
-            MainFrame.BackgroundColor3 = window.CurrentTheme.Secondary
-        end
-    end
-    
-    function window:ToggleAcrylic(enabled)
-        window.Acrylic = enabled
-        if ScreenGui:FindFirstChild("AcrylicBlur") then
-            ScreenGui.AcrylicBlur.Enabled = enabled
-        end
-    end
-    
-    function window:Destroy()
-        ScreenGui:Destroy()
-    end
-    
     return window
 end
 
-function FluentGlass:Notify(options)
-    options = options or {}
-    local notification = {
-        Title = options.Title or "Notification",
-        Content = options.Content or "This is a notification",
-        Duration = options.Duration or 5,
-        Theme = options.Theme or "Dark"
+-- Button component
+function Soluna.Components.Button(options)
+    local button = {
+        Text = options.Text or "Button",
+        Callback = options.Callback or function() end,
+        Dialog = options.Dialog or nil,
+        Parent = options.Parent or error("Button must have a parent")
     }
-    
-    local currentTheme = FluentGlass.Themes[notification.Theme]
-    
-    -- Create notification GUI
-    local NotifGui = Instance.new("ScreenGui")
-    NotifGui.Name = "Notification_"..tostring(math.random(1000,9999))
-    NotifGui.Parent = game:GetService("CoreGui")
-    
-    -- Main frame with glass effect
-    local MainFrame = Instance.new("Frame")
-    MainFrame.Name = "MainFrame"
-    MainFrame.Size = UDim2.new(0, 300, 0, 0)
-    MainFrame.Position = UDim2.new(1, -320, 1, -80)
-    MainFrame.AnchorPoint = Vector2.new(1, 1)
-    MainFrame.BackgroundColor3 = currentTheme.Secondary
-    MainFrame.BackgroundTransparency = 0.5
-    MainFrame.BorderSizePixel = 0
-    MainFrame.ClipsDescendants = true
-    MainFrame.ZIndex = 10
-    
-    -- Glass effect elements
-    local UICorner = Instance.new("UICorner")
-    UICorner.CornerRadius = UDim.new(0, 8)
-    UICorner.Parent = MainFrame
-    
-    local UIStroke = Instance.new("UIStroke")
-    UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    UIStroke.Color = Color3.fromRGB(255, 255, 255)
-    UIStroke.Transparency = 0.9
-    UIStroke.Thickness = 1
-    UIStroke.Parent = MainFrame
-    
-    -- Title label
-    local TitleLabel = Instance.new("TextLabel")
-    TitleLabel.Name = "TitleLabel"
-    TitleLabel.Size = UDim2.new(1, -20, 0, 20)
-    TitleLabel.Position = UDim2.new(0, 15, 0, 10)
-    TitleLabel.BackgroundTransparency = 1
-    TitleLabel.Text = notification.Title
-    TitleLabel.TextColor3 = currentTheme.Text
-    TitleLabel.TextSize = 16
-    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    TitleLabel.Font = Enum.Font.GothamSemibold
-    TitleLabel.ZIndex = 11
-    
-    -- Content label
-    local ContentLabel = Instance.new("TextLabel")
-    ContentLabel.Name = "ContentLabel"
-    ContentLabel.Size = UDim2.new(1, -20, 0, 0)
-    ContentLabel.Position = UDim2.new(0, 15, 0, 35)
-    ContentLabel.AutomaticSize = Enum.AutomaticSize.Y
-    ContentLabel.BackgroundTransparency = 1
-    ContentLabel.Text = notification.Content
-    ContentLabel.TextColor3 = currentTheme.SubText
-    ContentLabel.TextSize = 14
-    ContentLabel.TextXAlignment = Enum.TextXAlignment.Left
-    ContentLabel.TextYAlignment = Enum.TextYAlignment.Top
-    ContentLabel.Font = Enum.Font.Gotham
-    ContentLabel.ZIndex = 11
-    
-    -- Progress bar
-    local ProgressBar = Instance.new("Frame")
-    ProgressBar.Name = "ProgressBar"
-    ProgressBar.Size = UDim2.new(1, 0, 0, 2)
-    ProgressBar.Position = UDim2.new(0, 0, 1, -2)
-    ProgressBar.BackgroundColor3 = currentTheme.Primary
-    ProgressBar.BorderSizePixel = 0
-    ProgressBar.ZIndex = 11
-    
-    -- Assemble notification
-    TitleLabel.Parent = MainFrame
-    ContentLabel.Parent = MainFrame
-    ProgressBar.Parent = MainFrame
-    MainFrame.Parent = NotifGui
-    
-    -- Calculate content height
-    local textBounds = TextService:GetTextSize(
-        ContentLabel.Text,
-        ContentLabel.TextSize,
-        ContentLabel.Font,
-        Vector2.new(ContentLabel.AbsoluteSize.X, math.huge)
-    )
-    local contentHeight = math.max(textBounds.Y + 55, 80)
-    
-    -- Animate in
-    Tween(MainFrame, {
-        Size = UDim2.new(0, 300, 0, contentHeight)
-    }, 0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-    
-    -- Animate progress bar if duration is set
-    if notification.Duration then
-        Tween(ProgressBar, {
-            Size = UDim2.new(0, 0, 0, 2)
-        }, notification.Duration, Enum.EasingStyle.Linear)
-        
-        -- Auto-close after duration
-        task.delay(notification.Duration, function()
-            Tween(MainFrame, {
-                Size = UDim2.new(0, 300, 0, 0)
-            }, 0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
-            task.delay(0.3, function()
-                NotifGui:Destroy()
-            end)
-        end)
-    end
-    
-    -- Click to close
-    MainFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            Tween(MainFrame, {
-                Size = UDim2.new(0, 300, 0, 0)
-            }, 0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
-            task.delay(0.3, function()
-                NotifGui:Destroy()
-            end)
+
+    local buttonFrame = Soluna.Utility.Create("TextButton", {
+        Name = "Button_" .. button.Text,
+        Size = UDim2.new(1, 0, 0, 40),
+        BackgroundColor3 = Soluna.Themes.Current.Primary,
+        BackgroundTransparency = 0,
+        Text = button.Text,
+        TextColor3 = Soluna.Themes.Current.Text,
+        Font = Enum.Font.Gotham,
+        TextSize = 14,
+        Parent = button.Parent
+    })
+
+    -- Button effects
+    buttonFrame.MouseEnter:Connect(function()
+        TweenService:Create(buttonFrame, TweenInfo.new(0.1), {
+            BackgroundColor3 = Color3.new(
+                math.clamp(Soluna.Themes.Current.Primary.R * 1.2, 0, 1),
+                math.clamp(Soluna.Themes.Current.Primary.G * 1.2, 0, 1),
+                math.clamp(Soluna.Themes.Current.Primary.B * 1.2, 0, 1)
+            )
+        }):Play()
+    end)
+
+    buttonFrame.MouseLeave:Connect(function()
+        TweenService:Create(buttonFrame, TweenInfo.new(0.1), {
+            BackgroundColor3 = Soluna.Themes.Current.Primary
+        }):Play()
+    end)
+
+    -- Button click handler
+    buttonFrame.MouseButton1Click:Connect(function()
+        if button.Dialog then
+            -- Show dialog confirmation
+            Soluna.Components.Dialog({
+                Title = button.Dialog.Title or "Confirm",
+                Content = button.Dialog.Content or "Are you sure?",
+                OnConfirm = function()
+                    button.Callback()
+                end,
+                OnCancel = button.Dialog.OnCancel or function() end
+            })
+        else
+            button.Callback()
         end
     end)
-    
-    return notification
+
+    return button
 end
 
-return FluentGlass
+-- Toggle component
+function Soluna.Components.Toggle(options)
+    local toggle = {
+        Text = options.Text or "Toggle",
+        Default = options.Default or false,
+        Callback = options.Callback or function() end,
+        Parent = options.Parent or error("Toggle must have a parent"),
+        Value = options.Default or false
+    }
+
+    local toggleFrame = Soluna.Utility.Create("Frame", {
+        Name = "Toggle_" .. toggle.Text,
+        Size = UDim2.new(1, 0, 0, 40),
+        BackgroundTransparency = 1,
+        Parent = toggle.Parent
+    })
+
+    local toggleText = Soluna.Utility.Create("TextLabel", {
+        Name = "ToggleText",
+        Size = UDim2.new(0.7, 0, 1, 0),
+        BackgroundTransparency = 1,
+        Text = toggle.Text,
+        TextColor3 = Soluna.Themes.Current.Text,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Font = Enum.Font.Gotham,
+        TextSize = 14,
+        Parent = toggleFrame
+    })
+
+    local toggleSwitch = Soluna.Utility.Create("Frame", {
+        Name = "ToggleSwitch",
+        Size = UDim2.new(0, 50, 0, 25),
+        Position = UDim2.new(1, -60, 0.5, -12.5),
+        BackgroundColor3 = Soluna.Themes.Current.Secondary,
+        Parent = toggleFrame
+    })
+
+    local toggleCircle = Soluna.Utility.Create("Frame", {
+        Name = "ToggleCircle",
+        Size = UDim2.new(0, 21, 0, 21),
+        Position = UDim2.new(0, toggle.Default and 25 or 2, 0.5, -10.5),
+        BackgroundColor3 = toggle.Default and Soluna.Themes.Current.Primary or Color3.new(0.5, 0.5, 0.5),
+        AnchorPoint = Vector2.new(0, 0.5),
+        Parent = toggleSwitch
+    })
+
+    -- Update toggle visual state
+    local function updateToggle()
+        local targetPosition = toggle.Value and 25 or 2
+        local targetColor = toggle.Value and Soluna.Themes.Current.Primary or Color3.new(0.5, 0.5, 0.5)
+        
+        TweenService:Create(toggleCircle, TweenInfo.new(0.2), {
+            Position = UDim2.new(0, targetPosition, 0.5, -10.5),
+            BackgroundColor3 = targetColor
+        }):Play()
+    end
+
+    -- Toggle click handler
+    toggleSwitch.MouseButton1Click:Connect(function()
+        toggle.Value = not toggle.Value
+        updateToggle()
+        toggle.Callback(toggle.Value)
+    end)
+
+    -- Programmatic value setter
+    function toggle:SetValue(value)
+        if type(value) == "boolean" then
+            self.Value = value
+            updateToggle()
+        end
+    end
+
+    return toggle
+end
+
+-- Slider component
+function Soluna.Components.Slider(options)
+    local slider = {
+        Text = options.Text or "Slider",
+        Min = options.Min or 0,
+        Max = options.Max or 100,
+        Default = options.Default or 50,
+        Rounding = options.Rounding or 0,
+        Callback = options.Callback or function() end,
+        Parent = options.Parent or error("Slider must have a parent"),
+        Value = options.Default or 50
+    }
+
+    local sliderFrame = Soluna.Utility.Create("Frame", {
+        Name = "Slider_" .. slider.Text,
+        Size = UDim2.new(1, 0, 0, 60),
+        BackgroundTransparency = 1,
+        Parent = slider.Parent
+    })
+
+    local sliderText = Soluna.Utility.Create("TextLabel", {
+        Name = "SliderText",
+        Size = UDim2.new(1, 0, 0, 20),
+        BackgroundTransparency = 1,
+        Text = slider.Text .. ": " .. slider.Value,
+        TextColor3 = Soluna.Themes.Current.Text,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Font = Enum.Font.Gotham,
+        TextSize = 14,
+        Parent = sliderFrame
+    })
+
+    local sliderTrack = Soluna.Utility.Create("Frame", {
+        Name = "SliderTrack",
+        Size = UDim2.new(1, 0, 0, 5),
+        Position = UDim2.new(0, 0, 0, 30),
+        BackgroundColor3 = Soluna.Themes.Current.Secondary,
+        Parent = sliderFrame
+    })
+
+    local sliderFill = Soluna.Utility.Create("Frame", {
+        Name = "SliderFill",
+        Size = UDim2.new((slider.Value - slider.Min) / (slider.Max - slider.Min), 0, 1, 0),
+        BackgroundColor3 = Soluna.Themes.Current.Primary,
+        Parent = sliderTrack
+    })
+
+    local sliderHandle = Soluna.Utility.Create("Frame", {
+        Name = "SliderHandle",
+        Size = UDim2.new(0, 15, 0, 15),
+        Position = UDim2.new((slider.Value - slider.Min) / (slider.Max - slider.Min), -7.5, 0.5, -7.5),
+        BackgroundColor3 = Soluna.Themes.Current.Accent,
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Parent = sliderTrack
+    })
+
+    -- Slider interaction logic
+    local dragging = false
+
+    local function updateSlider(value)
+        local roundedValue = slider.Rounding > 0 and math.floor((value / slider.Rounding) + 0.5) * slider.Rounding or value
+        roundedValue = math.clamp(roundedValue, slider.Min, slider.Max)
+        
+        slider.Value = roundedValue
+        sliderText.Text = slider.Text .. ": " .. roundedValue
+        
+        local fillWidth = (roundedValue - slider.Min) / (slider.Max - slider.Min)
+        sliderFill.Size = UDim2.new(fillWidth, 0, 1, 0)
+        sliderHandle.Position = UDim2.new(fillWidth, -7.5, 0.5, -7.5)
+        
+        slider.Callback(roundedValue)
+    end
+
+    sliderTrack.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            local relativeX = (input.Position.X - sliderTrack.AbsolutePosition.X) / sliderTrack.AbsoluteSize.X
+            local value = slider.Min + (slider.Max - slider.Min) * relativeX
+            updateSlider(value)
+        end
+    end)
+
+    sliderTrack.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local relativeX = (input.Position.X - sliderTrack.AbsolutePosition.X) / sliderTrack.AbsoluteSize.X
+            local value = slider.Min + (slider.Max - slider.Min) * math.clamp(relativeX, 0, 1)
+            updateSlider(value)
+        end
+    end)
+
+    -- Programmatic value setter
+    function slider:SetValue(value)
+        updateSlider(value)
+    end
+
+    return slider
+end
+
+-- Dropdown component
+function Soluna.Components.Dropdown(options)
+    local dropdown = {
+        Text = options.Text or "Dropdown",
+        Options = options.Options or {"Option 1", "Option 2", "Option 3"},
+        MultiSelect = options.MultiSelect or false,
+        Default = options.Default or (options.MultiSelect and {} or options.Options[1]),
+        Callback = options.Callback or function() end,
+        Parent = options.Parent or error("Dropdown must have a parent"),
+        Selected = options.Default or (options.MultiSelect and {} or options.Options[1]),
+        Open = false
+    }
+
+    local dropdownFrame = Soluna.Utility.Create("Frame", {
+        Name = "Dropdown_" .. dropdown.Text,
+        Size = UDim2.new(1, 0, 0, 40),
+        BackgroundTransparency = 1,
+        Parent = dropdown.Parent
+    })
+
+    local dropdownButton = Soluna.Utility.Create("TextButton", {
+        Name = "DropdownButton",
+        Size = UDim2.new(1, 0, 0, 40),
+        BackgroundColor3 = Soluna.Themes.Current.Secondary,
+        Text = dropdown.Text .. ": " .. (dropdown.MultiSelect and "Select" or tostring(dropdown.Selected)),
+        TextColor3 = Soluna.Themes.Current.Text,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Font = Enum.Font.Gotham,
+        TextSize = 14,
+        Parent = dropdownFrame
+    })
+
+    local dropdownList = Soluna.Utility.Create("Frame", {
+        Name = "DropdownList",
+        Size = UDim2.new(1, 0, 0, 0),
+        Position = UDim2.new(0, 0, 1, 5),
+        BackgroundColor3 = Soluna.Themes.Current.Background,
+        BackgroundTransparency = 0,
+        Visible = false,
+        ClipsDescendants = true,
+        Parent = dropdownFrame
+    })
+
+    local dropdownListLayout = Soluna.Utility.Create("UIListLayout", {
+        Name = "DropdownListLayout",
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Parent = dropdownList
+    })
+
+    -- Toggle dropdown visibility
+    local function toggleDropdown()
+        dropdown.Open = not dropdown.Open
+        dropdownList.Visible = dropdown.Open
+        
+        if dropdown.Open then
+            local height = 0
+            for _, option in ipairs(dropdown.Options) do
+                height = height + 30
+            end
+            dropdownList.Size = UDim2.new(1, 0, 0, math.min(height, 150))
+        end
+    end
+
+    dropdownButton.MouseButton1Click:Connect(toggleDropdown)
+
+    -- Populate dropdown options
+    local function populateOptions()
+        for _, option in ipairs(dropdown.Options) do
+            local optionFrame = Soluna.Utility.Create("TextButton", {
+                Name = "Option_" .. option,
+                Size = UDim2.new(1, 0, 0, 30),
+                BackgroundColor3 = Soluna.Themes.Current.Secondary,
+                Text = option,
+                TextColor3 = Soluna.Themes.Current.Text,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Font = Enum.Font.Gotham,
+                TextSize = 14,
+                LayoutOrder = _,
+                Parent = dropdownList
+            })
+
+            if dropdown.MultiSelect then
+                local checkbox = Soluna.Utility.Create("Frame", {
+                    Name = "Checkbox",
+                    Size = UDim2.new(0, 20, 0, 20),
+                    Position = UDim2.new(1, -25, 0.5, -10),
+                    BackgroundColor3 = table.find(dropdown.Selected, option) and Soluna.Themes.Current.Primary or Soluna.Themes.Current.Secondary,
+                    Parent = optionFrame
+                })
+
+                optionFrame.MouseButton1Click:Connect(function()
+                    if table.find(dropdown.Selected, option) then
+                        table.remove(dropdown.Selected, table.find(dropdown.Selected, option))
+                        checkbox.BackgroundColor3 = Soluna.Themes.Current.Secondary
+                    else
+                        table.insert(dropdown.Selected, option)
+                        checkbox.BackgroundColor3 = Soluna.Themes.Current.Primary
+                    end
+                    dropdownButton.Text = dropdown.Text .. ": " .. (#dropdown.Selected > 0 and table.concat(dropdown.Selected, ", ") or "Select")
+                    dropdown.Callback(dropdown.Selected)
+                end)
+            else
+                optionFrame.MouseButton1Click:Connect(function()
+                    dropdown.Selected = option
+                    dropdownButton.Text = dropdown.Text .. ": " .. option
+                    dropdown.Callback(option)
+                    toggleDropdown()
+                end)
+            end
+        end
+    end
+
+    populateOptions()
+
+    -- Close dropdown when clicking outside
+    UserInputService.InputBegan:Connect(function(input, processed)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 and dropdown.Open then
+            if not dropdownList:IsDescendantOf(input:GetMouseTarget()) and not dropdownButton:IsDescendantOf(input:GetMouseTarget()) then
+                toggleDropdown()
+            end
+        end
+    end)
+
+    -- Programmatic value setter
+    function dropdown:SetSelected(value)
+        if dropdown.MultiSelect then
+            if type(value) == "table" then
+                dropdown.Selected = value
+                -- Update UI
+            end
+        else
+            if table.find(dropdown.Options, value) then
+                dropdown.Selected = value
+                dropdownButton.Text = dropdown.Text .. ": " .. value
+            end
+        end
+    end
+
+    return dropdown
+end
+
+-- Notification system
+function Soluna.Components.Notify(options)
+    local notification = {
+        Title = options.Title or "Notification",
+        Content = options.Content or "",
+        SubContent = options.SubContent or "",
+        Duration = options.Duration or 5,
+        Persistent = options.Persistent or false,
+        Type = options.Type or "Info" -- "Info", "Success", "Warning", "Error"
+    }
+
+    -- Create notification UI
+    local screenGui = Soluna.Utility.Create("ScreenGui", {
+        Name = "SolunaNotification_" .. notification.Title,
+        ResetOnSpawn = false
+    })
+
+    local mainFrame = Soluna.Utility.Create("Frame", {
+        Name = "NotificationFrame",
+        Size = UDim2.new(0, 300, 0, 100),
+        Position = UDim2.new(1, -320, 1, -120),
+        BackgroundColor3 = Soluna.Themes.Current.Background,
+        BackgroundTransparency = 0,
+        AnchorPoint = Vector2.new(1, 1),
+        Parent = screenGui
+    })
+
+    -- Add title
+    local titleText = Soluna.Utility.Create("TextLabel", {
+        Name = "TitleText",
+        Size = UDim2.new(1, -40, 0, 30),
+        Position = UDim2.new(0, 10, 0, 10),
+        BackgroundTransparency = 1,
+        Text = notification.Title,
+        TextColor3 = Soluna.Themes.Current.Text,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Font = Enum.Font.GothamBold,
+        TextSize = 16,
+        Parent = mainFrame
+    })
+
+    -- Add content
+    local contentText = Soluna.Utility.Create("TextLabel", {
+        Name = "ContentText",
+        Size = UDim2.new(1, -20, 0, 30),
+        Position = UDim2.new(0, 10, 0, 40),
+        BackgroundTransparency = 1,
+        Text = notification.Content,
+        TextColor3 = Soluna.Themes.Current.Text,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Font = Enum.Font.Gotham,
+        TextSize = 14,
+        Parent = mainFrame
+    })
+
+    -- Add sub-content if exists
+    if notification.SubContent ~= "" then
+        local subContentText = Soluna.Utility.Create("TextLabel", {
+            Name = "SubContentText",
+            Size = UDim2.new(1, -20, 0, 20),
+            Position = UDim2.new(0, 10, 0, 70),
+            BackgroundTransparency = 1,
+            Text = notification.SubContent,
+            TextColor3 = Color3.new(0.7, 0.7, 0.7),
+            TextXAlignment = Enum.TextXAlignment.Left,
+            Font = Enum.Font.Gotham,
+            TextSize = 12,
+            Parent = mainFrame
+        })
+    end
+
+    -- Add close button
+    local closeButton = Soluna.Utility.Create("TextButton", {
+        Name = "CloseButton",
+        Size = UDim2.new(0, 30, 0, 30),
+        Position = UDim2.new(1, -30, 0, 0),
+        BackgroundTransparency = 1,
+        Text = "X",
+        TextColor3 = Soluna.Themes.Current.Text,
+        Font = Enum.Font.GothamBold,
+        TextSize = 16,
+        Parent = mainFrame
+    })
+
+    closeButton.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+    end)
+
+    -- Auto-close if not persistent
+    if not notification.Persistent then
+        task.delay(notification.Duration, function()
+            if screenGui and screenGui.Parent then
+                screenGui:Destroy()
+            end
+        end)
+    end
+
+    return {
+        Close = function()
+            if screenGui and screenGui.Parent then
+                screenGui:Destroy()
+            end
+        end
+    }
+end
+
+-- Initialize the library
+return Soluna
