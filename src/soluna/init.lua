@@ -1,16 +1,16 @@
---[[
+--[[ 
     Soluna UI Library
     A modern, elegant UI library for Roblox exploits
 ]]
 
--- Local imports
-local function ImportLocal(path)
+-- Load components using loadstring
+local function LoadComponent(url)
     local success, result = pcall(function()
-        return require(path)
+        return loadstring(game:HttpGet(url))()
     end)
     
     if not success then
-        warn("Failed to import: " .. path)
+        warn("Failed to load component from: " .. url)
         warn("Error: " .. tostring(result))
         return {}
     end
@@ -19,27 +19,37 @@ local function ImportLocal(path)
 end
 
 local components = {
-    Window = ImportLocal("soluna/components/window"),
-    Tab = ImportLocal("soluna/components/tab"),
-    Notification = ImportLocal("soluna/components/notification"),
-    Button = ImportLocal("soluna/components/button"),
-    Toggle = ImportLocal("soluna/components/toggle"),
-    Slider = ImportLocal("soluna/components/slider"),
-    Dropdown = ImportLocal("soluna/components/dropdown"),
-    ColorPicker = ImportLocal("soluna/components/colorpicker"),
-    Keybind = ImportLocal("soluna/components/keybind"),
-    Input = ImportLocal("soluna/components/input"),
-    Paragraph = ImportLocal("soluna/components/paragraph"),
+    Window = LoadComponent("https://raw.githubusercontent.com/Patheticcs/Soluna-API/main/components/window.lua"),
+    Tab = LoadComponent("https://raw.githubusercontent.com/Patheticcs/Soluna-API/main/components/tab.lua"),
+    Notification = LoadComponent("https://raw.githubusercontent.com/Patheticcs/Soluna-API/main/components/notification.lua"),
+    Button = LoadComponent("https://raw.githubusercontent.com/Patheticcs/Soluna-API/main/components/button.lua"),
+    Toggle = LoadComponent("https://raw.githubusercontent.com/Patheticcs/Soluna-API/main/components/toggle.lua"),
+    Slider = LoadComponent("https://raw.githubusercontent.com/Patheticcs/Soluna-API/main/components/slider.lua"),
+    Dropdown = LoadComponent("https://raw.githubusercontent.com/Patheticcs/Soluna-API/main/components/dropdown.lua"),
+    ColorPicker = LoadComponent("https://raw.githubusercontent.com/Patheticcs/Soluna-API/main/components/colorpicker.lua"),
+    Keybind = LoadComponent("https://raw.githubusercontent.com/Patheticcs/Soluna-API/main/components/keybind.lua"),
+    Input = LoadComponent("https://raw.githubusercontent.com/Patheticcs/Soluna-API/main/components/input.lua"),
+    Paragraph = LoadComponent("https://raw.githubusercontent.com/Patheticcs/Soluna-API/main/components/paragraph.lua")
 }
 
 local managers = {
-    SaveManager = ImportLocal("soluna/managers/savemanager"),
-    InterfaceManager = ImportLocal("soluna/managers/interfacemanager"),
+    SaveManager = LoadComponent("https://raw.githubusercontent.com/Patheticcs/Soluna-API/main/managers/savemanager.lua"),
+    InterfaceManager = LoadComponent("https://raw.githubusercontent.com/Patheticcs/Soluna-API/main/managers/interfacemanager.lua")
 }
 
 local utils = {
-    Theme = ImportLocal("soluna/utils/theme"),
-    Icons = ImportLocal("soluna/utils/icons"),
+    Theme = {
+        -- Define your theme constants here
+        Background = Color3.fromRGB(30, 30, 30),
+        Foreground = Color3.fromRGB(40, 40, 40),
+        Text = Color3.fromRGB(255, 255, 255),
+        Accent = Color3.fromRGB(0, 120, 255)
+    },
+    Icons = {
+        -- Define your icons here
+        Close = "rbxassetid://...",
+        Minimize = "rbxassetid://..."
+    }
 }
 
 -- Create Soluna object
