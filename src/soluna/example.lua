@@ -7,7 +7,7 @@
 ]]
 
 -- Load the Soluna library
-local Soluna = loadstring(game:HttpGet("https://raw.githubusercontent.com/yourusername/soluna/main/src/soluna/init.lua"))()
+local Soluna = loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/soluna/init.lua",true))()
 
 -- Create a window
 local window = Soluna:CreateWindow({
