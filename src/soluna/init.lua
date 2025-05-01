@@ -3,10 +3,13 @@
     A modern, elegant UI library for Roblox exploits
 ]]
 
--- Local component imports
-local function ImportLocal(path)
+-- Base URL for raw GitHub content
+local GITHUB_RAW = "https://raw.githubusercontent.com/Patheticcs/Soluna-API/main/src/soluna/"
+
+-- Import function using GitHub raw content
+local function ImportFromGithub(path)
     local success, result = pcall(function()
-        return loadstring(readfile(path))()
+        return loadstring(game:HttpGet(GITHUB_RAW .. path))()
     end)
     
     if not success then
@@ -19,27 +22,27 @@ local function ImportLocal(path)
 end
 
 local components = {
-    Window = ImportLocal("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/soluna/components/window.lua"),
-    Tab = ImportLocal("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/soluna/components/tab.lua"),
-    Notification = ImportLocal("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/soluna/components/notification.lua"),
-    Button = ImportLocal("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/soluna/components/button.lua"),
-    Toggle = ImportLocal("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/soluna/components/toggle.lua"),
-    Slider = ImportLocal("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/soluna/components/slider.lua"),
-    Dropdown = ImportLocal("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/soluna/components/dropdown.lua"),
-    ColorPicker = ImportLocal("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/soluna/components/colorpicker.lua"),
-    Keybind = ImportLocal("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/soluna/components/keybind.lua"),
-    Input = ImportLocal("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/soluna/components/input.lua"),
-    Paragraph = ImportLocal("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/soluna/components/paragraph.lua"),
+    Window = ImportFromGithub("components/window.lua"),
+    Tab = ImportFromGithub("components/tab.lua"),
+    Notification = ImportFromGithub("components/notification.lua"),
+    Button = ImportFromGithub("components/button.lua"),
+    Toggle = ImportFromGithub("components/toggle.lua"),
+    Slider = ImportFromGithub("components/slider.lua"),
+    Dropdown = ImportFromGithub("components/dropdown.lua"),
+    ColorPicker = ImportFromGithub("components/colorpicker.lua"),
+    Keybind = ImportFromGithub("components/keybind.lua"),
+    Input = ImportFromGithub("components/input.lua"),
+    Paragraph = ImportFromGithub("components/paragraph.lua"),
 }
 
 local managers = {
-    SaveManager = ImportLocal("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/soluna/managers/savemanager.lua"),
-    InterfaceManager = ImportLocal("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/soluna/managers/interfacemanager.lua"),
+    SaveManager = ImportFromGithub("managers/savemanager.lua"),
+    InterfaceManager = ImportFromGithub("managers/interfacemanager.lua"),
 }
 
 local utils = {
-    Theme = ImportLocal("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/soluna/utils/theme.lua"),
-    Icons = ImportLocal("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/soluna/utils/icons.lua"),
+    Theme = ImportFromGithub("utils/theme.lua"),
+    Icons = ImportFromGithub("utils/icons.lua"),
 }
 
 -- Create Soluna object
