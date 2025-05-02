@@ -1402,7 +1402,7 @@ function MacLib:Window(Settings)
 			tabSwitcher.Position = UDim2.fromScale(0.5, 0)
 			tabSwitcher.Size = UDim2.new(1, -21, 0, 40)
 
-			tabIndex = tabIndex + 1
+			tabIndex += 1
 			tabSwitcher.LayoutOrder = tabIndex
 
 			local tabSwitcherUICorner = Instance.new("UICorner")
@@ -2600,23 +2600,23 @@ function MacLib:Window(Settings)
 					searchBox.BorderSizePixel = 0
 					searchBox.Size = UDim2.fromScale(1, 1)
 
-local function CalculateDropdownSize()
-    local totalHeight = 0
-    local visibleChildrenCount = 0
-    local padding = dropdownFrameUIPadding.PaddingTop.Offset + dropdownFrameUIPadding.PaddingBottom.Offset
-
-    for _, v in pairs(dropdownFrame:GetChildren()) do
-        if not v:IsA("UIComponent") and v.Visible then
-            if v:IsA("GuiObject") then
-                totalHeight = totalHeight + v.Size.Y.Offset
-                visibleChildrenCount = visibleChildrenCount + 1
-            end
-        end
-    end
-
-    local spacing = dropdownFrameUIListLayout.Padding.Offset * math.max(visibleChildrenCount - 1, 0)
-    return totalHeight + spacing + padding
-end
+                    local function CalculateDropdownSize()
+                        local totalHeight = 0
+                        local visibleChildrenCount = 0
+                        local padding = dropdownFrameUIPadding.PaddingTop.Offset + dropdownFrameUIPadding.PaddingBottom.Offset
+                    
+                        for _, v in pairs(dropdownFrame:GetChildren()) do
+                            if not v:IsA("UIComponent") and v.Visible then
+                                if v:IsA("GuiObject") then
+                                    totalHeight = totalHeight + v.Size.Y.Offset
+                                    visibleChildrenCount = visibleChildrenCount + 1
+                                end
+                            end
+                        end
+                    
+                        local spacing = dropdownFrameUIListLayout.Padding.Offset * math.max(visibleChildrenCount - 1, 0)
+                        return totalHeight + spacing + padding
+                    end
 
 					local function findOption()
 						local searchTerm = searchBox.Text:lower()
@@ -5531,11 +5531,12 @@ end
 			objects = {}
 		}
 
-        for flag, option in next, Soluna.Options do
-            if ClassParser[option.Class] and not option.IgnoreConfig then
-                table.insert(data.objects, ClassParser[option.Class].Save(flag, option))
-            end
-        end          
+		for flag, option in next, MacLib.Options do
+			if not ClassParser[option.Class] then continue end
+			if option.IgnoreConfig then continue end
+
+			table.insert(data.objects, ClassParser[option.Class].Save(flag, option))
+		end	
 
 		local success, encoded = pcall(HttpService.JSONEncode, HttpService, data)
 		if not success then
