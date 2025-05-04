@@ -45,87 +45,54 @@ local assets = {
 	sliderhead = "rbxassetid://18772834246",
 }
 
--- Add themes near the top after assets
 local Themes = {
     Default = {
         Background = Color3.fromRGB(15, 15, 15),
         Text = Color3.fromRGB(255, 255, 255),
+        SubText = Color3.fromRGB(255, 255, 255),
         Border = Color3.fromRGB(255, 255, 255),
-        Accent = Color3.fromRGB(25, 25, 25),
-        TextTransparency = 0.5,
-        BackgroundTransparency = 0.95,
-        BorderTransparency = 0.9
-    },
-    Dark = {
-        Background = Color3.fromRGB(20, 20, 20), 
-        Text = Color3.fromRGB(240, 240, 240),
-        Border = Color3.fromRGB(60, 60, 60),
-        Accent = Color3.fromRGB(30, 30, 30),
-        TextTransparency = 0.4,
-        BackgroundTransparency = 0.93,
-        BorderTransparency = 0.85
+        Highlight = Color3.fromRGB(25, 25, 25),
+        DimmedText = Color3.fromRGB(150, 150, 150),
+        ItemBackground = Color3.fromRGB(25, 25, 25),
     },
     Light = {
         Background = Color3.fromRGB(240, 240, 240),
-        Text = Color3.fromRGB(20, 20, 20),
-        Border = Color3.fromRGB(180, 180, 180),
-        Accent = Color3.fromRGB(220, 220, 220),
-        TextTransparency = 0.4,
-        BackgroundTransparency = 0.93,
-        BorderTransparency = 0.85
+        Text = Color3.fromRGB(50, 50, 50), 
+        SubText = Color3.fromRGB(100, 100, 100),
+        Border = Color3.fromRGB(200, 200, 200),
+        Highlight = Color3.fromRGB(220, 220, 220),
+        DimmedText = Color3.fromRGB(150, 150, 150),
+        ItemBackground = Color3.fromRGB(230, 230, 230),
     },
-    Nord = {
-        Background = Color3.fromRGB(46, 52, 64),
-        Text = Color3.fromRGB(236, 239, 244),
-        Border = Color3.fromRGB(76, 86, 106),
-        Accent = Color3.fromRGB(59, 66, 82),
-        TextTransparency = 0.4,
-        BackgroundTransparency = 0.93,
-        BorderTransparency = 0.85
+    Discord = {
+        Background = Color3.fromRGB(54, 57, 63),
+        Text = Color3.fromRGB(255, 255, 255),
+        SubText = Color3.fromRGB(185, 187, 190),
+        Border = Color3.fromRGB(78, 82, 89),
+        Highlight = Color3.fromRGB(47, 49, 54),
+        DimmedText = Color3.fromRGB(142, 146, 151),
+        ItemBackground = Color3.fromRGB(64, 68, 75),
     }
 }
 
-local currentTheme = Themes.Default
-
--- Add animation functions
-local function createTweenRotation(instance, rotation, time)
-    return Tween(instance, TweenInfo.new(time or 0.3, Enum.EasingStyle.Quad), {Rotation = rotation})
-end
-
-local function createTweenPosition(instance, position, time)
-    return Tween(instance, TweenInfo.new(time or 0.3, Enum.EasingStyle.Quad), {Position = position})
-end
-
-local function createTweenSize(instance, size, time)
-    return Tween(instance, TweenInfo.new(time or 0.3, Enum.EasingStyle.Quad), {Size = size})
-end
-
-local function createTweenTransparency(instance, transparency, time)
-    return Tween(instance, TweenInfo.new(time or 0.3, Enum.EasingStyle.Quad), {Transparency = transparency})
-end
-
--- Add theme application function
-local function applyTheme(theme)
-    currentTheme = theme
-    
-    -- Update base colors
-    base.BackgroundColor3 = theme.Background
-    baseUIStroke.Color = theme.Border
-    baseUIStroke.Transparency = theme.BorderTransparency
-    
-    -- Update text colors
-    for _, v in ipairs(base:GetDescendants()) do
-        if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
-            v.TextColor3 = theme.Text
-            if v:GetAttribute("IsMainText") then
-                v.TextTransparency = theme.TextTransparency
-            end
-        end
-        if v:IsA("Frame") and v:GetAttribute("IsAccent") then
-            v.BackgroundColor3 = theme.Accent
-        end
-    end
-end
+local AnimationSettings = {
+    TabSwitch = {
+        Duration = 0.3,
+        Style = Enum.EasingStyle.Quart
+    },
+    ButtonHover = {
+        Duration = 0.2, 
+        Style = Enum.EasingStyle.Quad
+    },
+    SliderDrag = {
+        Duration = 0.1,
+        Style = Enum.EasingStyle.Linear  
+    },
+    DropdownOpen = {
+        Duration = 0.2,
+        Style = Enum.EasingStyle.Back
+    }
+}
 
 --// Functions
 local function GetGui()
@@ -2438,7 +2405,7 @@ function MacLib:Window(Settings)
 					binderBoxUIPadding.Parent = binderBox
 
 					local binderBoxUISizeConstraint = Instance.new("UISizeConstraint")
-					binderBoxUISizeConstraint.Name = "UISizeConstraint"
+					binderBoxUISizeConstraint.Name = "BinderBoxUISizeConstraint"
 					binderBoxUISizeConstraint.Parent = binderBox
 
 					binderBox.Parent = keybind
@@ -3461,7 +3428,7 @@ function MacLib:Window(Settings)
 					inputBoxUIStroke.Parent = inputBox
 
 					local inputBoxUISizeConstraint = Instance.new("UISizeConstraint")
-					inputBoxUISizeConstraint.Name = "InputBoxUISizeConstraint"
+					inputBoxUISizeConstraint.Name = "UISizeConstraint"
 					inputBoxUISizeConstraint.Parent = inputBox
 
 					local inputBoxUIPadding = Instance.new("UIPadding")
@@ -3537,14 +3504,14 @@ function MacLib:Window(Settings)
 					inputBoxUICorner1.Parent = inputBox1
 
 					local inputBoxUIStroke1 = Instance.new("UIStroke")
-					inputBoxUIStroke1.Name = "InputBoxUIStroke"
+					inputBoxUIStroke1.Name = "UIStroke"
 					inputBoxUIStroke1.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke1.Color = Color3.fromRGB(255, 255, 255)
 					inputBoxUIStroke1.Transparency = 0.9
 					inputBoxUIStroke1.Parent = inputBox1
 
 					local inputBoxUISizeConstraint1 = Instance.new("UISizeConstraint")
-					inputBoxUISizeConstraint1.Name = "InputBoxUISizeConstraint"
+					inputBoxUISizeConstraint1.Name = "UISizeConstraint"
 					inputBoxUISizeConstraint1.Parent = inputBox1
 
 					local inputBoxUIPadding1 = Instance.new("UIPadding")
@@ -3620,14 +3587,14 @@ function MacLib:Window(Settings)
 					inputBoxUICorner2.Parent = inputBox2
 
 					local inputBoxUIStroke2 = Instance.new("UIStroke")
-					inputBoxUIStroke2.Name = "InputBoxUIStroke"
+					inputBoxUIStroke2.Name = "UIStroke"
 					inputBoxUIStroke2.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke2.Color = Color3.fromRGB(255, 255, 255)
 					inputBoxUIStroke2.Transparency = 0.9
 					inputBoxUIStroke2.Parent = inputBox2
 
 					local inputBoxUISizeConstraint2 = Instance.new("UISizeConstraint")
-					inputBoxUISizeConstraint2.Name = "InputBoxUISizeConstraint"
+					inputBoxUISizeConstraint2.Name = "UISizeConstraint"
 					inputBoxUISizeConstraint2.Parent = inputBox2
 
 					local inputBoxUIPadding2 = Instance.new("UIPadding")
@@ -3704,14 +3671,14 @@ function MacLib:Window(Settings)
 					inputBoxUICorner3.Parent = inputBox3
 
 					local inputBoxUIStroke3 = Instance.new("UIStroke")
-					inputBoxUIStroke3.Name = "InputBoxUIStroke"
+					inputBoxUIStroke3.Name = "UIStroke"
 					inputBoxUIStroke3.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke3.Color = Color3.fromRGB(255, 255, 255)
 					inputBoxUIStroke3.Transparency = 0.9
 					inputBoxUIStroke3.Parent = inputBox3
 
 					local inputBoxUISizeConstraint3 = Instance.new("UISizeConstraint")
-					inputBoxUISizeConstraint3.Name = "InputBoxUISizeConstraint"
+					inputBoxUISizeConstraint3.Name = "UISizeConstraint"
 					inputBoxUISizeConstraint3.Parent = inputBox3
 
 					local inputBoxUIPadding3 = Instance.new("UIPadding")
@@ -3787,14 +3754,14 @@ function MacLib:Window(Settings)
 					inputBoxUICorner4.Parent = inputBox4
 
 					local inputBoxUIStroke4 = Instance.new("UIStroke")
-					inputBoxUIStroke4.Name = "InputBoxUIStroke"
+					inputBoxUIStroke4.Name = "UIStroke"
 					inputBoxUIStroke4.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke4.Color = Color3.fromRGB(255, 255, 255)
 					inputBoxUIStroke4.Transparency = 0.9
 					inputBoxUIStroke4.Parent = inputBox4
 
 					local inputBoxUISizeConstraint4 = Instance.new("UISizeConstraint")
-					inputBoxUISizeConstraint4.Name = "InputBoxUISizeConstraint"
+					inputBoxUISizeConstraint4.Name = "UISizeConstraint"
 					inputBoxUISizeConstraint4.Parent = inputBox4
 
 					local inputBoxUIPadding4 = Instance.new("UIPadding")
@@ -4696,10 +4663,6 @@ function MacLib:Window(Settings)
 				local easetime = 0.15
 
 				if currentTabInstance then
-					local slideTween = createTweenPosition(currentTabInstance, 
-						currentTabInstance.Position + UDim2.new(0.1, 0, 0, 0), 0.3)
-					slideTween:Play()
-					wait(0.15)
 					currentTabInstance.Parent = nil
 				end
 
@@ -4725,13 +4688,7 @@ function MacLib:Window(Settings)
 					end
 				end
 
-				tabs[tabSwitcher].tabContent.Position = tabs[tabSwitcher].tabContent.Position - UDim2.new(0.1, 0, 0, 0)
 				tabs[tabSwitcher].tabContent.Parent = content
-
-				local newSlideTween = createTweenPosition(tabs[tabSwitcher].tabContent,
-					tabs[tabSwitcher].tabContent.Position + UDim2.new(0.1, 0, 0, 0), 0.3)
-				newSlideTween:Play()
-
 				currentTabInstance = tabs[tabSwitcher].tabContent
 				currentTab.Text = Settings.Name
 			end
@@ -4830,7 +4787,7 @@ function MacLib:Window(Settings)
 							WindowFunctions:Notify({
 								Title = "Interface",
 								Description = "Unable to overwrite config, return error: " .. returned
-							})
+								})
 							return
 						end
 
@@ -4984,6 +4941,97 @@ function MacLib:Window(Settings)
 		notificationDescriptionUIPadding.Parent = notificationDescription
 
 		notificationDescription.Parent = notificationInformation
+
+		local notificationUIPadding = Instance.new("UIPadding")
+		notificationUIPadding.Name = "NotificationUIPadding"
+		notificationUIPadding.PaddingBottom = UDim.new(0, 12)
+		notificationUIPadding.PaddingLeft = UDim.new(0, 10)
+		notificationUIPadding.PaddingRight = UDim.new(0, 10)
+		notificationUIPadding.PaddingTop = UDim.new(0, 10)
+		notificationUIPadding.Parent = notificationInformation
+
+		notificationInformation.Parent = notification
+
+		local notificationControls = Instance.new("Frame")
+		notificationControls.Name = "NotificationControls"
+		notificationControls.AutomaticSize = Enum.AutomaticSize.Y
+		notificationControls.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		notificationControls.BackgroundTransparency = 1
+		notificationControls.BorderColor3 = Color3.fromRGB(0, 0, 0)
+		notificationControls.BorderSizePixel = 0
+		notificationControls.Size = UDim2.fromScale(1, 1)
+
+		local interactable = Instance.new("TextButton")
+		interactable.Name = "Interactable"
+		interactable.FontFace = Font.new(assets.interFont)
+		interactable.Text = "✓"
+		interactable.TextColor3 = Color3.fromRGB(255, 255, 255)
+		interactable.TextSize = 17
+		interactable.TextTransparency = 0.2
+		interactable.AnchorPoint = Vector2.new(1, 0.5)
+		interactable.AutomaticSize = Enum.AutomaticSize.XY
+		interactable.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		interactable.BackgroundTransparency = 1
+		interactable.BorderColor3 = Color3.fromRGB(0, 0, 0)
+		interactable.BorderSizePixel = 0
+		interactable.LayoutOrder = 1
+		interactable.Position = UDim2.fromScale(1, 0.5)
+		interactable.Parent = notificationControls
+
+		local uIPadding = Instance.new("UIPadding")
+		uIPadding.Name = "UIPadding"
+		uIPadding.PaddingBottom = UDim.new(0, 6)
+		uIPadding.PaddingRight = UDim.new(0, 13)
+		uIPadding.PaddingTop = UDim.new(0, 6)
+		uIPadding.Parent = notificationControls
+
+		notificationControls.Parent = notification
+
+		local tweens = {
+			In = Tween(notificationUIScale, TweenInfo.new(0.2, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+				Scale = Settings.Scale or 1
+			}),
+			Out = Tween(notificationUIScale, TweenInfo.new(0.2, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+				Scale = 0
+			}),
+		}
+
+		local styles = {
+			None = function() interactable:Destroy() end,
+			Confirm = function() interactable.Text = "✓" end,
+			Cancel = function() interactable.Text = "✗" end
+		}
+
+		local style = styles[Settings.Style] or function() interactable:Destroy() end
+		style()
+
+		if interactable then
+			interactable.MouseButton1Click:Connect(function()
+				NotificationFunctions:Cancel()
+				if Settings.Callback then
+					task.spawn(Settings.Callback)
+				end
+			end)
+		end
+
+		local AnimateNotification = task.spawn(function()
+			tweens.In:Play()
+
+			Settings.Lifetime = Settings.Lifetime or 3
+
+			if Settings.Lifetime ~= 0 then
+				task.wait(Settings.Lifetime)
+
+				local out = tweens.Out
+				out:Play()
+				out.Completed:Wait()
+				notification:Destroy()
+			end
+		end)
+
+		function NotificationFunctions:UpdateTitle(New)
+			notificationTitle.Text = New
+		end
 
 		function NotificationFunctions:UpdateDescription(New)
 			notificationDescription.Text = New
@@ -5390,6 +5438,47 @@ function MacLib:Window(Settings)
 		return baseUIScale.Scale
 	end
 
+	function WindowFunctions:SetTheme(themeName)
+		local theme = Themes[themeName]
+		if not theme then return end
+		
+		-- Update UI colors
+		base.BackgroundColor3 = theme.Background
+		-- Update all text elements
+		for _, v in pairs(macLib:GetDescendants()) do
+			if v:IsA("TextLabel") or v:IsA("TextButton") then
+				if v.Parent.Name:find("Sub") then
+					v.TextColor3 = theme.SubText
+				else
+					v.TextColor3 = theme.Text
+				end
+			elseif v:IsA("Frame") and v.Name:find("Button") then
+				v.BackgroundColor3 = theme.ItemBackground
+			elseif v:IsA("UIStroke") then
+				v.Color = theme.Border
+			end
+		end
+		
+		-- Save current theme
+		WindowFunctions.CurrentTheme = themeName
+	end
+
+	function TabFunctions:SetupThemeSection(section)
+		local themeNames = {}
+		for name, _ in pairs(Themes) do
+			table.insert(themeNames, name)
+		end
+		
+		section:Dropdown({
+			Name = "Theme",
+			Options = themeNames,
+			Default = "Default",
+			Callback = function(theme)
+				WindowFunctions:SetTheme(theme)
+			end
+		}, "UITheme")
+	end
+
 	local ClassParser = {
 		["Toggle"] = {
 			Save = function(Flag, data)
@@ -5487,6 +5576,20 @@ function MacLib:Window(Settings)
 					if data.alpha then
 						MacLib.Options[Flag]:SetAlpha(data.alpha)
 					end
+				end
+			end
+		},
+		["Theme"] = {
+			Save = function(Flag, data)
+				return {
+					type = "Theme",
+					flag = Flag,
+					theme = WindowFunctions.CurrentTheme
+				}
+			end,
+			Load = function(Flag, data)
+				if data.theme then
+					WindowFunctions:SetTheme(data.theme)
 				end
 			end
 		}
@@ -5695,6 +5798,7 @@ function MacLib:Demo()
 
 	local sections = {
 		MainSection1 = tabs.Main:Section({ Side = "Left" }),
+		SettingsSection = tabs.Settings:Section({ Side = "Right" })
 	}
 
 	sections.MainSection1:Header({
@@ -5887,6 +5991,9 @@ function MacLib:Demo()
 
 	MacLib:SetFolder("Maclib")
 	tabs.Settings:InsertConfigSection("Left")
+
+	-- Add theme selector
+	tabs.Settings:SetupThemeSection(sections.SettingsSection)
 
 	Window.onUnloaded(function()
 		print("Unloaded!")
