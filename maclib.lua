@@ -1864,7 +1864,6 @@ function MacLib:Window(Settings)
                     sliderName.Size = UDim2.new(1, 0, 0, 20)
                     sliderName.Parent = slider
                 
-                    -- Create slider value frame
                     local sliderValue = Instance.new("TextLabel")
                     sliderValue.Name = "SliderValue" 
                     sliderValue.FontFace = Font.new(assets.interFont)
@@ -1888,7 +1887,7 @@ function MacLib:Window(Settings)
                     sliderBar.Name = "SliderBar"
                     sliderBar.AnchorPoint = Vector2.new(0, 1)
                     sliderBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                    sliderBar.BackgroundTransparency = 0.85 -- Changed from 0.95 to 0.85
+                    sliderBar.BackgroundTransparency = 1
                     sliderBar.BorderColor3 = Color3.fromRGB(0, 0, 0)
                     sliderBar.BorderSizePixel = 0
                     sliderBar.Position = UDim2.fromScale(0, 1)
@@ -1898,7 +1897,7 @@ function MacLib:Window(Settings)
                     local sliderFill = Instance.new("Frame")
                     sliderFill.Name = "SliderFill"
                     sliderFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)  
-                    sliderFill.BackgroundTransparency = 0.5 -- Changed from 0.8 to 0.5
+                    sliderFill.BackgroundTransparency = 1
                     sliderFill.BorderColor3 = Color3.fromRGB(0, 0, 0)
                     sliderFill.BorderSizePixel = 0
                     sliderFill.Size = UDim2.fromScale(0.5, 1)
@@ -1908,7 +1907,7 @@ function MacLib:Window(Settings)
                     sliderHead.Name = "SliderHead"
                     sliderHead.AnchorPoint = Vector2.new(0.5, 0.5)
                     sliderHead.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                    sliderHead.BackgroundTransparency = 0.5 -- Changed from 0.8 to 0.5
+                    sliderHead.BackgroundTransparency = 1
                     sliderHead.BorderColor3 = Color3.fromRGB(0, 0, 0)
                     sliderHead.BorderSizePixel = 0
                     sliderHead.Position = UDim2.fromScale(0.5, 0.5)
