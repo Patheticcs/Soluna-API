@@ -1943,38 +1943,50 @@ function MacLib:Window(Settings)
                         return tostring(value)
                     end
                 
-                    -- Update visuals based on value
                     local function SetValue(val, ignorecallback, isComplete)
                         local posXScale
-                        
-                        if typeof(val) == "Instance" then  -- Input from dragging
+                
+                        if typeof(val) == "Instance" then
                             local input = val
                             posXScale = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
-                        else  -- Direct value
+                        else
                             local value = val
                             posXScale = (value - SliderFunctions.Settings.Minimum) / (SliderFunctions.Settings.Maximum - Settings.Minimum)
                         end
                 
                         local pos = UDim2.new(posXScale, 0, 0.5, 0)
                         sliderHead.Position = pos
-                        sliderFill.Size = UDim2.new(posXScale, 0, 1, 0)
                 
                         finalValue = posXScale * (SliderFunctions.Settings.Maximum - SliderFunctions.Settings.Minimum) + Settings.Minimum
+                
                         sliderValue.Text = (Settings.Prefix or "") .. ValueDisplayMethod(finalValue, SliderFunctions.Settings.Precision) .. (Settings.Suffix or "")
                 
                         if not ignorecallback then
                             task.spawn(function()
                                 if SliderFunctions.Settings.Callback then
-                                    SliderFunctions.Settings.Callback(finalValue, isComplete)
+                                    SliderFunctions.Settings.Callback(finalValue)
                                 end
                             end)
                         end
                 
                         SliderFunctions.Value = finalValue
-                        return finalValue
                     end
                 
-                    -- Handle sliding interaction
+                    function SliderFunctions:SyncValue()
+                        if SliderFunctions.Value then
+                            task.spawn(function()
+                                if SliderFunctions.Settings.Callback then
+                                    SliderFunctions.Settings.Callback(SliderFunctions.Value)
+                                end
+                            end)
+                        end
+                    end
+
+                    task.spawn(function()
+                        task.wait(0.1)
+                        SliderFunctions:SyncValue()
+                    end)
+
                     local function slide(input)
                         local pos = UDim2.new(math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1), 0, 0.5, 0) 
                         sliderHead.Position = pos
@@ -2016,9 +2028,11 @@ function MacLib:Window(Settings)
                     -- Set initial value
                     SetValue(Settings.Default or Settings.Minimum, true)
                 
-                    -- Add functions to update slider
                     function SliderFunctions:UpdateValue(Value, skipCallback)
                         SetValue(tonumber(Value), skipCallback)
+                        if not skipCallback then
+                            SliderFunctions:SyncValue()
+                        end
                     end
                 
                     function SliderFunctions:UpdateName(Name)
