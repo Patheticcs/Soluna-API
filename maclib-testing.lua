@@ -1,4 +1,3 @@
-
 local MacLib = { 
 	Options = {}, 
 	Folder = "Maclib", 
@@ -685,11 +684,8 @@ function MacLib:Window(Settings)
 	end)
 
 	UserInputService.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging_ = false
-			dragInput = nil 
-			dragStart = nil
-			startPos = nil
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			resizingContent = false
 		end
 	end)
 
@@ -742,7 +738,7 @@ function MacLib:Window(Settings)
 	uIPadding2.PaddingRight = UDim.new(0, 20)
 	uIPadding2.Parent = elements
 
-	local moveIcon = Instance.new("ImageButton") 
+	local moveIcon = Instance.new("ImageButton")
 	moveIcon.Name = "MoveIcon"
 	moveIcon.Image = assets.transform
 	moveIcon.ImageTransparency = 0.7
@@ -754,10 +750,10 @@ function MacLib:Window(Settings)
 	moveIcon.Position = UDim2.fromScale(1, 0.5)
 	moveIcon.Size = UDim2.fromOffset(15, 15)
 	moveIcon.Parent = elements
-	moveIcon.Visible = not Settings.DragStyle or Settings.DragStyle == 1	
+	moveIcon.Visible = not Settings.DragStyle or Settings.DragStyle == 1
 
 	local interact = Instance.new("TextButton")
-	interact.Name = "Interact" 
+	interact.Name = "Interact"
 	interact.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
 	interact.Text = ""
 	interact.TextColor3 = Color3.fromRGB(0, 0, 0)
@@ -770,13 +766,6 @@ function MacLib:Window(Settings)
 	interact.Position = UDim2.fromScale(0.5, 0.5)
 	interact.Size = UDim2.fromOffset(40, 40)
 	interact.Parent = moveIcon
-
-	local topbarDrag = Instance.new("TextButton")
-topbarDrag.Name = "TopbarDrag"
-topbarDrag.BackgroundTransparency = 1
-topbarDrag.Text = ""
-topbarDrag.Size = UDim2.fromScale(1, 1)
-topbarDrag.Parent = topbar
 
 	local function ChangemoveIconState(State)
 		if State == "Default" then
@@ -804,7 +793,12 @@ topbarDrag.Parent = topbar
 
 	local function update(input)
 		local delta = input.Position - dragStart
-		base.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+		local targetPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+		
+		-- Smooth drag animation
+		Tween(base, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {
+			Position = targetPos
+		}):Play()
 	end
 
 	local function onDragStart(input)
@@ -812,13 +806,47 @@ topbarDrag.Parent = topbar
 			dragging_ = true
 			dragStart = input.Position
 			startPos = base.Position
-	
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging_ = false
-				end
-			end)
+			
+			-- Visual feedback
+			Tween(base, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {
+				BackgroundTransparency = acrylicBlur and 0.1 or 0.05
+			}):Play()
 		end
+	end
+
+	local function onDragEnd()
+		dragging_ = false
+		-- Reset visual feedback
+		Tween(base, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {
+			BackgroundTransparency = acrylicBlur and 0.05 or 0
+		}):Play()
+	end
+
+	-- Make entire topbar draggable
+	if not Settings.DragStyle or Settings.DragStyle == 1 then
+		windowControls.InputBegan:Connect(onDragStart)
+		windowControls.InputChanged:Connect(onDragUpdate)
+		windowControls.InputEnded:Connect(onDragEnd)
+	elseif Settings.DragStyle == 2 then
+		base.InputBegan:Connect(onDragStart)
+		base.InputChanged:Connect(onDragUpdate) 
+		base.InputEnded:Connect(onDragEnd)
+	end
+
+	-- Enhanced window control buttons
+	local controlButtons = {exit, minimize, maximize}
+	for _, button in pairs(controlButtons) do
+		button.MouseEnter:Connect(function()
+			Tween(button, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {
+				BackgroundTransparency = 0.8
+			}):Play()
+		end)
+		
+		button.MouseLeave:Connect(function()
+			Tween(button, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {
+				BackgroundTransparency = 0
+			}):Play()
+		end)
 	end
 
 	local function onDragUpdate(input)
@@ -828,22 +856,13 @@ topbarDrag.Parent = topbar
 	end
 
 	if not Settings.DragStyle or Settings.DragStyle == 1 then
-		-- Handle drag from move icon
 		interact.InputBegan:Connect(function(input)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 				onDragStart(input)
 			end
 		end)
-	
+
 		interact.InputChanged:Connect(onDragUpdate)
-	end
-	topbarDrag.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			onDragStart(input)
-		end
-	end)
-		interact.InputChanged:Connect(onDragUpdate)
-		topbarDrag.InputChanged:Connect(onDragUpdate)
 
 		UserInputService.InputChanged:Connect(function(input)
 			if input == dragInput and dragging_ then
@@ -3392,7 +3411,7 @@ topbarDrag.Parent = topbar
 					inputBoxUICorner.Parent = inputBox
 
 					local inputBoxUIStroke = Instance.new("UIStroke")
-					inputBoxUIStroke.Name = "InputBoxUIStroke"
+					inputBoxUIStroke.Name = "UIStroke"
 					inputBoxUIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke.Color = Color3.fromRGB(255, 255, 255)
 					inputBoxUIStroke.Transparency = 0.9
@@ -3403,7 +3422,7 @@ topbarDrag.Parent = topbar
 					inputBoxUISizeConstraint.Parent = inputBox
 
 					local inputBoxUIPadding = Instance.new("UIPadding")
-					inputBoxUIPadding.Name = "InputBoxUIPadding"
+					inputBoxUIPadding.Name = "UIPadding"
 					inputBoxUIPadding.PaddingLeft = UDim.new(0, 8)
 					inputBoxUIPadding.PaddingRight = UDim.new(0, 10)
 					inputBoxUIPadding.Parent = inputBox
@@ -3475,7 +3494,7 @@ topbarDrag.Parent = topbar
 					inputBoxUICorner1.Parent = inputBox1
 
 					local inputBoxUIStroke1 = Instance.new("UIStroke")
-					inputBoxUIStroke1.Name = "InputBoxUIStroke"
+					inputBoxUIStroke1.Name = "UIStroke"
 					inputBoxUIStroke1.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke1.Color = Color3.fromRGB(255, 255, 255)
 					inputBoxUIStroke1.Transparency = 0.9
@@ -3486,7 +3505,7 @@ topbarDrag.Parent = topbar
 					inputBoxUISizeConstraint1.Parent = inputBox1
 
 					local inputBoxUIPadding1 = Instance.new("UIPadding")
-					inputBoxUIPadding1.Name = "InputBoxUIPadding"
+					inputBoxUIPadding1.Name = "UIPadding"
 					inputBoxUIPadding1.PaddingLeft = UDim.new(0, 8)
 					inputBoxUIPadding1.PaddingRight = UDim.new(0, 10)
 					inputBoxUIPadding1.Parent = inputBox1
@@ -3558,7 +3577,7 @@ topbarDrag.Parent = topbar
 					inputBoxUICorner2.Parent = inputBox2
 
 					local inputBoxUIStroke2 = Instance.new("UIStroke")
-					inputBoxUIStroke2.Name = "InputBoxUIStroke"
+					inputBoxUIStroke2.Name = "UIStroke"
 					inputBoxUIStroke2.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke2.Color = Color3.fromRGB(255, 255, 255)
 					inputBoxUIStroke2.Transparency = 0.9
@@ -3569,7 +3588,7 @@ topbarDrag.Parent = topbar
 					inputBoxUISizeConstraint2.Parent = inputBox2
 
 					local inputBoxUIPadding2 = Instance.new("UIPadding")
-					inputBoxUIPadding2.Name = "InputBoxUIPadding"
+					inputBoxUIPadding2.Name = "UIPadding"
 					inputBoxUIPadding2.PaddingLeft = UDim.new(0, 8)
 					inputBoxUIPadding2.PaddingRight = UDim.new(0, 10)
 					inputBoxUIPadding2.Parent = inputBox2
@@ -3642,7 +3661,7 @@ topbarDrag.Parent = topbar
 					inputBoxUICorner3.Parent = inputBox3
 
 					local inputBoxUIStroke3 = Instance.new("UIStroke")
-					inputBoxUIStroke3.Name = "InputBoxUIStroke"
+					inputBoxUIStroke3.Name = "UIStroke"
 					inputBoxUIStroke3.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke3.Color = Color3.fromRGB(255, 255, 255)
 					inputBoxUIStroke3.Transparency = 0.9
@@ -3653,7 +3672,7 @@ topbarDrag.Parent = topbar
 					inputBoxUISizeConstraint3.Parent = inputBox3
 
 					local inputBoxUIPadding3 = Instance.new("UIPadding")
-					inputBoxUIPadding3.Name = "InputBoxUIPadding"
+					inputBoxUIPadding3.Name = "UIPadding"
 					inputBoxUIPadding3.PaddingLeft = UDim.new(0, 8)
 					inputBoxUIPadding3.PaddingRight = UDim.new(0, 10)
 					inputBoxUIPadding3.Parent = inputBox3
@@ -3725,7 +3744,7 @@ topbarDrag.Parent = topbar
 					inputBoxUICorner4.Parent = inputBox4
 
 					local inputBoxUIStroke4 = Instance.new("UIStroke")
-					inputBoxUIStroke4.Name = "InputBoxUIStroke"
+					inputBoxUIStroke4.Name = "UIStroke"
 					inputBoxUIStroke4.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke4.Color = Color3.fromRGB(255, 255, 255)
 					inputBoxUIStroke4.Transparency = 0.9
@@ -3736,7 +3755,7 @@ topbarDrag.Parent = topbar
 					inputBoxUISizeConstraint4.Parent = inputBox4
 
 					local inputBoxUIPadding4 = Instance.new("UIPadding")
-					inputBoxUIPadding4.Name = "InputBoxUIPadding"
+					inputBoxUIPadding4.Name = "UIPadding"
 					inputBoxUIPadding4.PaddingLeft = UDim.new(0, 8)
 					inputBoxUIPadding4.PaddingRight = UDim.new(0, 10)
 					inputBoxUIPadding4.Parent = inputBox4
@@ -4203,7 +4222,7 @@ topbarDrag.Parent = topbar
 					modifierInputs.Hex.FocusLost:Connect(updateFromHex)
 					modifierInputs.Red.FocusLost:Connect(updateFromRGB)
 					modifierInputs.Green.FocusLost:Connect(updateFromRGB)
-					modifierInputs.Blue.FocusLost:Connect(updateFromRGB)
+					modifierInputs.Blue.FocusLost:Connect(update)
 					modifierInputs.Alpha.FocusLost:Connect(update)
 
 					modifierInputs.Hex.Focused:Connect(function()
@@ -5299,8 +5318,6 @@ topbarDrag.Parent = topbar
 	function WindowFunctions:GetState()
 		return windowState
 	end
-
-	local onUnloadCallback
 
 	function WindowFunctions:Unload()
 		if onUnloadCallback then
