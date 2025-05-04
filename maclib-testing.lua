@@ -792,6 +792,8 @@ function MacLib:Window(Settings)
 	local startPos
 
 	local function update(input)
+		if not dragging_ then return end
+		
 		local delta = input.Position - dragStart
 		local targetPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 		
@@ -814,6 +816,16 @@ function MacLib:Window(Settings)
 		end
 	end
 
+	local function onDragEnd(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			dragging_ = false
+			-- Reset visual feedback
+			Tween(base, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {
+				BackgroundTransparency = acrylicBlur and 0.05 or 0
+			}):Play()
+		end
+	end
+
 	local function onDragEnd()
 		dragging_ = false
 		-- Reset visual feedback
@@ -825,12 +837,8 @@ function MacLib:Window(Settings)
 	-- Make entire topbar draggable
 	if not Settings.DragStyle or Settings.DragStyle == 1 then
 		windowControls.InputBegan:Connect(onDragStart)
-		windowControls.InputChanged:Connect(onDragUpdate)
-		windowControls.InputEnded:Connect(onDragEnd)
 	elseif Settings.DragStyle == 2 then
-		base.InputBegan:Connect(onDragStart)
-		base.InputChanged:Connect(onDragUpdate) 
-		base.InputEnded:Connect(onDragEnd)
+		base.InputBegan:Connect(onDragStart) 
 	end
 
 	-- Enhanced window control buttons
@@ -869,7 +877,16 @@ function MacLib:Window(Settings)
 				update(input)
 			end
 		end)
-
+		UserInputService.InputChanged:Connect(function(input)
+			if dragging_ and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+				update(input)
+			end
+		end)
+		UserInputService.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				onDragEnd(input)
+			end
+		end)
 		interact.InputEnded:Connect(function(input)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 				dragging_ = false
