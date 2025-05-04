@@ -1833,7 +1833,6 @@ function MacLib:Window(Settings)
                 function SectionFunctions:Slider(Settings, Flag)
                     local SliderFunctions = { Settings = Settings, IgnoreConfig = false, Class = "Slider" }
                 
-                    -- Create main slider frame
                     local slider = Instance.new("Frame")
                     slider.Name = "Slider"
                     slider.AutomaticSize = Enum.AutomaticSize.Y 
@@ -1844,7 +1843,6 @@ function MacLib:Window(Settings)
                     slider.Size = UDim2.new(1, 0, 0, 38)
                     slider.Parent = section
                 
-                    -- Create slider name label
                     local sliderName = Instance.new("TextLabel")
                     sliderName.Name = "SliderName"
                     sliderName.FontFace = Font.new(assets.interFont)
@@ -1871,7 +1869,7 @@ function MacLib:Window(Settings)
                     sliderValue.RichText = true
                     sliderValue.TextColor3 = Color3.fromRGB(255, 255, 255)
                     sliderValue.TextSize = 13
-                    sliderValue.TextTransparency = 0.5
+                    sliderValue.TextTransparency = 0
                     sliderValue.TextTruncate = Enum.TextTruncate.AtEnd
                     sliderValue.TextXAlignment = Enum.TextXAlignment.Right
                     sliderValue.TextYAlignment = Enum.TextYAlignment.Top
@@ -1887,7 +1885,7 @@ function MacLib:Window(Settings)
                     sliderBar.Name = "SliderBar"
                     sliderBar.AnchorPoint = Vector2.new(0, 1)
                     sliderBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                    sliderBar.BackgroundTransparency = 1
+                    sliderBar.BackgroundTransparency = 0
                     sliderBar.BorderColor3 = Color3.fromRGB(0, 0, 0)
                     sliderBar.BorderSizePixel = 0
                     sliderBar.Position = UDim2.fromScale(0, 1)
@@ -1897,7 +1895,7 @@ function MacLib:Window(Settings)
                     local sliderFill = Instance.new("Frame")
                     sliderFill.Name = "SliderFill"
                     sliderFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)  
-                    sliderFill.BackgroundTransparency = 1
+                    sliderFill.BackgroundTransparency = 0
                     sliderFill.BorderColor3 = Color3.fromRGB(0, 0, 0)
                     sliderFill.BorderSizePixel = 0
                     sliderFill.Size = UDim2.fromScale(0.5, 1)
@@ -1907,7 +1905,7 @@ function MacLib:Window(Settings)
                     sliderHead.Name = "SliderHead"
                     sliderHead.AnchorPoint = Vector2.new(0.5, 0.5)
                     sliderHead.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                    sliderHead.BackgroundTransparency = 1
+                    sliderHead.BackgroundTransparency = 0
                     sliderHead.BorderColor3 = Color3.fromRGB(0, 0, 0)
                     sliderHead.BorderSizePixel = 0
                     sliderHead.Position = UDim2.fromScale(0.5, 0.5)
