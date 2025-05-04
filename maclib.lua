@@ -1830,89 +1830,52 @@ function MacLib:Window(Settings)
                     local SliderFunctions = { Settings = Settings, IgnoreConfig = false, Class = "Slider" }
 
                     local slider = Instance.new("Frame")
-					slider.Name = "Slider"
-					slider.AutomaticSize = Enum.AutomaticSize.Y
-					slider.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-					slider.BackgroundTransparency = 1
-					slider.BorderColor3 = Color3.fromRGB(0, 0, 0)
-					slider.BorderSizePixel = 0
-					slider.Size = UDim2.new(1, 0, 0, 38)
-					slider.Parent = section
+                    slider.Name = "Slider"
+                    slider.AutomaticSize = Enum.AutomaticSize.Y 
+                    slider.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                    slider.BackgroundTransparency = 1
+                    slider.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                    slider.BorderSizePixel = 0
+                    slider.Size = UDim2.new(1, 0, 0, 38)
+                    slider.Parent = section
 
-					local sliderName = Instance.new("TextLabel")
-					sliderName.Name = "SliderName"
-					sliderName.FontFace = Font.new(assets.interFont)
-					sliderName.Text = SliderFunctions.Settings.Name
-					sliderName.RichText = true
-					sliderName.TextColor3 = Color3.fromRGB(255, 255, 255)
-					sliderName.TextSize = 13
-					sliderName.TextTransparency = 0.5
-					sliderName.TextTruncate = Enum.TextTruncate.AtEnd
-					sliderName.TextXAlignment = Enum.TextXAlignment.Left
-					sliderName.TextYAlignment = Enum.TextYAlignment.Top
-					sliderName.AnchorPoint = Vector2.new(0, 0.5)
-					sliderName.AutomaticSize = Enum.AutomaticSize.XY
-					sliderName.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-					sliderName.BackgroundTransparency = 1
-					sliderName.BorderColor3 = Color3.fromRGB(0, 0, 0)
-					sliderName.BorderSizePixel = 0
-					sliderName.Position = UDim2.fromScale(1.3e-07, 0.5)
-					sliderName.Parent = slider
+                    local sliderName = Instance.new("TextLabel")
+                    sliderName.Name = "SliderName"
+                    sliderName.FontFace = Font.new(assets.interFont)
+                    sliderName.Text = SliderFunctions.Settings.Name
+                    sliderName.RichText = true
+                    sliderName.TextColor3 = Color3.fromRGB(255, 255, 255)
+                    sliderName.TextSize = 13
+                    sliderName.TextTransparency = 0.5
+                    sliderName.TextTruncate = Enum.TextTruncate.AtEnd
+                    sliderName.TextXAlignment = Enum.TextXAlignment.Left
+                    sliderName.TextYAlignment = Enum.TextYAlignment.Top
+                    sliderName.AutomaticSize = Enum.AutomaticSize.Y
+                    sliderName.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    sliderName.BackgroundTransparency = 1
+                    sliderName.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                    sliderName.BorderSizePixel = 0
+                    sliderName.Size = UDim2.new(1, 0, 0, 20)
+                    sliderName.Parent = slider
 
-					local sliderElements = Instance.new("Frame")
-					sliderElements.Name = "SliderElements"
-					sliderElements.AnchorPoint = Vector2.new(1, 0)
-					sliderElements.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-					sliderElements.BackgroundTransparency = 1
-					sliderElements.BorderColor3 = Color3.fromRGB(0, 0, 0)
-					sliderElements.BorderSizePixel = 0
-					sliderElements.Position = UDim2.fromScale(1, 0)
-					sliderElements.Size = UDim2.fromScale(1, 1)
-
-					local sliderValue = Instance.new("TextBox")
-					sliderValue.Name = "SliderValue"
-					sliderValue.FontFace = Font.new(assets.interFont)
-					sliderValue.TextColor3 = Color3.fromRGB(255, 255, 255)
-					sliderValue.TextSize = 12
-					sliderValue.TextTransparency = 0.1
-					--sliderValue.TextTruncate = Enum.TextTruncate.AtEnd
-					sliderValue.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-					sliderValue.BackgroundTransparency = 0.95
-					sliderValue.BorderColor3 = Color3.fromRGB(0, 0, 0)
-					sliderValue.BorderSizePixel = 0
-					sliderValue.LayoutOrder = 1
-					sliderValue.Position = UDim2.fromScale(-0.0789, 0.171)
-					sliderValue.Size = UDim2.fromOffset(41, 21)
-					sliderValue.ClipsDescendants = true
-
-					local sliderValueUICorner = Instance.new("UICorner")
-					sliderValueUICorner.Name = "SliderValueUICorner"
-					sliderValueUICorner.CornerRadius = UDim.new(0, 4)
-					sliderValueUICorner.Parent = sliderValue
-
-					local sliderValueUIStroke = Instance.new("UIStroke")
-					sliderValueUIStroke.Name = "SliderValueUIStroke"
-					sliderValueUIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-					sliderValueUIStroke.Color = Color3.fromRGB(255, 255, 255)
-					sliderValueUIStroke.Transparency = 0.9
-					sliderValueUIStroke.Parent = sliderValue
-
-					local sliderValueUIPadding = Instance.new("UIPadding")
-					sliderValueUIPadding.Name = "SliderValueUIPadding"
-					sliderValueUIPadding.PaddingLeft = UDim.new(0, 2)
-					sliderValueUIPadding.PaddingRight = UDim.new(0, 2)
-					sliderValueUIPadding.Parent = sliderValue
-
-					sliderValue.Parent = sliderElements
-
-					local sliderElementsUIListLayout = Instance.new("UIListLayout")
-					sliderElementsUIListLayout.Name = "SliderElementsUIListLayout"
-					sliderElementsUIListLayout.Padding = UDim.new(0, 20)
-					sliderElementsUIListLayout.FillDirection = Enum.FillDirection.Horizontal
-					sliderElementsUIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-					sliderElementsUIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-					sliderElementsUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-					sliderElementsUIListLayout.Parent = sliderElements
+                    local sliderValue = Instance.new("TextLabel")
+                    sliderValue.Name = "SliderValue" 
+                    sliderValue.FontFace = Font.new(assets.interFont)
+                    sliderValue.Text = ""
+                    sliderValue.RichText = true
+                    sliderValue.TextColor3 = Color3.fromRGB(255, 255, 255)
+                    sliderValue.TextSize = 13
+                    sliderValue.TextTransparency = 0.5
+                    sliderValue.TextTruncate = Enum.TextTruncate.AtEnd
+                    sliderValue.TextXAlignment = Enum.TextXAlignment.Right
+                    sliderValue.TextYAlignment = Enum.TextYAlignment.Top
+                    sliderValue.AutomaticSize = Enum.AutomaticSize.Y
+                    sliderValue.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    sliderValue.BackgroundTransparency = 1
+                    sliderValue.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                    sliderValue.BorderSizePixel = 0
+                    sliderValue.Size = UDim2.new(1, 0, 0, 20)
+                    sliderValue.Parent = slider
 
 					local sliderBar = Instance.new("ImageLabel")
 					sliderBar.Name = "SliderBar"
@@ -1924,6 +1887,16 @@ function MacLib:Window(Settings)
 					sliderBar.BorderSizePixel = 0
 					sliderBar.Position = UDim2.fromScale(0.219, 0.457)
 					sliderBar.Size = UDim2.fromOffset(123, 3)
+
+                    local sliderFill = Instance.new("Frame")
+                    sliderFill.Name = "SliderFill"
+                    sliderFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)  
+                    sliderFill.BackgroundTransparency = 1
+                    sliderFill.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                    sliderFill.BorderSizePixel = 0
+                    sliderFill.Size = UDim2.fromScale(0.5, 1)
+                    sliderFill.Parent = sliderBar
+
 
 					local sliderHead = Instance.new("ImageButton")
 					sliderHead.Name = "SliderHead"
@@ -1937,15 +1910,22 @@ function MacLib:Window(Settings)
 					sliderHead.Size = UDim2.fromOffset(12, 12)
 					sliderHead.Parent = sliderBar
 
-					sliderBar.Parent = sliderElements
+                    local sliderBarCorner = Instance.new("UICorner")
+                    sliderBarCorner.Name = "SliderBarCorner"
+                    sliderBarCorner.CornerRadius = UDim.new(1, 0)
+                    sliderBarCorner.Parent = sliderBar
 
-					local sliderElementsUIPadding = Instance.new("UIPadding")
-					sliderElementsUIPadding.Name = "SliderElementsUIPadding"
-					sliderElementsUIPadding.PaddingTop = UDim.new(0, 3)
-					sliderElementsUIPadding.Parent = sliderElements
+                    local sliderFillCorner = Instance.new("UICorner") 
+                    sliderFillCorner.Name = "SliderFillCorner"
+                    sliderFillCorner.CornerRadius = UDim.new(1, 0)
+                    sliderFillCorner.Parent = sliderFill
 
-					sliderElements.Parent = slider
+                    local sliderHeadCorner = Instance.new("UICorner")
+                    sliderHeadCorner.Name = "SliderHeadCorner"
+                    sliderHeadCorner.CornerRadius = UDim.new(1, 0)
+                    sliderHeadCorner.Parent = sliderHead
 
+                    local finalValue = Settings.Default or Settings.Minimum
                     local dragging = false
 
                     local function ValueDisplayMethod(value, precision)
