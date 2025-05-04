@@ -4024,14 +4024,53 @@ function MacLib:Window(Settings)
 						modifierInputs.Hex.Text = hexColor
 					end
 
-					local function UpdateSlide(iX)
-						local rY = iX - slider.AbsolutePosition.X
-						local cY = math.clamp(rY, 0, slider.AbsoluteSize.X - slide.AbsoluteSize.X)
-						slide.Position = udim2(0, cY, 0.5, 0)
-						value = 1 - (cY / (slider.AbsoluteSize.X - slide.AbsoluteSize.X))
-						update()
-					end
+                    local function UpdateSlide(iX)
+                        local rY = iX - slider.AbsolutePosition.X
+                        local cY = math.clamp(rY, 0, slider.AbsoluteSize.X - slide.AbsoluteSize.X)
+                        slide.Position = udim2(0, cY, 0.5, 0)
+                        value = 1 - (cY / (slider.AbsoluteSize.X - slide.AbsoluteSize.X))
+                        update()
+                        
+                        task.spawn(function()
+                            if SliderFunctions.Settings.Callback then
+                                SliderFunctions.Settings.Callback(finalValue)
+                            end
+                        end)
+                    end
 
+                    local function updateFromSettings()
+                        local formattedValue = ValueDisplayMethod(SliderFunctions.Settings.Default, SliderFunctions.Settings.Precision)
+                        sliderValue.Text = (Settings.Prefix or "") .. formattedValue .. (Settings.Suffix or "")
+                        
+                        local cY = (1 - SliderFunctions.Settings.Default / (SliderFunctions.Settings.Maximum - SliderFunctions.Settings.Minimum)) * (slider.AbsoluteSize.X - slide.AbsoluteSize.X)
+                        slide.Position = udim2(0, cY, 0.5, 0)
+                        
+                        finalValue = SliderFunctions.Settings.Default
+                        SliderFunctions.Value = finalValue
+                    end
+
+                    function SliderFunctions:UpdateValue(Value)
+                        local numValue = tonumber(Value)
+                        if not numValue then return end
+                        
+                        numValue = math.clamp(numValue, SliderFunctions.Settings.Minimum, SliderFunctions.Settings.Maximum)
+                        
+                        local cY = (1 - numValue / (SliderFunctions.Settings.Maximum - SliderFunctions.Settings.Minimum)) * (slider.AbsoluteSize.X - slide.AbsoluteSize.X)
+                        slide.Position = udim2(0, cY, 0.5, 0)
+                        
+                        local formattedValue = ValueDisplayMethod(numValue, SliderFunctions.Settings.Precision)
+                        sliderValue.Text = (Settings.Prefix or "") .. formattedValue .. (Settings.Suffix or "")
+                        
+                        finalValue = numValue
+                        SliderFunctions.Value = finalValue
+                
+                        task.spawn(function()
+                            if SliderFunctions.Settings.Callback then
+                                SliderFunctions.Settings.Callback(finalValue)
+                            end
+                        end)
+                    end
+                    updateFromSettings()
 					local function UpdateRing(iX, iY)
 						local r = wheel.AbsoluteSize.x / 2
 						local d = v2(iX, iY) - wheel.AbsolutePosition - wheel.AbsoluteSize / 2
