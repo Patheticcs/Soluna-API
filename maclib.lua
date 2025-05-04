@@ -1981,34 +1981,49 @@ function MacLib:Window(Settings)
 					local ValueDisplayMethod = DisplayMethods[SliderFunctions.Settings.DisplayMethod] or DisplayMethods.Value
 					local finalValue
 
-					local function SetValue(val, ignorecallback)
-						local posXScale
+                    local function SetValue(val, ignorecallback, isComplete)
+                        local posXScale
+                
+                        if typeof(val) == "Instance" then
+                            local input = val
+                            posXScale = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
+                        else
+                            local value = val
+                            posXScale = (value - SliderFunctions.Settings.Minimum) / (SliderFunctions.Settings.Maximum - Settings.Minimum)
+                        end
+                
+                        local pos = UDim2.new(posXScale, 0, 0.5, 0)
+                        sliderHead.Position = pos
+                
+                        finalValue = posXScale * (SliderFunctions.Settings.Maximum - SliderFunctions.Settings.Minimum) + Settings.Minimum
+                
+                        sliderValue.Text = (Settings.Prefix or "") .. ValueDisplayMethod(finalValue, SliderFunctions.Settings.Precision) .. (Settings.Suffix or "")
+                
+                        if not ignorecallback then
+                            task.spawn(function()
+                                if SliderFunctions.Settings.Callback then
+                                    SliderFunctions.Settings.Callback(finalValue)
+                                end
+                            end)
+                        end
+                
+                        SliderFunctions.Value = finalValue
+                    end
 
-						if typeof(val) == "Instance" then
-							local input = val
-							posXScale = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
-						else
-							local value = val
-							posXScale = (value - SliderFunctions.Settings.Minimum) / (SliderFunctions.Settings.Maximum - Settings.Minimum)
-						end
+                    function SliderFunctions:SyncValue()
+                        if SliderFunctions.Value then
+                            task.spawn(function()
+                                if SliderFunctions.Settings.Callback then
+                                    SliderFunctions.Settings.Callback(SliderFunctions.Value)
+                                end
+                            end)
+                        end
+                    end
 
-						local pos = UDim2.new(posXScale, 0, 0.5, 0)
-						sliderHead.Position = pos
-
-						finalValue = posXScale * (SliderFunctions.Settings.Maximum - SliderFunctions.Settings.Minimum) + Settings.Minimum
-
-						sliderValue.Text = (Settings.Prefix or "") .. ValueDisplayMethod(finalValue, SliderFunctions.Settings.Precision) .. (Settings.Suffix or "")
-
-						if not ignorecallback then
-							task.spawn(function()
-								if SliderFunctions.Settings.Callback then
-									SliderFunctions.Settings.Callback(finalValue)
-								end
-							end)
-						end
-
-						SliderFunctions.Value = finalValue
-					end
+                    task.spawn(function()
+                        task.wait(0.1) -- Small delay to ensure everything is loaded
+                        SliderFunctions:SyncValue()
+                    end)
 
 					SetValue(SliderFunctions.Settings.Default, true)
 
@@ -2078,9 +2093,12 @@ function MacLib:Window(Settings)
 					function SliderFunctions:SetVisibility(State)
 						slider.Visible = State
 					end
-					function SliderFunctions:UpdateValue(Value)
-						SetValue(tonumber(Value), true)
-					end
+                    function SliderFunctions:UpdateValue(Value, skipCallback)
+                        SetValue(tonumber(Value), skipCallback)
+                        if not skipCallback then
+                            SliderFunctions:SyncValue()
+                        end
+                    end
 					function SliderFunctions:GetValue()
 						return finalValue
 					end
