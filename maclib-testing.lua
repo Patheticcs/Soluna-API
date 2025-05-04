@@ -6,7 +6,6 @@ local MacLib = {
 	end
 }
 
---// Services
 local TweenService = MacLib.GetService("TweenService")
 local RunService = MacLib.GetService("RunService")
 local HttpService = MacLib.GetService("HttpService")
@@ -15,7 +14,6 @@ local UserInputService = MacLib.GetService("UserInputService")
 local Lighting = MacLib.GetService("Lighting")
 local Players = MacLib.GetService("Players")
 
---// Variables
 local isStudio = RunService:IsStudio()
 local LocalPlayer = Players.LocalPlayer
 
@@ -94,7 +92,6 @@ local AnimationSettings = {
     }
 }
 
---// Functions
 local function GetGui()
 	local newGui = Instance.new("ScreenGui")
 	newGui.ScreenInsets = Enum.ScreenInsets.None
@@ -115,10 +112,9 @@ local function Tween(instance, tweeninfo, propertytable)
 	return TweenService:Create(instance, tweeninfo, propertytable)
 end
 
---// Library Functions
 function MacLib:Window(Settings)
 	local acrylicBlur = Settings.AcrylicBlur
-	if acrylicBlur == nil then
+	if (acrylicBlur == nil) then
 		acrylicBlur = true
 	end
 
@@ -147,10 +143,15 @@ function MacLib:Window(Settings)
 			table.insert(WindowFunctions.ThemeObjects[themeType], elements)
 		end
 	end
-	
-	function WindowFunctions:UpdateTheme(theme)
+
+	function WindowFunctions:UpdateTheme(themeName)
+		local theme = Themes[themeName]
 		if not theme then return end
 		
+		self:UpdateThemeObjects(theme)
+	end
+	
+	function WindowFunctions:UpdateThemeObjects(theme)
 		for objectType, objects in pairs(self.ThemeObjects) do
 			for _, object in pairs(objects) do
 				if objectType == "Text" then
@@ -1979,7 +1980,7 @@ function MacLib:Window(Settings)
 					sliderValue.TextColor3 = Color3.fromRGB(255, 255, 255)
 					sliderValue.TextSize = 12
 					sliderValue.TextTransparency = 0.1
-					--sliderValue.TextTruncate = Enum.TextTruncate.AtEnd
+
 					sliderValue.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 					sliderValue.BackgroundTransparency = 0.95
 					sliderValue.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -2002,7 +2003,7 @@ function MacLib:Window(Settings)
 					sliderValueUIStroke.Parent = sliderValue
 
 					local sliderValueUIPadding = Instance.new("UIPadding")
-					sliderValueUIPadding.Name = "SliderValueUIPadding"
+					sliderValueUIPadding.Name = "UIPadding"
 					sliderValueUIPadding.PaddingLeft = UDim.new(0, 2)
 					sliderValueUIPadding.PaddingRight = UDim.new(0, 2)
 					sliderValueUIPadding.Parent = sliderValue
@@ -2053,10 +2054,10 @@ function MacLib:Window(Settings)
 					local dragging = false
 
 					local DisplayMethods = {
-						Hundredths = function(sliderValue) -- Deprecated use Settings.Precision
+						Hundredths = function(sliderValue) 
 							return string.format("%.2f", sliderValue)
 						end,
-						Tenths = function(sliderValue) -- Deprecated use Settings.Precision
+						Tenths = function(sliderValue) 
 							return string.format("%.1f", sliderValue)
 						end,
 						Round = function(sliderValue, precision)
@@ -2084,7 +2085,7 @@ function MacLib:Window(Settings)
 
                     local function SetValue(val, ignorecallback, isComplete)
                         local posXScale
-                
+
                         if typeof(val) == "Instance" then
                             local input = val
                             posXScale = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
@@ -2092,14 +2093,14 @@ function MacLib:Window(Settings)
                             local value = val
                             posXScale = (value - SliderFunctions.Settings.Minimum) / (SliderFunctions.Settings.Maximum - Settings.Minimum)
                         end
-                
+
                         local pos = UDim2.new(posXScale, 0, 0.5, 0)
                         sliderHead.Position = pos
-                
+
                         finalValue = posXScale * (SliderFunctions.Settings.Maximum - SliderFunctions.Settings.Minimum) + Settings.Minimum
-                
+
                         sliderValue.Text = (Settings.Prefix or "") .. ValueDisplayMethod(finalValue, SliderFunctions.Settings.Precision) .. (Settings.Suffix or "")
-                
+
                         if not ignorecallback then
                             task.spawn(function()
                                 if SliderFunctions.Settings.Callback then
@@ -2107,7 +2108,7 @@ function MacLib:Window(Settings)
                                 end
                             end)
                         end
-                
+
                         SliderFunctions.Value = finalValue
                     end
 
@@ -2122,7 +2123,7 @@ function MacLib:Window(Settings)
                     end
 
                     task.spawn(function()
-                        task.wait(0.1) -- Small delay to ensure everything is loaded
+                        task.wait(0.1) 
                         SliderFunctions:SyncValue()
                     end)
 
@@ -4493,7 +4494,7 @@ function MacLib:Window(Settings)
 					labelText.Name = "LabelText"
 					labelText.FontFace = Font.new(assets.interFont)
 					labelText.RichText = true
-					labelText.Text = LabelFunctions.Settings.Text or LabelFunctions.Settings.Name -- Settings.Name Deprecated use Settings.Text
+					labelText.Text = LabelFunctions.Settings.Text or LabelFunctions.Settings.Name 
 					labelText.TextColor3 = Color3.fromRGB(255, 255, 255)
 					labelText.TextSize = 13
 					labelText.TextTransparency = 0.5
@@ -4537,7 +4538,7 @@ function MacLib:Window(Settings)
 					subLabelText.Name = "SubLabelText"
 					subLabelText.FontFace = Font.new(assets.interFont)
 					subLabelText.RichText = true
-					subLabelText.Text = SubLabelFunctions.Settings.Text or SubLabelFunctions.Settings.Name -- Settings.Name Deprecated use Settings.Text
+					subLabelText.Text = SubLabelFunctions.Settings.Text or SubLabelFunctions.Settings.Name 
 					subLabelText.TextColor3 = Color3.fromRGB(255, 255, 255)
 					subLabelText.TextSize = 12
 					subLabelText.TextTransparency = 0.7
@@ -4886,7 +4887,7 @@ function MacLib:Window(Settings)
 				for name, _ in pairs(Themes) do
 					table.insert(themeNames, name)
 				end
-				
+
 				section:Dropdown({
 					Name = "Theme",
 					Options = themeNames,
@@ -5400,10 +5401,9 @@ function MacLib:Window(Settings)
 	function WindowFunctions:SetTheme(themeName)
 		local theme = Themes[themeName]
 		if not theme then return end
-		
-		-- Update UI colors
+
 		base.BackgroundColor3 = theme.Background
-		-- Update all text elements
+
 		for _, v in pairs(macLib:GetDescendants()) do
 			if v:IsA("TextLabel") or v:IsA("TextButton") then
 				if v.Parent.Name:find("Sub") then
@@ -5417,8 +5417,7 @@ function MacLib:Window(Settings)
 				v.Color = theme.Border
 			end
 		end
-		
-		-- Save current theme
+
 		WindowFunctions.CurrentTheme = themeName
 	end
 
@@ -5536,7 +5535,7 @@ function MacLib:Window(Settings)
 		for name, _ in pairs(Themes) do
 			table.insert(themeNames, name)
 		end
-		
+
 		section:Dropdown({
 			Name = "Theme",
 			Options = themeNames,
@@ -6060,7 +6059,6 @@ function MacLib:Demo()
 	MacLib:SetFolder("Maclib")
 	tabs.Settings:InsertConfigSection("Left")
 
-	-- Add theme selector
 	tabs.Settings:SetupThemeSection(sections.SettingsSection)
 
 	Window.onUnloaded(function()
