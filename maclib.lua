@@ -6,6 +6,7 @@ local MacLib = {
 	end
 }
 
+--// Services
 local TweenService = MacLib.GetService("TweenService")
 local RunService = MacLib.GetService("RunService")
 local HttpService = MacLib.GetService("HttpService")
@@ -14,6 +15,7 @@ local UserInputService = MacLib.GetService("UserInputService")
 local Lighting = MacLib.GetService("Lighting")
 local Players = MacLib.GetService("Players")
 
+--// Variables
 local isStudio = RunService:IsStudio()
 local LocalPlayer = Players.LocalPlayer
 
@@ -43,6 +45,7 @@ local assets = {
 	sliderhead = "rbxassetid://18772834246",
 }
 
+--// Functions
 local function GetGui()
 	local newGui = Instance.new("ScreenGui")
 	newGui.ScreenInsets = Enum.ScreenInsets.None
@@ -63,6 +66,7 @@ local function Tween(instance, tweeninfo, propertytable)
 	return TweenService:Create(instance, tweeninfo, propertytable)
 end
 
+--// Library Functions
 function MacLib:Window(Settings)
 	local WindowFunctions = {Settings = Settings}
 	if Settings.AcrylicBlur ~= nil then
@@ -1828,7 +1832,8 @@ function MacLib:Window(Settings)
 
                 function SectionFunctions:Slider(Settings, Flag)
                     local SliderFunctions = { Settings = Settings, IgnoreConfig = false, Class = "Slider" }
-
+                
+                    -- Create main slider frame
                     local slider = Instance.new("Frame")
                     slider.Name = "Slider"
                     slider.AutomaticSize = Enum.AutomaticSize.Y 
@@ -1838,7 +1843,8 @@ function MacLib:Window(Settings)
                     slider.BorderSizePixel = 0
                     slider.Size = UDim2.new(1, 0, 0, 38)
                     slider.Parent = section
-
+                
+                    -- Create slider name label
                     local sliderName = Instance.new("TextLabel")
                     sliderName.Name = "SliderName"
                     sliderName.FontFace = Font.new(assets.interFont)
@@ -1857,7 +1863,8 @@ function MacLib:Window(Settings)
                     sliderName.BorderSizePixel = 0
                     sliderName.Size = UDim2.new(1, 0, 0, 20)
                     sliderName.Parent = slider
-
+                
+                    -- Create slider value frame
                     local sliderValue = Instance.new("TextLabel")
                     sliderValue.Name = "SliderValue" 
                     sliderValue.FontFace = Font.new(assets.interFont)
@@ -1876,58 +1883,57 @@ function MacLib:Window(Settings)
                     sliderValue.BorderSizePixel = 0
                     sliderValue.Size = UDim2.new(1, 0, 0, 20)
                     sliderValue.Parent = slider
-
-					local sliderBar = Instance.new("ImageLabel")
-					sliderBar.Name = "SliderBar"
-					sliderBar.Image = assets.sliderbar
-					sliderBar.ImageColor3 = Color3.fromRGB(87, 86, 86)
-					sliderBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-					sliderBar.BackgroundTransparency = 1
-					sliderBar.BorderColor3 = Color3.fromRGB(0, 0, 0)
-					sliderBar.BorderSizePixel = 0
-					sliderBar.Position = UDim2.fromScale(0.219, 0.457)
-					sliderBar.Size = UDim2.fromOffset(123, 3)
-
+                
+                    local sliderBar = Instance.new("Frame")
+                    sliderBar.Name = "SliderBar"
+                    sliderBar.AnchorPoint = Vector2.new(0, 1)
+                    sliderBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    sliderBar.BackgroundTransparency = 0.85 -- Changed from 0.95 to 0.85
+                    sliderBar.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                    sliderBar.BorderSizePixel = 0
+                    sliderBar.Position = UDim2.fromScale(0, 1)
+                    sliderBar.Size = UDim2.new(1, 0, 0, 4)
+                    sliderBar.Parent = slider
+                
                     local sliderFill = Instance.new("Frame")
                     sliderFill.Name = "SliderFill"
                     sliderFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)  
-                    sliderFill.BackgroundTransparency = 1
+                    sliderFill.BackgroundTransparency = 0.5 -- Changed from 0.8 to 0.5
                     sliderFill.BorderColor3 = Color3.fromRGB(0, 0, 0)
                     sliderFill.BorderSizePixel = 0
                     sliderFill.Size = UDim2.fromScale(0.5, 1)
                     sliderFill.Parent = sliderBar
-
-
-					local sliderHead = Instance.new("ImageButton")
-					sliderHead.Name = "SliderHead"
-					sliderHead.Image = assets.sliderhead
-					sliderHead.AnchorPoint = Vector2.new(0.5, 0.5)
-					sliderHead.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-					sliderHead.BackgroundTransparency = 1
-					sliderHead.BorderColor3 = Color3.fromRGB(0, 0, 0)
-					sliderHead.BorderSizePixel = 0
-					sliderHead.Position = UDim2.fromScale(1, 0.5)
-					sliderHead.Size = UDim2.fromOffset(12, 12)
-					sliderHead.Parent = sliderBar
-
+                
+                    local sliderHead = Instance.new("Frame")
+                    sliderHead.Name = "SliderHead"
+                    sliderHead.AnchorPoint = Vector2.new(0.5, 0.5)
+                    sliderHead.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    sliderHead.BackgroundTransparency = 0.5 -- Changed from 0.8 to 0.5
+                    sliderHead.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                    sliderHead.BorderSizePixel = 0
+                    sliderHead.Position = UDim2.fromScale(0.5, 0.5)
+                    sliderHead.Size = UDim2.fromOffset(12, 12)
+                    sliderHead.Parent = sliderBar
+                
                     local sliderBarCorner = Instance.new("UICorner")
                     sliderBarCorner.Name = "SliderBarCorner"
                     sliderBarCorner.CornerRadius = UDim.new(1, 0)
                     sliderBarCorner.Parent = sliderBar
-
+                
                     local sliderFillCorner = Instance.new("UICorner") 
                     sliderFillCorner.Name = "SliderFillCorner"
                     sliderFillCorner.CornerRadius = UDim.new(1, 0)
                     sliderFillCorner.Parent = sliderFill
-
+                
                     local sliderHeadCorner = Instance.new("UICorner")
                     sliderHeadCorner.Name = "SliderHeadCorner"
                     sliderHeadCorner.CornerRadius = UDim.new(1, 0)
                     sliderHeadCorner.Parent = sliderHead
-
+                
+                    -- Set initial values and state
                     local finalValue = Settings.Default or Settings.Minimum
                     local dragging = false
-
+                
                     local function ValueDisplayMethod(value, precision)
                         if Settings.DisplayMethod == "Value" then
                             return tostring(math.floor(value * 10^precision) / 10^precision)
@@ -1936,25 +1942,26 @@ function MacLib:Window(Settings)
                         end
                         return tostring(value)
                     end
-
+                
+                    -- Update visuals based on value
                     local function SetValue(val, ignorecallback, isComplete)
                         local posXScale
-
-                        if typeof(val) == "Instance" then  
+                        
+                        if typeof(val) == "Instance" then  -- Input from dragging
                             local input = val
                             posXScale = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
-                        else  
+                        else  -- Direct value
                             local value = val
                             posXScale = (value - SliderFunctions.Settings.Minimum) / (SliderFunctions.Settings.Maximum - Settings.Minimum)
                         end
-
+                
                         local pos = UDim2.new(posXScale, 0, 0.5, 0)
                         sliderHead.Position = pos
                         sliderFill.Size = UDim2.new(posXScale, 0, 1, 0)
-
+                
                         finalValue = posXScale * (SliderFunctions.Settings.Maximum - SliderFunctions.Settings.Minimum) + Settings.Minimum
                         sliderValue.Text = (Settings.Prefix or "") .. ValueDisplayMethod(finalValue, SliderFunctions.Settings.Precision) .. (Settings.Suffix or "")
-
+                
                         if not ignorecallback then
                             task.spawn(function()
                                 if SliderFunctions.Settings.Callback then
@@ -1962,66 +1969,70 @@ function MacLib:Window(Settings)
                                 end
                             end)
                         end
-
+                
                         SliderFunctions.Value = finalValue
                         return finalValue
                     end
-
+                
+                    -- Handle sliding interaction
                     local function slide(input)
                         local pos = UDim2.new(math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1), 0, 0.5, 0) 
                         sliderHead.Position = pos
                         sliderFill.Size = UDim2.new(pos.X.Scale, 0, 1, 0)
-
+                        
                         local value = SliderFunctions.Settings.Minimum + ((SliderFunctions.Settings.Maximum - SliderFunctions.Settings.Minimum) * pos.X.Scale)
                         finalValue = value
                         sliderValue.Text = (Settings.Prefix or "") .. ValueDisplayMethod(value, SliderFunctions.Settings.Precision) .. (Settings.Suffix or "")
-
+                        
                         if SliderFunctions.Settings.Callback then
-                            SliderFunctions.Settings.Callback(value, false)  
+                            SliderFunctions.Settings.Callback(value, false)  -- false indicates sliding in progress
                         end
                         SliderFunctions.Value = value
                     end
-
+                
+                    -- Connect input handlers
                     sliderBar.InputBegan:Connect(function(input)
                         if input.UserInputType == Enum.UserInputType.MouseButton1 then
                             dragging = true
                             slide(input)
                         end
                     end)
-
+                
                     sliderBar.InputEnded:Connect(function(input)
                         if input.UserInputType == Enum.UserInputType.MouseButton1 then
                             dragging = false
                             if SliderFunctions.Settings.Callback then
-                                SliderFunctions.Settings.Callback(finalValue, true)  
+                                SliderFunctions.Settings.Callback(finalValue, true)  -- true indicates sliding complete
                             end
                         end
                     end)
-
+                
                     game:GetService("UserInputService").InputChanged:Connect(function(input)
                         if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
                             slide(input)
                         end
                     end)
-
+                
+                    -- Set initial value
                     SetValue(Settings.Default or Settings.Minimum, true)
-
+                
+                    -- Add functions to update slider
                     function SliderFunctions:UpdateValue(Value, skipCallback)
                         SetValue(tonumber(Value), skipCallback)
                     end
-
+                
                     function SliderFunctions:UpdateName(Name)
                         sliderName.Text = Name
                     end
-
+                
                     function SliderFunctions:SetVisibility(State)
                         slider.Visible = State
                     end
-
+                
                     if Flag then
                         MacLib.Options[Flag] = SliderFunctions
                     end
-
+                
                     return SliderFunctions
                 end
 
@@ -2538,7 +2549,7 @@ function MacLib:Window(Settings)
                         local totalHeight = 0
                         local visibleChildrenCount = 0
                         local padding = dropdownFrameUIPadding.PaddingTop.Offset + dropdownFrameUIPadding.PaddingBottom.Offset
-
+                    
                         for _, v in pairs(dropdownFrame:GetChildren()) do
                             if not v:IsA("UIComponent") and v.Visible then
                                 if v:IsA("GuiObject") then
@@ -2547,7 +2558,7 @@ function MacLib:Window(Settings)
                                 end
                             end
                         end
-
+                    
                         local spacing = dropdownFrameUIListLayout.Padding.Offset * math.max(visibleChildrenCount - 1, 0)
                         return totalHeight + spacing + padding
                     end
@@ -4309,7 +4320,7 @@ function MacLib:Window(Settings)
 					labelText.Name = "LabelText"
 					labelText.FontFace = Font.new(assets.interFont)
 					labelText.RichText = true
-					labelText.Text = LabelFunctions.Settings.Text or LabelFunctions.Settings.Name 
+					labelText.Text = LabelFunctions.Settings.Text or LabelFunctions.Settings.Name -- Settings.Name Deprecated use Settings.Text
 					labelText.TextColor3 = Color3.fromRGB(255, 255, 255)
 					labelText.TextSize = 13
 					labelText.TextTransparency = 0.5
@@ -4353,7 +4364,7 @@ function MacLib:Window(Settings)
 					subLabelText.Name = "SubLabelText"
 					subLabelText.FontFace = Font.new(assets.interFont)
 					subLabelText.RichText = true
-					subLabelText.Text = SubLabelFunctions.Settings.Text or SubLabelFunctions.Settings.Name 
+					subLabelText.Text = SubLabelFunctions.Settings.Text or SubLabelFunctions.Settings.Name -- Settings.Name Deprecated use Settings.Text
 					subLabelText.TextColor3 = Color3.fromRGB(255, 255, 255)
 					subLabelText.TextSize = 12
 					subLabelText.TextTransparency = 0.7
