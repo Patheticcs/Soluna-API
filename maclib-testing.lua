@@ -2222,7 +2222,7 @@ function MacLib:Window(Settings)
 					inputBoxUIStroke.Parent = inputBox
 
 					local inputBoxUIPadding = Instance.new("UIPadding")
-					inputBoxUIPadding.Name = "InputBoxUIPadding"
+					inputBoxUIPadding.Name = "UIPadding"
 					inputBoxUIPadding.PaddingLeft = UDim.new(0, 5)
 					inputBoxUIPadding.PaddingRight = UDim.new(0, 5)
 					inputBoxUIPadding.Parent = inputBox
@@ -2399,13 +2399,13 @@ function MacLib:Window(Settings)
 					binderBoxUIStroke.Parent = binderBox
 
 					local binderBoxUIPadding = Instance.new("UIPadding")
-					binderBoxUIPadding.Name = "BinderBoxUIPadding"
+					binderBoxUIPadding.Name = "UIPadding"
 					binderBoxUIPadding.PaddingLeft = UDim.new(0, 5)
 					binderBoxUIPadding.PaddingRight = UDim.new(0, 5)
 					binderBoxUIPadding.Parent = binderBox
 
 					local binderBoxUISizeConstraint = Instance.new("UISizeConstraint")
-					binderBoxUISizeConstraint.Name = "BinderBoxUISizeConstraint"
+					binderBoxUISizeConstraint.Name = "UISizeConstraint"
 					binderBoxUISizeConstraint.Parent = binderBox
 
 					binderBox.Parent = keybind
@@ -3421,7 +3421,7 @@ function MacLib:Window(Settings)
 					inputBoxUICorner.Parent = inputBox
 
 					local inputBoxUIStroke = Instance.new("UIStroke")
-					inputBoxUIStroke.Name = "InputBoxUIStroke"
+					inputBoxUIStroke.Name = "UIStroke"
 					inputBoxUIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke.Color = Color3.fromRGB(255, 255, 255)
 					inputBoxUIStroke.Transparency = 0.9
@@ -3499,7 +3499,7 @@ function MacLib:Window(Settings)
 					inputBox1.Size = UDim2.fromOffset(75, 25)
 
 					local inputBoxUICorner1 = Instance.new("UICorner")
-					inputBoxUICorner1.Name = "InputBoxUICorner"
+					inputBoxUICorner1.Name = "UICorner"
 					inputBoxUICorner1.CornerRadius = UDim.new(0, 4)
 					inputBoxUICorner1.Parent = inputBox1
 
@@ -3582,7 +3582,7 @@ function MacLib:Window(Settings)
 					inputBox2.Size = UDim2.fromOffset(75, 25)
 
 					local inputBoxUICorner2 = Instance.new("UICorner")
-					inputBoxUICorner2.Name = "InputBoxUICorner"
+					inputBoxUICorner2.Name = "UICorner"
 					inputBoxUICorner2.CornerRadius = UDim.new(0, 4)
 					inputBoxUICorner2.Parent = inputBox2
 
@@ -3666,7 +3666,7 @@ function MacLib:Window(Settings)
 					inputBox3.Size = UDim2.fromOffset(75, 25)
 
 					local inputBoxUICorner3 = Instance.new("UICorner")
-					inputBoxUICorner3.Name = "InputBoxUICorner"
+					inputBoxUICorner3.Name = "UICorner"
 					inputBoxUICorner3.CornerRadius = UDim.new(0, 4)
 					inputBoxUICorner3.Parent = inputBox3
 
@@ -3749,7 +3749,7 @@ function MacLib:Window(Settings)
 					inputBox4.Size = UDim2.fromOffset(75, 25)
 
 					local inputBoxUICorner4 = Instance.new("UICorner")
-					inputBoxUICorner4.Name = "InputBoxUICorner"
+					inputBoxUICorner4.Name = "UICorner"
 					inputBoxUICorner4.CornerRadius = UDim.new(0, 4)
 					inputBoxUICorner4.Parent = inputBox4
 
@@ -4232,7 +4232,7 @@ function MacLib:Window(Settings)
 					modifierInputs.Hex.FocusLost:Connect(updateFromHex)
 					modifierInputs.Red.FocusLost:Connect(updateFromRGB)
 					modifierInputs.Green.FocusLost:Connect(updateFromRGB)
-					modifierInputs.Blue.FocusLost:Connect(updateFromRGB)
+					modifierInputs.Blue.FocusLost:Connect(update)
 					modifierInputs.Alpha.FocusLost:Connect(update)
 
 					modifierInputs.Hex.Focused:Connect(function()
@@ -4829,6 +4829,22 @@ function MacLib:Window(Settings)
 				end
 			end
 
+			function TabFunctions:SetupThemeSection(section)
+				local themeNames = {}
+				for name, _ in pairs(Themes) do
+					table.insert(themeNames, name)
+				end
+				
+				section:Dropdown({
+					Name = "Theme",
+					Options = themeNames,
+					Default = WindowFunctions.CurrentTheme or "Default",
+					Callback = function(theme)
+						WindowFunctions:SetTheme(theme)
+					end
+				}, "UITheme")
+			end
+
 			tabs[tabSwitcher] = {
 				tabContent = elements1,
 				tabStroke = tabSwitcherUIStroke,
@@ -5329,6 +5345,35 @@ function MacLib:Window(Settings)
 		return windowState
 	end
 
+	function WindowFunctions:SetTheme(themeName)
+		local theme = Themes[themeName]
+		if not theme then return end
+		
+		-- Update UI colors
+		base.BackgroundColor3 = theme.Background
+		-- Update all text elements
+		for _, v in pairs(macLib:GetDescendants()) do
+			if v:IsA("TextLabel") or v:IsA("TextButton") then
+				if v.Parent.Name:find("Sub") then
+					v.TextColor3 = theme.SubText
+				else
+					v.TextColor3 = theme.Text
+				end
+			elseif v:IsA("Frame") and v.Name:find("Button") then
+				v.BackgroundColor3 = theme.ItemBackground
+			elseif v:IsA("UIStroke") then
+				v.Color = theme.Border
+			end
+		end
+		
+		-- Save current theme
+		WindowFunctions.CurrentTheme = themeName
+	end
+
+	function WindowFunctions.onUnloaded(callback)
+		onUnloadCallback = callback
+	end
+
 	local onUnloadCallback
 
 	function WindowFunctions:Unload()
@@ -5337,10 +5382,6 @@ function MacLib:Window(Settings)
 		end
 		macLib:Destroy()
 		unloaded = true
-	end
-
-	function WindowFunctions.onUnloaded(callback)
-		onUnloadCallback = callback
 	end
 
 	local MenuKeybind = Settings.Keybind or Enum.KeyCode.RightControl
@@ -5438,31 +5479,6 @@ function MacLib:Window(Settings)
 		return baseUIScale.Scale
 	end
 
-	function WindowFunctions:SetTheme(themeName)
-		local theme = Themes[themeName]
-		if not theme then return end
-		
-		-- Update UI colors
-		base.BackgroundColor3 = theme.Background
-		-- Update all text elements
-		for _, v in pairs(macLib:GetDescendants()) do
-			if v:IsA("TextLabel") or v:IsA("TextButton") then
-				if v.Parent.Name:find("Sub") then
-					v.TextColor3 = theme.SubText
-				else
-					v.TextColor3 = theme.Text
-				end
-			elseif v:IsA("Frame") and v.Name:find("Button") then
-				v.BackgroundColor3 = theme.ItemBackground
-			elseif v:IsA("UIStroke") then
-				v.Color = theme.Border
-			end
-		end
-		
-		-- Save current theme
-		WindowFunctions.CurrentTheme = themeName
-	end
-
 	function TabFunctions:SetupThemeSection(section)
 		local themeNames = {}
 		for name, _ in pairs(Themes) do
@@ -5472,7 +5488,7 @@ function MacLib:Window(Settings)
 		section:Dropdown({
 			Name = "Theme",
 			Options = themeNames,
-			Default = "Default",
+			Default = WindowFunctions.CurrentTheme or "Default",
 			Callback = function(theme)
 				WindowFunctions:SetTheme(theme)
 			end
