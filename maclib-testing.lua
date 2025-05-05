@@ -6,6 +6,7 @@ local MacLib = {
 	end
 }
 
+--// Services
 local TweenService = MacLib.GetService("TweenService")
 local RunService = MacLib.GetService("RunService")
 local HttpService = MacLib.GetService("HttpService")
@@ -14,6 +15,7 @@ local UserInputService = MacLib.GetService("UserInputService")
 local Lighting = MacLib.GetService("Lighting")
 local Players = MacLib.GetService("Players")
 
+--// Variables
 local isStudio = RunService:IsStudio()
 local LocalPlayer = Players.LocalPlayer
 
@@ -43,55 +45,7 @@ local assets = {
 	sliderhead = "rbxassetid://18772834246",
 }
 
-local Themes = {
-    Default = {
-        Background = Color3.fromRGB(15, 15, 15),
-        Text = Color3.fromRGB(255, 255, 255),
-        SubText = Color3.fromRGB(255, 255, 255),
-        Border = Color3.fromRGB(255, 255, 255),
-        Highlight = Color3.fromRGB(25, 25, 25),
-        DimmedText = Color3.fromRGB(150, 150, 150),
-        ItemBackground = Color3.fromRGB(25, 25, 25),
-    },
-    Light = {
-        Background = Color3.fromRGB(240, 240, 240),
-        Text = Color3.fromRGB(50, 50, 50), 
-        SubText = Color3.fromRGB(100, 100, 100),
-        Border = Color3.fromRGB(200, 200, 200),
-        Highlight = Color3.fromRGB(220, 220, 220),
-        DimmedText = Color3.fromRGB(150, 150, 150),
-        ItemBackground = Color3.fromRGB(230, 230, 230),
-    },
-    Discord = {
-        Background = Color3.fromRGB(54, 57, 63),
-        Text = Color3.fromRGB(255, 255, 255),
-        SubText = Color3.fromRGB(185, 187, 190),
-        Border = Color3.fromRGB(78, 82, 89),
-        Highlight = Color3.fromRGB(47, 49, 54),
-        DimmedText = Color3.fromRGB(142, 146, 151),
-        ItemBackground = Color3.fromRGB(64, 68, 75),
-    }
-}
-
-local AnimationSettings = {
-    TabSwitch = {
-        Duration = 0.3,
-        Style = Enum.EasingStyle.Quart
-    },
-    ButtonHover = {
-        Duration = 0.2, 
-        Style = Enum.EasingStyle.Quad
-    },
-    SliderDrag = {
-        Duration = 0.1,
-        Style = Enum.EasingStyle.Linear  
-    },
-    DropdownOpen = {
-        Duration = 0.2,
-        Style = Enum.EasingStyle.Back
-    }
-}
-
+--// Functions
 local function GetGui()
 	local newGui = Instance.new("ScreenGui")
 	newGui.ScreenInsets = Enum.ScreenInsets.None
@@ -112,69 +66,13 @@ local function Tween(instance, tweeninfo, propertytable)
 	return TweenService:Create(instance, tweeninfo, propertytable)
 end
 
+--// Library Functions
 function MacLib:Window(Settings)
-	local acrylicBlur = Settings.AcrylicBlur
-	if (acrylicBlur == nil) then
+	local WindowFunctions = {Settings = Settings}
+	if Settings.AcrylicBlur ~= nil then
+		acrylicBlur = Settings.AcrylicBlur
+	else
 		acrylicBlur = true
-	end
-
-	local WindowFunctions = {
-		Settings = Settings,
-		Tabs = {},
-		SelectedTab = nil,
-		ThemeObjects = {
-			Text = {},
-			Section = {},
-			Background = {},
-			Border = {},
-			Selection = {},
-			DimText = {},
-			WindowBackground = {}
-		}
-	}
-
-	local function SetupThemeSection(elements, themeType)
-		WindowFunctions.ThemeObjects[themeType] = WindowFunctions.ThemeObjects[themeType] or {}
-		if type(elements) == "table" then
-			for _, element in pairs(elements) do
-				table.insert(WindowFunctions.ThemeObjects[themeType], element)
-			end
-		else
-			table.insert(WindowFunctions.ThemeObjects[themeType], elements)
-		end
-	end
-
-	function WindowFunctions:UpdateTheme(themeName)
-		local theme = Themes[themeName]
-		if not theme then return end
-		
-		self:UpdateThemeObjects(theme)
-	end
-	
-	function WindowFunctions:UpdateThemeObjects(theme)
-		for objectType, objects in pairs(self.ThemeObjects) do
-			for _, object in pairs(objects) do
-				if objectType == "Text" then
-					object.TextColor3 = theme.Text
-				elseif objectType == "Section" then  
-					object.BackgroundColor3 = theme.Section
-				elseif objectType == "Background" then
-					object.BackgroundColor3 = theme.Background 
-				elseif objectType == "Border" then
-					if object:IsA("UIStroke") then
-						object.Color = theme.Border
-					else
-						object.BorderColor3 = theme.Border
-					end
-				elseif objectType == "Selection" then
-					object.BackgroundColor3 = theme.Selection
-				elseif objectType == "DimText" then  
-					object.TextColor3 = theme.DimText
-				elseif objectType == "WindowBackground" then
-					object.BackgroundColor3 = theme.WindowBackground
-				end
-			end
-		end
 	end
 
 	local macLib = GetGui()
@@ -1026,6 +924,146 @@ function MacLib:Window(Settings)
 	globalSettingsUIScale.Parent = globalSettings
 	globalSettings.Parent = base
 	base.Parent = macLib
+
+	-- Animation functions
+	local function AnimateButtonPress(button)
+		local originalScale = button.Size
+		Tween(button, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {
+			Size = originalScale * UDim2.fromScale(0.95, 0.95)
+		}).Completed:Wait()
+		Tween(button, TweenInfo.new(0.1, Enum.EasingStyle.Back), {
+			Size = originalScale
+		}):Play()
+	end
+
+	local function AnimateDropdownOpen(frame)
+		local originalSize = frame.Size
+		frame.Size = UDim2.new(originalSize.X.Scale, originalSize.X.Offset, 0, 0)
+		Tween(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {
+			Size = originalSize
+		}):Play()
+	end
+
+	local function AnimateSliderDrag(slider)
+		Tween(slider, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {
+			BackgroundTransparency = 0.7
+		}):Play()
+	end
+
+	local function AnimateTabSwitch(oldTab, newTab)
+		if oldTab then
+			Tween(oldTab, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+				Position = UDim2.new(-1, 0, 0, 0),
+				BackgroundTransparency = 1
+			}):Play()
+		end
+		
+		newTab.Position = UDim2.new(1, 0, 0, 0)
+		Tween(newTab, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+			Position = UDim2.new(0, 0, 0, 0),
+			BackgroundTransparency = 0
+		}):Play()
+	end
+
+	local function AnimateToggle(toggle, enabled)
+		local targetPos = enabled and UDim2.new(1, -2, 0.5, 0) or UDim2.new(0, 2, 0.5, 0)
+		local targetColor = enabled and Color3.fromRGB(0, 255, 100) or Color3.fromRGB(200, 200, 200)
+		
+		Tween(toggle, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+			Position = targetPos,
+			BackgroundColor3 = targetColor
+		}):Play()
+	end
+
+	local function AnimateHover(object)
+		Tween(object, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {
+			BackgroundTransparency = 0.8
+		}):Play()
+	end
+
+	local function AnimateUnhover(object)
+		Tween(object, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {
+			BackgroundTransparency = 1
+		}):Play()
+	end
+
+	local function AnimateNotification(notification)
+		notification.Position = UDim2.new(1.1, 0, notification.Position.Y.Scale, notification.Position.Y.Offset)
+		Tween(notification, TweenInfo.new(0.4, Enum.EasingStyle.Back), {
+			Position = UDim2.new(1, -10, notification.Position.Y.Scale, notification.Position.Y.Offset)
+		}):Play()
+	end
+
+	local function AnimateTextReveal(textLabel)
+		textLabel.TextTransparency = 1
+		textLabel.TextStrokeTransparency = 1
+		
+		Tween(textLabel, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {
+			TextTransparency = 0,
+			TextStrokeTransparency = 0.8
+		}):Play()
+	end
+
+	local function AnimateColorPickerOpen(picker)
+		picker.BackgroundTransparency = 1
+		picker.Size = UDim2.new(0, 0, 0, 0)
+		
+		Tween(picker, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
+			BackgroundTransparency = 0,
+			Size = UDim2.new(1, 0, 1, 0)
+		}):Play()
+	end
+
+	local function AnimateInputBoxFocus(inputBox)
+		Tween(inputBox, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+			BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+			TextColor3 = Color3.fromRGB(255, 255, 255)
+		}):Play()
+	end
+
+	local function AnimateScrolling(scrollFrame)
+		local function smoothScroll(position)
+			Tween(scrollFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+				CanvasPosition = Vector2.new(0, position)
+			}):Play()
+		end
+		
+		return smoothScroll
+	end
+
+	local function AnimateMinimize(window)
+		local originalSize = window.Size
+		Tween(window, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+			Size = UDim2.new(originalSize.X.Scale, originalSize.X.Offset, 0, 0)
+		}):Play()
+	end
+
+	local function AnimateMaximize(window)
+		Tween(window, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			Size = UDim2.new(window.Size.X.Scale, window.Size.X.Offset, 1, 0)
+		}):Play()
+	end
+
+	local function AnimatePopupOpen(popup)
+		popup.BackgroundTransparency = 1
+		popup.Position = UDim2.new(0.5, 0, 0.6, 0)
+		
+		Tween(popup, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
+			BackgroundTransparency = 0,
+			Position = UDim2.new(0.5, 0, 0.5, 0)
+		}):Play()
+	end
+
+	local function AnimateSliderValue(valueLabel, newValue)
+		Tween(valueLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+			TextTransparency = 1
+		}).Completed:Wait()
+		
+		valueLabel.Text = newValue
+		Tween(valueLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+			TextTransparency = 0
+		}):Play()
+	end
 
 	function WindowFunctions:UpdateTitle(NewTitle)
 		title.Text = NewTitle
@@ -1980,7 +2018,7 @@ function MacLib:Window(Settings)
 					sliderValue.TextColor3 = Color3.fromRGB(255, 255, 255)
 					sliderValue.TextSize = 12
 					sliderValue.TextTransparency = 0.1
-
+					--sliderValue.TextTruncate = Enum.TextTruncate.AtEnd
 					sliderValue.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 					sliderValue.BackgroundTransparency = 0.95
 					sliderValue.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -2003,7 +2041,7 @@ function MacLib:Window(Settings)
 					sliderValueUIStroke.Parent = sliderValue
 
 					local sliderValueUIPadding = Instance.new("UIPadding")
-					sliderValueUIPadding.Name = "UIPadding"
+					sliderValueUIPadding.Name = "SliderValueUIPadding"
 					sliderValueUIPadding.PaddingLeft = UDim.new(0, 2)
 					sliderValueUIPadding.PaddingRight = UDim.new(0, 2)
 					sliderValueUIPadding.Parent = sliderValue
@@ -2054,10 +2092,10 @@ function MacLib:Window(Settings)
 					local dragging = false
 
 					local DisplayMethods = {
-						Hundredths = function(sliderValue) 
+						Hundredths = function(sliderValue) -- Deprecated use Settings.Precision
 							return string.format("%.2f", sliderValue)
 						end,
-						Tenths = function(sliderValue) 
+						Tenths = function(sliderValue) -- Deprecated use Settings.Precision
 							return string.format("%.1f", sliderValue)
 						end,
 						Round = function(sliderValue, precision)
@@ -2085,7 +2123,7 @@ function MacLib:Window(Settings)
 
                     local function SetValue(val, ignorecallback, isComplete)
                         local posXScale
-
+                
                         if typeof(val) == "Instance" then
                             local input = val
                             posXScale = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
@@ -2093,14 +2131,14 @@ function MacLib:Window(Settings)
                             local value = val
                             posXScale = (value - SliderFunctions.Settings.Minimum) / (SliderFunctions.Settings.Maximum - Settings.Minimum)
                         end
-
+                
                         local pos = UDim2.new(posXScale, 0, 0.5, 0)
                         sliderHead.Position = pos
-
+                
                         finalValue = posXScale * (SliderFunctions.Settings.Maximum - SliderFunctions.Settings.Minimum) + Settings.Minimum
-
+                
                         sliderValue.Text = (Settings.Prefix or "") .. ValueDisplayMethod(finalValue, SliderFunctions.Settings.Precision) .. (Settings.Suffix or "")
-
+                
                         if not ignorecallback then
                             task.spawn(function()
                                 if SliderFunctions.Settings.Callback then
@@ -2108,7 +2146,7 @@ function MacLib:Window(Settings)
                                 end
                             end)
                         end
-
+                
                         SliderFunctions.Value = finalValue
                     end
 
@@ -2123,7 +2161,7 @@ function MacLib:Window(Settings)
                     end
 
                     task.spawn(function()
-                        task.wait(0.1) 
+                        task.wait(0.1) -- Small delay to ensure everything is loaded
                         SliderFunctions:SyncValue()
                     end)
 
@@ -2275,7 +2313,7 @@ function MacLib:Window(Settings)
 					inputBoxUIStroke.Parent = inputBox
 
 					local inputBoxUIPadding = Instance.new("UIPadding")
-					inputBoxUIPadding.Name = "UIPadding"
+					inputBoxUIPadding.Name = "InputBoxUIPadding"
 					inputBoxUIPadding.PaddingLeft = UDim.new(0, 5)
 					inputBoxUIPadding.PaddingRight = UDim.new(0, 5)
 					inputBoxUIPadding.Parent = inputBox
@@ -2452,7 +2490,7 @@ function MacLib:Window(Settings)
 					binderBoxUIStroke.Parent = binderBox
 
 					local binderBoxUIPadding = Instance.new("UIPadding")
-					binderBoxUIPadding.Name = "UIPadding"
+					binderBoxUIPadding.Name = "BinderBoxUIPadding"
 					binderBoxUIPadding.PaddingLeft = UDim.new(0, 5)
 					binderBoxUIPadding.PaddingRight = UDim.new(0, 5)
 					binderBoxUIPadding.Parent = binderBox
@@ -3481,11 +3519,11 @@ function MacLib:Window(Settings)
 					inputBoxUIStroke.Parent = inputBox
 
 					local inputBoxUISizeConstraint = Instance.new("UISizeConstraint")
-					inputBoxUISizeConstraint.Name = "UISizeConstraint"
+					inputBoxUISizeConstraint.Name = "InputBoxUISizeConstraint"
 					inputBoxUISizeConstraint.Parent = inputBox
 
 					local inputBoxUIPadding = Instance.new("UIPadding")
-					inputBoxUIPadding.Name = "UIPadding"
+					inputBoxUIPadding.Name = "InputBoxUIPadding"
 					inputBoxUIPadding.PaddingLeft = UDim.new(0, 8)
 					inputBoxUIPadding.PaddingRight = UDim.new(0, 10)
 					inputBoxUIPadding.Parent = inputBox
@@ -3552,7 +3590,7 @@ function MacLib:Window(Settings)
 					inputBox1.Size = UDim2.fromOffset(75, 25)
 
 					local inputBoxUICorner1 = Instance.new("UICorner")
-					inputBoxUICorner1.Name = "UICorner"
+					inputBoxUICorner1.Name = "InputBoxUICorner"
 					inputBoxUICorner1.CornerRadius = UDim.new(0, 4)
 					inputBoxUICorner1.Parent = inputBox1
 
@@ -3635,7 +3673,7 @@ function MacLib:Window(Settings)
 					inputBox2.Size = UDim2.fromOffset(75, 25)
 
 					local inputBoxUICorner2 = Instance.new("UICorner")
-					inputBoxUICorner2.Name = "UICorner"
+					inputBoxUICorner2.Name = "InputBoxUICorner"
 					inputBoxUICorner2.CornerRadius = UDim.new(0, 4)
 					inputBoxUICorner2.Parent = inputBox2
 
@@ -3719,7 +3757,7 @@ function MacLib:Window(Settings)
 					inputBox3.Size = UDim2.fromOffset(75, 25)
 
 					local inputBoxUICorner3 = Instance.new("UICorner")
-					inputBoxUICorner3.Name = "UICorner"
+					inputBoxUICorner3.Name = "InputBoxUICorner"
 					inputBoxUICorner3.CornerRadius = UDim.new(0, 4)
 					inputBoxUICorner3.Parent = inputBox3
 
@@ -3802,7 +3840,7 @@ function MacLib:Window(Settings)
 					inputBox4.Size = UDim2.fromOffset(75, 25)
 
 					local inputBoxUICorner4 = Instance.new("UICorner")
-					inputBoxUICorner4.Name = "UICorner"
+					inputBoxUICorner4.Name = "InputBoxUICorner"
 					inputBoxUICorner4.CornerRadius = UDim.new(0, 4)
 					inputBoxUICorner4.Parent = inputBox4
 
@@ -4494,7 +4532,7 @@ function MacLib:Window(Settings)
 					labelText.Name = "LabelText"
 					labelText.FontFace = Font.new(assets.interFont)
 					labelText.RichText = true
-					labelText.Text = LabelFunctions.Settings.Text or LabelFunctions.Settings.Name 
+					labelText.Text = LabelFunctions.Settings.Text or LabelFunctions.Settings.Name -- Settings.Name Deprecated use Settings.Text
 					labelText.TextColor3 = Color3.fromRGB(255, 255, 255)
 					labelText.TextSize = 13
 					labelText.TextTransparency = 0.5
@@ -4538,7 +4576,7 @@ function MacLib:Window(Settings)
 					subLabelText.Name = "SubLabelText"
 					subLabelText.FontFace = Font.new(assets.interFont)
 					subLabelText.RichText = true
-					subLabelText.Text = SubLabelFunctions.Settings.Text or SubLabelFunctions.Settings.Name 
+					subLabelText.Text = SubLabelFunctions.Settings.Text or SubLabelFunctions.Settings.Name -- Settings.Name Deprecated use Settings.Text
 					subLabelText.TextColor3 = Color3.fromRGB(255, 255, 255)
 					subLabelText.TextSize = 12
 					subLabelText.TextTransparency = 0.7
@@ -4840,7 +4878,7 @@ function MacLib:Window(Settings)
 							WindowFunctions:Notify({
 								Title = "Interface",
 								Description = "Unable to overwrite config, return error: " .. returned
-								})
+							})
 							return
 						end
 
@@ -4880,22 +4918,6 @@ function MacLib:Window(Settings)
 					local name = readfile(MacLib.Folder .. "/settings/autoload.txt")
 					autoloadLabel:UpdateName("Autoload config: " .. name)
 				end
-			end
-
-			function TabFunctions:SetupThemeSection(section)
-				local themeNames = {}
-				for name, _ in pairs(Themes) do
-					table.insert(themeNames, name)
-				end
-
-				section:Dropdown({
-					Name = "Theme",
-					Options = themeNames,
-					Default = WindowFunctions.CurrentTheme or "Default",
-					Callback = function(theme)
-						WindowFunctions:SetTheme(theme)
-					end
-				}, "UITheme")
 			end
 
 			tabs[tabSwitcher] = {
@@ -5398,33 +5420,6 @@ function MacLib:Window(Settings)
 		return windowState
 	end
 
-	function WindowFunctions:SetTheme(themeName)
-		local theme = Themes[themeName]
-		if not theme then return end
-
-		base.BackgroundColor3 = theme.Background
-
-		for _, v in pairs(macLib:GetDescendants()) do
-			if v:IsA("TextLabel") or v:IsA("TextButton") then
-				if v.Parent.Name:find("Sub") then
-					v.TextColor3 = theme.SubText
-				else
-					v.TextColor3 = theme.Text
-				end
-			elseif v:IsA("Frame") and v.Name:find("Button") then
-				v.BackgroundColor3 = theme.ItemBackground
-			elseif v:IsA("UIStroke") then
-				v.Color = theme.Border
-			end
-		end
-
-		WindowFunctions.CurrentTheme = themeName
-	end
-
-	function WindowFunctions.onUnloaded(callback)
-		onUnloadCallback = callback
-	end
-
 	local onUnloadCallback
 
 	function WindowFunctions:Unload()
@@ -5433,6 +5428,10 @@ function MacLib:Window(Settings)
 		end
 		macLib:Destroy()
 		unloaded = true
+	end
+
+	function WindowFunctions.onUnloaded(callback)
+		onUnloadCallback = callback
 	end
 
 	local MenuKeybind = Settings.Keybind or Enum.KeyCode.RightControl
@@ -5528,22 +5527,6 @@ function MacLib:Window(Settings)
 	end
 	function WindowFunctions:GetScale()
 		return baseUIScale.Scale
-	end
-
-	function TabFunctions:SetupThemeSection(section)
-		local themeNames = {}
-		for name, _ in pairs(Themes) do
-			table.insert(themeNames, name)
-		end
-
-		section:Dropdown({
-			Name = "Theme",
-			Options = themeNames,
-			Default = WindowFunctions.CurrentTheme or "Default",
-			Callback = function(theme)
-				WindowFunctions:SetTheme(theme)
-			end
-		}, "UITheme")
 	end
 
 	local ClassParser = {
@@ -5643,20 +5626,6 @@ function MacLib:Window(Settings)
 					if data.alpha then
 						MacLib.Options[Flag]:SetAlpha(data.alpha)
 					end
-				end
-			end
-		},
-		["Theme"] = {
-			Save = function(Flag, data)
-				return {
-					type = "Theme",
-					flag = Flag,
-					theme = WindowFunctions.CurrentTheme
-				}
-			end,
-			Load = function(Flag, data)
-				if data.theme then
-					WindowFunctions:SetTheme(data.theme)
 				end
 			end
 		}
@@ -5865,7 +5834,6 @@ function MacLib:Demo()
 
 	local sections = {
 		MainSection1 = tabs.Main:Section({ Side = "Left" }),
-		SettingsSection = tabs.Settings:Section({ Side = "Right" })
 	}
 
 	sections.MainSection1:Header({
@@ -6058,8 +6026,6 @@ function MacLib:Demo()
 
 	MacLib:SetFolder("Maclib")
 	tabs.Settings:InsertConfigSection("Left")
-
-	tabs.Settings:SetupThemeSection(sections.SettingsSection)
 
 	Window.onUnloaded(function()
 		print("Unloaded!")
