@@ -6,7 +6,6 @@ local MacLib = {
 	end
 }
 
---// Services
 local TweenService = MacLib.GetService("TweenService")
 local RunService = MacLib.GetService("RunService")
 local HttpService = MacLib.GetService("HttpService")
@@ -15,7 +14,6 @@ local UserInputService = MacLib.GetService("UserInputService")
 local Lighting = MacLib.GetService("Lighting")
 local Players = MacLib.GetService("Players")
 
---// Variables
 local isStudio = RunService:IsStudio()
 local LocalPlayer = Players.LocalPlayer
 
@@ -45,7 +43,6 @@ local assets = {
 	sliderhead = "rbxassetid://18772834246",
 }
 
---// Functions
 local function GetGui()
 	local newGui = Instance.new("ScreenGui")
 	newGui.ScreenInsets = Enum.ScreenInsets.None
@@ -66,7 +63,6 @@ local function Tween(instance, tweeninfo, propertytable)
 	return TweenService:Create(instance, tweeninfo, propertytable)
 end
 
---// Library Functions
 function MacLib:Window(Settings)
 	local WindowFunctions = {Settings = Settings}
 	if Settings.AcrylicBlur ~= nil then
@@ -925,129 +921,169 @@ function MacLib:Window(Settings)
 	globalSettings.Parent = base
 	base.Parent = macLib
 
-	-- Animation functions
-	local function AnimateButtonPress(button)
-		local originalScale = button.Size
-		Tween(button, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {
-			Size = originalScale * UDim2.fromScale(0.95, 0.95)
-		}).Completed:Wait()
-		Tween(button, TweenInfo.new(0.1, Enum.EasingStyle.Back), {
-			Size = originalScale
-		}):Play()
-	end
+local function AnimateButtonPress(button)
+    local originalScale = button.Size
 
-	local function AnimateDropdownOpen(frame)
-		local originalSize = frame.Size
-		frame.Size = UDim2.new(originalSize.X.Scale, originalSize.X.Offset, 0, 0)
-		Tween(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {
-			Size = originalSize
-		}):Play()
-	end
+    Tween(button, TweenInfo.new(0.15, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+        Size = originalScale * UDim2.fromScale(0.92, 0.92)
+    }).Completed:Wait()
 
-	local function AnimateSliderDrag(slider)
-		Tween(slider, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {
-			BackgroundTransparency = 0.7
-		}):Play()
-	end
+    Tween(button, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = originalScale
+    }):Play()
+end
 
-	local function AnimateTabSwitch(oldTab, newTab)
-		if oldTab then
-			Tween(oldTab, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-				Position = UDim2.new(-1, 0, 0, 0),
-				BackgroundTransparency = 1
-			}):Play()
-		end
-		
-		newTab.Position = UDim2.new(1, 0, 0, 0)
-		Tween(newTab, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-			Position = UDim2.new(0, 0, 0, 0),
-			BackgroundTransparency = 0
-		}):Play()
-	end
+local function AnimateDropdownOpen(frame)
+    local originalSize = frame.Size
+    frame.Size = UDim2.new(originalSize.X.Scale, originalSize.X.Offset, 0, 0)
+    frame.BackgroundTransparency = 1
 
-	local function AnimateToggle(toggle, enabled)
-		local targetPos = enabled and UDim2.new(1, -2, 0.5, 0) or UDim2.new(0, 2, 0.5, 0)
-		local targetColor = enabled and Color3.fromRGB(0, 255, 100) or Color3.fromRGB(200, 200, 200)
-		
-		Tween(toggle, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-			Position = targetPos,
-			BackgroundColor3 = targetColor
-		}):Play()
-	end
+    Tween(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Size = originalSize,
+        BackgroundTransparency = 0
+    }):Play()
+end
 
-	local function AnimateHover(object)
-		Tween(object, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {
-			BackgroundTransparency = 0.8
-		}):Play()
-	end
+local function AnimateSliderDrag(slider)
 
-	local function AnimateUnhover(object)
-		Tween(object, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {
-			BackgroundTransparency = 1
-		}):Play()
-	end
+    Tween(slider, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {
+        BackgroundTransparency = 0.5
+    }):Play()
 
-	local function AnimateNotification(notification)
-		notification.Position = UDim2.new(1.1, 0, notification.Position.Y.Scale, notification.Position.Y.Offset)
-		Tween(notification, TweenInfo.new(0.4, Enum.EasingStyle.Back), {
-			Position = UDim2.new(1, -10, notification.Position.Y.Scale, notification.Position.Y.Offset)
-		}):Play()
-	end
+    Tween(slider, TweenInfo.new(0.2, Enum.EasingStyle.Back), {
+        Size = slider.Size * UDim2.fromScale(1.1, 1.1)
+    }):Play()
+end
 
-	local function AnimateTextReveal(textLabel)
-		textLabel.TextTransparency = 1
-		textLabel.TextStrokeTransparency = 1
-		
-		Tween(textLabel, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {
-			TextTransparency = 0,
-			TextStrokeTransparency = 0.8
-		}):Play()
-	end
+local function AnimateTabSwitch(oldTab, newTab)
+    if oldTab then
 
-	local function AnimateColorPickerOpen(picker)
-		picker.BackgroundTransparency = 1
-		picker.Size = UDim2.new(0, 0, 0, 0)
-		
-		Tween(picker, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
-			BackgroundTransparency = 0,
-			Size = UDim2.new(1, 0, 1, 0)
-		}):Play()
-	end
+        local oldTabTween = Tween(oldTab, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {
+            Position = UDim2.new(-1, 0, 0, 0),
+            BackgroundTransparency = 1,
+            TextTransparency = 1
+        })
+        oldTabTween:Play()
+    end
 
-	local function AnimateInputBoxFocus(inputBox)
-		Tween(inputBox, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-			BackgroundColor3 = Color3.fromRGB(40, 40, 40),
-			TextColor3 = Color3.fromRGB(255, 255, 255)
-		}):Play()
-	end
+    newTab.Position = UDim2.new(1, 0, 0, 0)
+    newTab.BackgroundTransparency = 1
+    newTab.TextTransparency = 1
 
-	local function AnimateScrolling(scrollFrame)
-		local function smoothScroll(position)
-			Tween(scrollFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-				CanvasPosition = Vector2.new(0, position)
-			}):Play()
-		end
-		
-		return smoothScroll
-	end
+    task.wait(0.1)
+    Tween(newTab, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundTransparency = 0,
+        TextTransparency = 0
+    }):Play()
+end
 
-	local function AnimateMinimize(window)
-		local originalSize = window.Size
-		Tween(window, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
-			Size = UDim2.new(originalSize.X.Scale, originalSize.X.Offset, 0, 0)
-		}):Play()
-	end
+local function AnimateToggle(toggle, enabled)
+    local targetPos = enabled and UDim2.new(1, -2, 0.5, 0) or UDim2.new(0, 2, 0.5, 0)
+    local targetColor = enabled and Color3.fromRGB(0, 255, 100) or Color3.fromRGB(200, 200, 200)
 
-	local function AnimateMaximize(window)
-		Tween(window, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-			Size = UDim2.new(window.Size.X.Scale, window.Size.X.Offset, 1, 0)
-		}):Play()
-	end
+    Tween(toggle, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
+        Position = targetPos,
+        BackgroundColor3 = targetColor
+    }):Play()
+
+    Tween(toggle, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {
+        Size = toggle.Size * UDim2.fromScale(1.2, 1.2)
+    }).Completed:Wait()
+
+    Tween(toggle, TweenInfo.new(0.15, Enum.EasingStyle.Back), {
+        Size = toggle.Size
+    }):Play()
+end
+
+local function AnimateHover(object)
+
+    Tween(object, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+        BackgroundTransparency = 0.8,
+        Size = object.Size * UDim2.fromScale(1.02, 1.02)
+    }):Play()
+end
+
+local function AnimateUnhover(object)
+
+    Tween(object, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+        BackgroundTransparency = 1,
+        Size = object.Size / UDim2.fromScale(1.02, 1.02)
+    }):Play()
+end
+
+local function AnimateNotification(notification)
+
+    notification.Position = UDim2.new(1.1, 0, notification.Position.Y.Scale, notification.Position.Y.Offset)
+    notification.BackgroundTransparency = 1
+
+    local slideTween = Tween(notification, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
+        Position = UDim2.new(1, -10, notification.Position.Y.Scale, notification.Position.Y.Offset),
+        BackgroundTransparency = 0
+    })
+
+    local scaleTween = Tween(notification, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+        Size = notification.Size * UDim2.fromScale(1.02, 1.02)
+    })
+
+    slideTween:Play()
+    scaleTween:Play()
+end
+
+local function AnimateColorPickerOpen(picker)
+
+    picker.BackgroundTransparency = 1
+    picker.Size = UDim2.new(0, 0, 0, 0)
+
+    Tween(picker, TweenInfo.new(0.4, Enum.EasingStyle.Back), {
+        BackgroundTransparency = 0,
+        Size = UDim2.new(1, 0, 1, 0)
+    }):Play()
+
+    for _, child in pairs(picker:GetChildren()) do
+        if child:IsA("GuiObject") then
+            child.BackgroundTransparency = 1
+            Tween(child, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                BackgroundTransparency = 0
+            }):Play()
+        end
+    end
+end
+
+local function AnimatePopupOpen(popup)
+
+    popup.BackgroundTransparency = 1
+    popup.Size = UDim2.fromScale(0.5, 0.5)
+    popup.Position = UDim2.new(0.5, 0, 0.6, 0)
+
+    Tween(popup, TweenInfo.new(0.4, Enum.EasingStyle.Back), {
+        BackgroundTransparency = 0,
+        Size = UDim2.fromScale(1, 1),
+        Position = UDim2.new(0.5, 0, 0.5, 0)
+    }):Play()
+end
+
+local function AnimateMinimize(window)
+    local originalSize = window.Size
+
+    Tween(window, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+        Size = UDim2.new(originalSize.X.Scale, originalSize.X.Offset, 0, 0),
+        BackgroundTransparency = 1
+    }):Play()
+end
+
+local function AnimateMaximize(window)
+
+    Tween(window, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = window.Size,
+        BackgroundTransparency = 0
+    }):Play()
+end
 
 	local function AnimatePopupOpen(popup)
 		popup.BackgroundTransparency = 1
 		popup.Position = UDim2.new(0.5, 0, 0.6, 0)
-		
+
 		Tween(popup, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
 			BackgroundTransparency = 0,
 			Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -1058,7 +1094,7 @@ function MacLib:Window(Settings)
 		Tween(valueLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
 			TextTransparency = 1
 		}).Completed:Wait()
-		
+
 		valueLabel.Text = newValue
 		Tween(valueLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
 			TextTransparency = 0
@@ -2018,7 +2054,7 @@ function MacLib:Window(Settings)
 					sliderValue.TextColor3 = Color3.fromRGB(255, 255, 255)
 					sliderValue.TextSize = 12
 					sliderValue.TextTransparency = 0.1
-					--sliderValue.TextTruncate = Enum.TextTruncate.AtEnd
+
 					sliderValue.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 					sliderValue.BackgroundTransparency = 0.95
 					sliderValue.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -2092,10 +2128,10 @@ function MacLib:Window(Settings)
 					local dragging = false
 
 					local DisplayMethods = {
-						Hundredths = function(sliderValue) -- Deprecated use Settings.Precision
+						Hundredths = function(sliderValue) 
 							return string.format("%.2f", sliderValue)
 						end,
-						Tenths = function(sliderValue) -- Deprecated use Settings.Precision
+						Tenths = function(sliderValue) 
 							return string.format("%.1f", sliderValue)
 						end,
 						Round = function(sliderValue, precision)
@@ -2123,7 +2159,7 @@ function MacLib:Window(Settings)
 
                     local function SetValue(val, ignorecallback, isComplete)
                         local posXScale
-                
+
                         if typeof(val) == "Instance" then
                             local input = val
                             posXScale = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
@@ -2131,14 +2167,14 @@ function MacLib:Window(Settings)
                             local value = val
                             posXScale = (value - SliderFunctions.Settings.Minimum) / (SliderFunctions.Settings.Maximum - Settings.Minimum)
                         end
-                
+
                         local pos = UDim2.new(posXScale, 0, 0.5, 0)
                         sliderHead.Position = pos
-                
+
                         finalValue = posXScale * (SliderFunctions.Settings.Maximum - SliderFunctions.Settings.Minimum) + Settings.Minimum
-                
+
                         sliderValue.Text = (Settings.Prefix or "") .. ValueDisplayMethod(finalValue, SliderFunctions.Settings.Precision) .. (Settings.Suffix or "")
-                
+
                         if not ignorecallback then
                             task.spawn(function()
                                 if SliderFunctions.Settings.Callback then
@@ -2146,7 +2182,7 @@ function MacLib:Window(Settings)
                                 end
                             end)
                         end
-                
+
                         SliderFunctions.Value = finalValue
                     end
 
@@ -2161,7 +2197,7 @@ function MacLib:Window(Settings)
                     end
 
                     task.spawn(function()
-                        task.wait(0.1) -- Small delay to ensure everything is loaded
+                        task.wait(0.1) 
                         SliderFunctions:SyncValue()
                     end)
 
@@ -4532,7 +4568,7 @@ function MacLib:Window(Settings)
 					labelText.Name = "LabelText"
 					labelText.FontFace = Font.new(assets.interFont)
 					labelText.RichText = true
-					labelText.Text = LabelFunctions.Settings.Text or LabelFunctions.Settings.Name -- Settings.Name Deprecated use Settings.Text
+					labelText.Text = LabelFunctions.Settings.Text or LabelFunctions.Settings.Name 
 					labelText.TextColor3 = Color3.fromRGB(255, 255, 255)
 					labelText.TextSize = 13
 					labelText.TextTransparency = 0.5
@@ -4576,7 +4612,7 @@ function MacLib:Window(Settings)
 					subLabelText.Name = "SubLabelText"
 					subLabelText.FontFace = Font.new(assets.interFont)
 					subLabelText.RichText = true
-					subLabelText.Text = SubLabelFunctions.Settings.Text or SubLabelFunctions.Settings.Name -- Settings.Name Deprecated use Settings.Text
+					subLabelText.Text = SubLabelFunctions.Settings.Text or SubLabelFunctions.Settings.Name 
 					subLabelText.TextColor3 = Color3.fromRGB(255, 255, 255)
 					subLabelText.TextSize = 12
 					subLabelText.TextTransparency = 0.7
