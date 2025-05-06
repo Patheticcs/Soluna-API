@@ -43,18 +43,6 @@ local assets = {
 	dropdown = "rbxassetid://18865373378",
 	sliderbar = "rbxassetid://18772615246",
 	sliderhead = "rbxassetid://18772834246",
-	
-	-- New modern assets
-	gradientBackground = "rbxassetid://14461531311",
-	blurEffect = "rbxassetid://14461532001",
-	glowEffect = "rbxassetid://14461532521",
-	modernToggle = "rbxassetid://14461533091",
-	accent1 = Color3.fromRGB(90, 140, 240),
-	accent2 = Color3.fromRGB(60, 110, 210), 
-	background1 = Color3.fromRGB(25, 25, 30),
-	background2 = Color3.fromRGB(30, 30, 35),
-	text1 = Color3.fromRGB(240, 240, 245),
-	text2 = Color3.fromRGB(200, 200, 205),
 }
 
 --// Functions
@@ -118,26 +106,12 @@ function MacLib:Window(Settings)
 	local base = Instance.new("Frame")
 	base.Name = "Base"
 	base.AnchorPoint = Vector2.new(0.5, 0.5)
-	base.BackgroundColor3 = assets.background1
+	base.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 	base.BackgroundTransparency = Settings.AcrylicBlur and 0.05 or 0
 	base.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	base.BorderSizePixel = 0
 	base.Position = UDim2.fromScale(0.5, 0.5)
 	base.Size = Settings.Size or UDim2.fromOffset(868, 650)
-
-	local baseGradient = Instance.new("UIGradient")
-	baseGradient.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, assets.background1),
-		ColorSequenceKeypoint.new(1, assets.background2)
-	})
-	baseGradient.Parent = base
-
-	local baseGlow = Instance.new("ImageLabel")
-	baseGlow.Image = assets.glowEffect
-	baseGlow.BackgroundTransparency = 1
-	baseGlow.Size = UDim2.fromScale(1.1, 1.1)
-	baseGlow.Position = UDim2.fromScale(-0.05, -0.05) 
-	baseGlow.Parent = base
 
 	local baseUIScale = Instance.new("UIScale")
 	baseUIScale.Name = "BaseUIScale"
@@ -2199,7 +2173,7 @@ function MacLib:Window(Settings)
 					inputBoxUIStroke.Parent = inputBox
 
 					local inputBoxUIPadding = Instance.new("UIPadding")
-					inputBoxUIPadding.Name = "UIPadding"
+					inputBoxUIPadding.Name = "InputBoxUIPadding"
 					inputBoxUIPadding.PaddingLeft = UDim.new(0, 5)
 					inputBoxUIPadding.PaddingRight = UDim.new(0, 5)
 					inputBoxUIPadding.Parent = inputBox
@@ -2376,7 +2350,7 @@ function MacLib:Window(Settings)
 					binderBoxUIStroke.Parent = binderBox
 
 					local binderBoxUIPadding = Instance.new("UIPadding")
-					binderBoxUIPadding.Name = "UIPadding"
+					binderBoxUIPadding.Name = "BinderBoxUIPadding"
 					binderBoxUIPadding.PaddingLeft = UDim.new(0, 5)
 					binderBoxUIPadding.PaddingRight = UDim.new(0, 5)
 					binderBoxUIPadding.Parent = binderBox
@@ -3398,12 +3372,6 @@ function MacLib:Window(Settings)
 					inputBoxUICorner.Parent = inputBox
 
 					local inputBoxUIStroke = Instance.new("UIStroke")
-					inputBoxUIStroke.Name = "UIStroke"
-					inputBoxUIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-					inputBoxUIStroke.Transparency = 0.5
-					inputBoxUIStroke.Parent = inputBox
-
-					local inputBoxUIStroke = Instance.new("UIStroke")
 					inputBoxUIStroke.Name = "InputBoxUIStroke"
 					inputBoxUIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke.Color = Color3.fromRGB(255, 255, 255)
@@ -3487,12 +3455,6 @@ function MacLib:Window(Settings)
 					inputBoxUICorner1.Parent = inputBox1
 
 					local inputBoxUIStroke1 = Instance.new("UIStroke")
-					inputBoxUIStroke1.Name = "UIStroke"
-					inputBoxUIStroke1.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-					inputBoxUIStroke1.Transparency = 0.5
-					inputBoxUIStroke1.Parent = inputBox1
-
-					local inputBoxUIStroke1 = Instance.new("UIStroke")
 					inputBoxUIStroke1.Name = "InputBoxUIStroke"
 					inputBoxUIStroke1.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke1.Color = Color3.fromRGB(255, 255, 255)
@@ -3504,7 +3466,7 @@ function MacLib:Window(Settings)
 					inputBoxUISizeConstraint1.Parent = inputBox1
 
 					local inputBoxUIPadding1 = Instance.new("UIPadding")
-					inputBoxUIPadding1.Name = "UIPadding"
+					inputBoxUIPadding1.Name = "InputBoxUIPadding"
 					inputBoxUIPadding1.PaddingLeft = UDim.new(0, 8)
 					inputBoxUIPadding1.PaddingRight = UDim.new(0, 10)
 					inputBoxUIPadding1.Parent = inputBox1
@@ -3576,12 +3538,6 @@ function MacLib:Window(Settings)
 					inputBoxUICorner2.Parent = inputBox2
 
 					local inputBoxUIStroke2 = Instance.new("UIStroke")
-					inputBoxUIStroke2.Name = "UIStroke"
-					inputBoxUIStroke2.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-					inputBoxUIStroke2.Transparency = 0.5
-					inputBoxUIStroke2.Parent = inputBox2
-
-					local inputBoxUIStroke2 = Instance.new("UIStroke")
 					inputBoxUIStroke2.Name = "InputBoxUIStroke"
 					inputBoxUIStroke2.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke2.Color = Color3.fromRGB(255, 255, 255)
@@ -3593,7 +3549,7 @@ function MacLib:Window(Settings)
 					inputBoxUISizeConstraint2.Parent = inputBox2
 
 					local inputBoxUIPadding2 = Instance.new("UIPadding")
-					inputBoxUIPadding2.Name = "UIPadding"
+					inputBoxUIPadding2.Name = "InputBoxUIPadding"
 					inputBoxUIPadding2.PaddingLeft = UDim.new(0, 8)
 					inputBoxUIPadding2.PaddingRight = UDim.new(0, 10)
 					inputBoxUIPadding2.Parent = inputBox2
@@ -3666,12 +3622,6 @@ function MacLib:Window(Settings)
 					inputBoxUICorner3.Parent = inputBox3
 
 					local inputBoxUIStroke3 = Instance.new("UIStroke")
-					inputBoxUIStroke3.Name = "UIStroke"
-					inputBoxUIStroke3.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-					inputBoxUIStroke3.Transparency = 0.5
-					inputBoxUIStroke3.Parent = inputBox3
-
-					local inputBoxUIStroke3 = Instance.new("UIStroke")
 					inputBoxUIStroke3.Name = "InputBoxUIStroke"
 					inputBoxUIStroke3.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke3.Color = Color3.fromRGB(255, 255, 255)
@@ -3683,7 +3633,7 @@ function MacLib:Window(Settings)
 					inputBoxUISizeConstraint3.Parent = inputBox3
 
 					local inputBoxUIPadding3 = Instance.new("UIPadding")
-					inputBoxUIPadding3.Name = "UIPadding"
+					inputBoxUIPadding3.Name = "InputBoxUIPadding"
 					inputBoxUIPadding3.PaddingLeft = UDim.new(0, 8)
 					inputBoxUIPadding3.PaddingRight = UDim.new(0, 10)
 					inputBoxUIPadding3.Parent = inputBox3
@@ -3755,12 +3705,6 @@ function MacLib:Window(Settings)
 					inputBoxUICorner4.Parent = inputBox4
 
 					local inputBoxUIStroke4 = Instance.new("UIStroke")
-					inputBoxUIStroke4.Name = "UIStroke"
-					inputBoxUIStroke4.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-					inputBoxUIStroke4.Transparency = 0.5
-					inputBoxUIStroke4.Parent = inputBox4
-
-					local inputBoxUIStroke4 = Instance.new("UIStroke")
 					inputBoxUIStroke4.Name = "InputBoxUIStroke"
 					inputBoxUIStroke4.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke4.Color = Color3.fromRGB(255, 255, 255)
@@ -3772,7 +3716,7 @@ function MacLib:Window(Settings)
 					inputBoxUISizeConstraint4.Parent = inputBox4
 
 					local inputBoxUIPadding4 = Instance.new("UIPadding")
-					inputBoxUIPadding4.Name = "UIPadding"
+					inputBoxUIPadding4.Name = "InputBoxUIPadding"
 					inputBoxUIPadding4.PaddingLeft = UDim.new(0, 8)
 					inputBoxUIPadding4.PaddingRight = UDim.new(0, 10)
 					inputBoxUIPadding4.Parent = inputBox4
@@ -4649,7 +4593,6 @@ function MacLib:Window(Settings)
 					spacer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 					spacer.BackgroundTransparency = 1
 					spacer.BorderColor3 = Color3.fromRGB(0, 0, 0)
-					spacer.BorderSizePixel = 0
 					spacer.BorderSizePixel = 0
 					spacer.Position = UDim2.fromScale(0, 1)
 					spacer.Parent = section
