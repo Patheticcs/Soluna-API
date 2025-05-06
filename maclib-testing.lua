@@ -6,6 +6,7 @@ local MacLib = {
 	end
 }
 
+--// Services
 local TweenService = MacLib.GetService("TweenService")
 local RunService = MacLib.GetService("RunService")
 local HttpService = MacLib.GetService("HttpService")
@@ -14,6 +15,7 @@ local UserInputService = MacLib.GetService("UserInputService")
 local Lighting = MacLib.GetService("Lighting")
 local Players = MacLib.GetService("Players")
 
+--// Variables
 local isStudio = RunService:IsStudio()
 local LocalPlayer = Players.LocalPlayer
 
@@ -41,8 +43,21 @@ local assets = {
 	dropdown = "rbxassetid://18865373378",
 	sliderbar = "rbxassetid://18772615246",
 	sliderhead = "rbxassetid://18772834246",
+	
+	-- New modern assets
+	gradientBackground = "rbxassetid://14461531311",
+	blurEffect = "rbxassetid://14461532001",
+	glowEffect = "rbxassetid://14461532521",
+	modernToggle = "rbxassetid://14461533091",
+	accent1 = Color3.fromRGB(90, 140, 240),
+	accent2 = Color3.fromRGB(60, 110, 210), 
+	background1 = Color3.fromRGB(25, 25, 30),
+	background2 = Color3.fromRGB(30, 30, 35),
+	text1 = Color3.fromRGB(240, 240, 245),
+	text2 = Color3.fromRGB(200, 200, 205),
 }
 
+--// Functions
 local function GetGui()
 	local newGui = Instance.new("ScreenGui")
 	newGui.ScreenInsets = Enum.ScreenInsets.None
@@ -63,6 +78,7 @@ local function Tween(instance, tweeninfo, propertytable)
 	return TweenService:Create(instance, tweeninfo, propertytable)
 end
 
+--// Library Functions
 function MacLib:Window(Settings)
 	local WindowFunctions = {Settings = Settings}
 	if Settings.AcrylicBlur ~= nil then
@@ -102,12 +118,26 @@ function MacLib:Window(Settings)
 	local base = Instance.new("Frame")
 	base.Name = "Base"
 	base.AnchorPoint = Vector2.new(0.5, 0.5)
-	base.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+	base.BackgroundColor3 = assets.background1
 	base.BackgroundTransparency = Settings.AcrylicBlur and 0.05 or 0
 	base.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	base.BorderSizePixel = 0
 	base.Position = UDim2.fromScale(0.5, 0.5)
 	base.Size = Settings.Size or UDim2.fromOffset(868, 650)
+
+	local baseGradient = Instance.new("UIGradient")
+	baseGradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, assets.background1),
+		ColorSequenceKeypoint.new(1, assets.background2)
+	})
+	baseGradient.Parent = base
+
+	local baseGlow = Instance.new("ImageLabel")
+	baseGlow.Image = assets.glowEffect
+	baseGlow.BackgroundTransparency = 1
+	baseGlow.Size = UDim2.fromScale(1.1, 1.1)
+	baseGlow.Position = UDim2.fromScale(-0.05, -0.05) 
+	baseGlow.Parent = base
 
 	local baseUIScale = Instance.new("UIScale")
 	baseUIScale.Name = "BaseUIScale"
@@ -920,186 +950,6 @@ function MacLib:Window(Settings)
 	globalSettingsUIScale.Parent = globalSettings
 	globalSettings.Parent = base
 	base.Parent = macLib
-
-local function AnimateButtonPress(button)
-    local originalScale = button.Size
-
-    Tween(button, TweenInfo.new(0.15, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-        Size = originalScale * UDim2.fromScale(0.92, 0.92)
-    }).Completed:Wait()
-
-    Tween(button, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = originalScale
-    }):Play()
-end
-
-local function AnimateDropdownOpen(frame)
-    local originalSize = frame.Size
-    frame.Size = UDim2.new(originalSize.X.Scale, originalSize.X.Offset, 0, 0)
-    frame.BackgroundTransparency = 1
-
-    Tween(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-        Size = originalSize,
-        BackgroundTransparency = 0
-    }):Play()
-end
-
-local function AnimateSliderDrag(slider)
-
-    Tween(slider, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {
-        BackgroundTransparency = 0.5
-    }):Play()
-
-    Tween(slider, TweenInfo.new(0.2, Enum.EasingStyle.Back), {
-        Size = slider.Size * UDim2.fromScale(1.1, 1.1)
-    }):Play()
-end
-
-local function AnimateTabSwitch(oldTab, newTab)
-    if oldTab then
-
-        local oldTabTween = Tween(oldTab, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {
-            Position = UDim2.new(-1, 0, 0, 0),
-            BackgroundTransparency = 1,
-            TextTransparency = 1
-        })
-        oldTabTween:Play()
-    end
-
-    newTab.Position = UDim2.new(1, 0, 0, 0)
-    newTab.BackgroundTransparency = 1
-    newTab.TextTransparency = 1
-
-    task.wait(0.1)
-    Tween(newTab, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {
-        Position = UDim2.new(0, 0, 0, 0),
-        BackgroundTransparency = 0,
-        TextTransparency = 0
-    }):Play()
-end
-
-local function AnimateToggle(toggle, enabled)
-    local targetPos = enabled and UDim2.new(1, -2, 0.5, 0) or UDim2.new(0, 2, 0.5, 0)
-    local targetColor = enabled and Color3.fromRGB(0, 255, 100) or Color3.fromRGB(200, 200, 200)
-
-    Tween(toggle, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
-        Position = targetPos,
-        BackgroundColor3 = targetColor
-    }):Play()
-
-    Tween(toggle, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {
-        Size = toggle.Size * UDim2.fromScale(1.2, 1.2)
-    }).Completed:Wait()
-
-    Tween(toggle, TweenInfo.new(0.15, Enum.EasingStyle.Back), {
-        Size = toggle.Size
-    }):Play()
-end
-
-local function AnimateHover(object)
-
-    Tween(object, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-        BackgroundTransparency = 0.8,
-        Size = object.Size * UDim2.fromScale(1.02, 1.02)
-    }):Play()
-end
-
-local function AnimateUnhover(object)
-
-    Tween(object, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-        BackgroundTransparency = 1,
-        Size = object.Size / UDim2.fromScale(1.02, 1.02)
-    }):Play()
-end
-
-local function AnimateNotification(notification)
-
-    notification.Position = UDim2.new(1.1, 0, notification.Position.Y.Scale, notification.Position.Y.Offset)
-    notification.BackgroundTransparency = 1
-
-    local slideTween = Tween(notification, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
-        Position = UDim2.new(1, -10, notification.Position.Y.Scale, notification.Position.Y.Offset),
-        BackgroundTransparency = 0
-    })
-
-    local scaleTween = Tween(notification, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-        Size = notification.Size * UDim2.fromScale(1.02, 1.02)
-    })
-
-    slideTween:Play()
-    scaleTween:Play()
-end
-
-local function AnimateColorPickerOpen(picker)
-
-    picker.BackgroundTransparency = 1
-    picker.Size = UDim2.new(0, 0, 0, 0)
-
-    Tween(picker, TweenInfo.new(0.4, Enum.EasingStyle.Back), {
-        BackgroundTransparency = 0,
-        Size = UDim2.new(1, 0, 1, 0)
-    }):Play()
-
-    for _, child in pairs(picker:GetChildren()) do
-        if child:IsA("GuiObject") then
-            child.BackgroundTransparency = 1
-            Tween(child, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                BackgroundTransparency = 0
-            }):Play()
-        end
-    end
-end
-
-local function AnimatePopupOpen(popup)
-
-    popup.BackgroundTransparency = 1
-    popup.Size = UDim2.fromScale(0.5, 0.5)
-    popup.Position = UDim2.new(0.5, 0, 0.6, 0)
-
-    Tween(popup, TweenInfo.new(0.4, Enum.EasingStyle.Back), {
-        BackgroundTransparency = 0,
-        Size = UDim2.fromScale(1, 1),
-        Position = UDim2.new(0.5, 0, 0.5, 0)
-    }):Play()
-end
-
-local function AnimateMinimize(window)
-    local originalSize = window.Size
-
-    Tween(window, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
-        Size = UDim2.new(originalSize.X.Scale, originalSize.X.Offset, 0, 0),
-        BackgroundTransparency = 1
-    }):Play()
-end
-
-local function AnimateMaximize(window)
-
-    Tween(window, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = window.Size,
-        BackgroundTransparency = 0
-    }):Play()
-end
-
-	local function AnimatePopupOpen(popup)
-		popup.BackgroundTransparency = 1
-		popup.Position = UDim2.new(0.5, 0, 0.6, 0)
-
-		Tween(popup, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
-			BackgroundTransparency = 0,
-			Position = UDim2.new(0.5, 0, 0.5, 0)
-		}):Play()
-	end
-
-	local function AnimateSliderValue(valueLabel, newValue)
-		Tween(valueLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-			TextTransparency = 1
-		}).Completed:Wait()
-
-		valueLabel.Text = newValue
-		Tween(valueLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-			TextTransparency = 0
-		}):Play()
-	end
 
 	function WindowFunctions:UpdateTitle(NewTitle)
 		title.Text = NewTitle
@@ -2054,7 +1904,7 @@ end
 					sliderValue.TextColor3 = Color3.fromRGB(255, 255, 255)
 					sliderValue.TextSize = 12
 					sliderValue.TextTransparency = 0.1
-
+					--sliderValue.TextTruncate = Enum.TextTruncate.AtEnd
 					sliderValue.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 					sliderValue.BackgroundTransparency = 0.95
 					sliderValue.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -2128,10 +1978,10 @@ end
 					local dragging = false
 
 					local DisplayMethods = {
-						Hundredths = function(sliderValue) 
+						Hundredths = function(sliderValue) -- Deprecated use Settings.Precision
 							return string.format("%.2f", sliderValue)
 						end,
-						Tenths = function(sliderValue) 
+						Tenths = function(sliderValue) -- Deprecated use Settings.Precision
 							return string.format("%.1f", sliderValue)
 						end,
 						Round = function(sliderValue, precision)
@@ -2159,7 +2009,7 @@ end
 
                     local function SetValue(val, ignorecallback, isComplete)
                         local posXScale
-
+                
                         if typeof(val) == "Instance" then
                             local input = val
                             posXScale = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
@@ -2167,14 +2017,14 @@ end
                             local value = val
                             posXScale = (value - SliderFunctions.Settings.Minimum) / (SliderFunctions.Settings.Maximum - Settings.Minimum)
                         end
-
+                
                         local pos = UDim2.new(posXScale, 0, 0.5, 0)
                         sliderHead.Position = pos
-
+                
                         finalValue = posXScale * (SliderFunctions.Settings.Maximum - SliderFunctions.Settings.Minimum) + Settings.Minimum
-
+                
                         sliderValue.Text = (Settings.Prefix or "") .. ValueDisplayMethod(finalValue, SliderFunctions.Settings.Precision) .. (Settings.Suffix or "")
-
+                
                         if not ignorecallback then
                             task.spawn(function()
                                 if SliderFunctions.Settings.Callback then
@@ -2182,7 +2032,7 @@ end
                                 end
                             end)
                         end
-
+                
                         SliderFunctions.Value = finalValue
                     end
 
@@ -2197,7 +2047,7 @@ end
                     end
 
                     task.spawn(function()
-                        task.wait(0.1) 
+                        task.wait(0.1) -- Small delay to ensure everything is loaded
                         SliderFunctions:SyncValue()
                     end)
 
@@ -2349,7 +2199,7 @@ end
 					inputBoxUIStroke.Parent = inputBox
 
 					local inputBoxUIPadding = Instance.new("UIPadding")
-					inputBoxUIPadding.Name = "InputBoxUIPadding"
+					inputBoxUIPadding.Name = "UIPadding"
 					inputBoxUIPadding.PaddingLeft = UDim.new(0, 5)
 					inputBoxUIPadding.PaddingRight = UDim.new(0, 5)
 					inputBoxUIPadding.Parent = inputBox
@@ -2526,13 +2376,13 @@ end
 					binderBoxUIStroke.Parent = binderBox
 
 					local binderBoxUIPadding = Instance.new("UIPadding")
-					binderBoxUIPadding.Name = "BinderBoxUIPadding"
+					binderBoxUIPadding.Name = "UIPadding"
 					binderBoxUIPadding.PaddingLeft = UDim.new(0, 5)
 					binderBoxUIPadding.PaddingRight = UDim.new(0, 5)
 					binderBoxUIPadding.Parent = binderBox
 
 					local binderBoxUISizeConstraint = Instance.new("UISizeConstraint")
-					binderBoxUISizeConstraint.Name = "UISizeConstraint"
+					binderBoxUISizeConstraint.Name = "BinderBoxUISizeConstraint"
 					binderBoxUISizeConstraint.Parent = binderBox
 
 					binderBox.Parent = keybind
@@ -3550,6 +3400,12 @@ end
 					local inputBoxUIStroke = Instance.new("UIStroke")
 					inputBoxUIStroke.Name = "UIStroke"
 					inputBoxUIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+					inputBoxUIStroke.Transparency = 0.5
+					inputBoxUIStroke.Parent = inputBox
+
+					local inputBoxUIStroke = Instance.new("UIStroke")
+					inputBoxUIStroke.Name = "InputBoxUIStroke"
+					inputBoxUIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke.Color = Color3.fromRGB(255, 255, 255)
 					inputBoxUIStroke.Transparency = 0.9
 					inputBoxUIStroke.Parent = inputBox
@@ -3633,12 +3489,18 @@ end
 					local inputBoxUIStroke1 = Instance.new("UIStroke")
 					inputBoxUIStroke1.Name = "UIStroke"
 					inputBoxUIStroke1.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+					inputBoxUIStroke1.Transparency = 0.5
+					inputBoxUIStroke1.Parent = inputBox1
+
+					local inputBoxUIStroke1 = Instance.new("UIStroke")
+					inputBoxUIStroke1.Name = "InputBoxUIStroke"
+					inputBoxUIStroke1.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke1.Color = Color3.fromRGB(255, 255, 255)
 					inputBoxUIStroke1.Transparency = 0.9
 					inputBoxUIStroke1.Parent = inputBox1
 
 					local inputBoxUISizeConstraint1 = Instance.new("UISizeConstraint")
-					inputBoxUISizeConstraint1.Name = "UISizeConstraint"
+					inputBoxUISizeConstraint1.Name = "InputBoxUISizeConstraint"
 					inputBoxUISizeConstraint1.Parent = inputBox1
 
 					local inputBoxUIPadding1 = Instance.new("UIPadding")
@@ -3716,12 +3578,18 @@ end
 					local inputBoxUIStroke2 = Instance.new("UIStroke")
 					inputBoxUIStroke2.Name = "UIStroke"
 					inputBoxUIStroke2.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+					inputBoxUIStroke2.Transparency = 0.5
+					inputBoxUIStroke2.Parent = inputBox2
+
+					local inputBoxUIStroke2 = Instance.new("UIStroke")
+					inputBoxUIStroke2.Name = "InputBoxUIStroke"
+					inputBoxUIStroke2.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke2.Color = Color3.fromRGB(255, 255, 255)
 					inputBoxUIStroke2.Transparency = 0.9
 					inputBoxUIStroke2.Parent = inputBox2
 
 					local inputBoxUISizeConstraint2 = Instance.new("UISizeConstraint")
-					inputBoxUISizeConstraint2.Name = "UISizeConstraint"
+					inputBoxUISizeConstraint2.Name = "InputBoxUISizeConstraint"
 					inputBoxUISizeConstraint2.Parent = inputBox2
 
 					local inputBoxUIPadding2 = Instance.new("UIPadding")
@@ -3800,12 +3668,18 @@ end
 					local inputBoxUIStroke3 = Instance.new("UIStroke")
 					inputBoxUIStroke3.Name = "UIStroke"
 					inputBoxUIStroke3.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+					inputBoxUIStroke3.Transparency = 0.5
+					inputBoxUIStroke3.Parent = inputBox3
+
+					local inputBoxUIStroke3 = Instance.new("UIStroke")
+					inputBoxUIStroke3.Name = "InputBoxUIStroke"
+					inputBoxUIStroke3.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke3.Color = Color3.fromRGB(255, 255, 255)
 					inputBoxUIStroke3.Transparency = 0.9
 					inputBoxUIStroke3.Parent = inputBox3
 
 					local inputBoxUISizeConstraint3 = Instance.new("UISizeConstraint")
-					inputBoxUISizeConstraint3.Name = "UISizeConstraint"
+					inputBoxUISizeConstraint3.Name = "InputBoxUISizeConstraint"
 					inputBoxUISizeConstraint3.Parent = inputBox3
 
 					local inputBoxUIPadding3 = Instance.new("UIPadding")
@@ -3883,12 +3757,18 @@ end
 					local inputBoxUIStroke4 = Instance.new("UIStroke")
 					inputBoxUIStroke4.Name = "UIStroke"
 					inputBoxUIStroke4.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+					inputBoxUIStroke4.Transparency = 0.5
+					inputBoxUIStroke4.Parent = inputBox4
+
+					local inputBoxUIStroke4 = Instance.new("UIStroke")
+					inputBoxUIStroke4.Name = "InputBoxUIStroke"
+					inputBoxUIStroke4.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					inputBoxUIStroke4.Color = Color3.fromRGB(255, 255, 255)
 					inputBoxUIStroke4.Transparency = 0.9
 					inputBoxUIStroke4.Parent = inputBox4
 
 					local inputBoxUISizeConstraint4 = Instance.new("UISizeConstraint")
-					inputBoxUISizeConstraint4.Name = "UISizeConstraint"
+					inputBoxUISizeConstraint4.Name = "InputBoxUISizeConstraint"
 					inputBoxUISizeConstraint4.Parent = inputBox4
 
 					local inputBoxUIPadding4 = Instance.new("UIPadding")
@@ -4359,7 +4239,7 @@ end
 					modifierInputs.Hex.FocusLost:Connect(updateFromHex)
 					modifierInputs.Red.FocusLost:Connect(updateFromRGB)
 					modifierInputs.Green.FocusLost:Connect(updateFromRGB)
-					modifierInputs.Blue.FocusLost:Connect(update)
+					modifierInputs.Blue.FocusLost:Connect(updateFromRGB)
 					modifierInputs.Alpha.FocusLost:Connect(update)
 
 					modifierInputs.Hex.Focused:Connect(function()
@@ -4568,7 +4448,7 @@ end
 					labelText.Name = "LabelText"
 					labelText.FontFace = Font.new(assets.interFont)
 					labelText.RichText = true
-					labelText.Text = LabelFunctions.Settings.Text or LabelFunctions.Settings.Name 
+					labelText.Text = LabelFunctions.Settings.Text or LabelFunctions.Settings.Name -- Settings.Name Deprecated use Settings.Text
 					labelText.TextColor3 = Color3.fromRGB(255, 255, 255)
 					labelText.TextSize = 13
 					labelText.TextTransparency = 0.5
@@ -4612,7 +4492,7 @@ end
 					subLabelText.Name = "SubLabelText"
 					subLabelText.FontFace = Font.new(assets.interFont)
 					subLabelText.RichText = true
-					subLabelText.Text = SubLabelFunctions.Settings.Text or SubLabelFunctions.Settings.Name 
+					subLabelText.Text = SubLabelFunctions.Settings.Text or SubLabelFunctions.Settings.Name -- Settings.Name Deprecated use Settings.Text
 					subLabelText.TextColor3 = Color3.fromRGB(255, 255, 255)
 					subLabelText.TextSize = 12
 					subLabelText.TextTransparency = 0.7
@@ -4769,6 +4649,7 @@ end
 					spacer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 					spacer.BackgroundTransparency = 1
 					spacer.BorderColor3 = Color3.fromRGB(0, 0, 0)
+					spacer.BorderSizePixel = 0
 					spacer.BorderSizePixel = 0
 					spacer.Position = UDim2.fromScale(0, 1)
 					spacer.Parent = section
