@@ -20,7 +20,8 @@ local DefaultSettings = {
         Arsenal = false,
         Universal = false,
         BigPaintball2 = false,
-        AimbotFFA = false
+        AimbotFFA = false,
+        Bladeball = false
     }
 }
 
@@ -32,7 +33,6 @@ local function loadSettings()
     end)
 
     if success and savedSettings then
-
         for key, value in pairs(DefaultSettings) do
             if savedSettings[key] == nil then
                 savedSettings[key] = value
@@ -89,6 +89,9 @@ if Settings.AutoLoadEnabled then
         if Settings.ScriptToggles.AimbotFFA then
             loadstring(game:HttpGet("https://soluna-script.vercel.app/Aimbot-FFA.lua", true))()
         end
+        if Settings.ScriptToggles.Bladeball then
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/bladeball.lua", true))()
+        end
     end
 
     autoLoadSelectedScripts()
@@ -138,52 +141,50 @@ if Settings.TeleportLoadEnabled then
     ]])
 end
 
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+local Library = loadstring(game:HttpGetAsync("https://github.com/ActualMasterOogway/Fluent-Renewed/releases/latest/download/Fluent.luau"))()
+local SaveManager = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/SaveManager.luau"))()
+local InterfaceManager = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/InterfaceManager.luau"))()
 
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
-
-local Window = Fluent:CreateWindow({
-    Title = "Soluna Script Loader",
-    SubTitle = "Expanded Edition",
+local Window = Library:CreateWindow({
+    Title = "Soluna",
+    SubTitle = "Script Loader",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
-    Theme = "Dark",
+    Theme = "Darker",
+    MinSize = Vector2.new(470, 380),
     MinimizeKey = Enum.KeyCode.RightControl
 })
 
+Window:Dialog({
+    Title = "Script Updated",
+    Content = "We've added Bladeball to one of our scripts!",
+    Buttons = {
+        {
+            Title = "Okay",
+            Callback = function()
+                print("Pressed 'Okay'")
+            end
+        }
+    }
+})
+
 local Tabs = {
-    Soluna = Window:AddTab({ Title = "Soluna", Icon = "code" }),
-    Rivals = Window:AddTab({ Title = "Rivals", Icon = "swords" }),
-    Universal = Window:AddTab({ Title = "Universal", Icon = "globe" }),
-    Other = Window:AddTab({ Title = "Other", Icon = "more-horizontal" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    Soluna = Window:CreateTab({ Title = "Soluna", Icon = "code" }),
+    Rivals = Window:CreateTab({ Title = "Rivals", Icon = "swords" }),
+    Universal = Window:CreateTab({ Title = "Universal", Icon = "globe" }),
+    Other = Window:CreateTab({ Title = "Other", Icon = "plus" }),
+    Settings = Window:CreateTab({ Title = "Settings", Icon = "settings" })
 }
 
-if Settings.SelectedTab and Tabs[Settings.SelectedTab] then
-    for i, tab in pairs(Tabs) do
-        if i == Settings.SelectedTab then
-            Window:SelectTab(tab)
-            break
-        end
-    end
-else
-    Window:SelectTab(1)
-end
+Window:SelectTab(1)
 
-local Options = Fluent.Options
-
-local SolunaMainSection = Tabs.Soluna:AddSection("Soluna Versions")
-
-SolunaMainSection:AddParagraph({
+Tabs.Soluna:CreateParagraph("Welcome to Soluna", {
     Title = "Welcome to Soluna",
     Content = "Toggle your preferred version of the Soluna script below, then click Load Selected."
 })
 
-local solunaClassicToggle = Tabs.Soluna:AddToggle("SolunaClassicToggle", {
+local solunaClassicToggle = Tabs.Soluna:CreateToggle("SolunaClassicToggle", {
     Title = "Soluna Classic",
     Default = Settings.ScriptToggles.Soluna_Classic,
     Callback = function(Value)
@@ -192,7 +193,7 @@ local solunaClassicToggle = Tabs.Soluna:AddToggle("SolunaClassicToggle", {
     end
 })
 
-local solunaModernToggle = Tabs.Soluna:AddToggle("SolunaModernToggle", {
+local solunaModernToggle = Tabs.Soluna:CreateToggle("SolunaModernToggle", {
     Title = "Soluna Modern",
     Default = Settings.ScriptToggles.Soluna_Modern,
     Callback = function(Value)
@@ -201,12 +202,12 @@ local solunaModernToggle = Tabs.Soluna:AddToggle("SolunaModernToggle", {
     end
 })
 
-Tabs.Soluna:AddButton({
+Tabs.Soluna:CreateButton({
     Title = "Load Selected Soluna Scripts",
     Description = "Load all toggled Soluna scripts",
     Callback = function()
         if Settings.ScriptToggles.Soluna_Classic then
-            Fluent:Notify({
+            Library:Notify({
                 Title = "Soluna",
                 Content = "Loading Classic...",
                 Duration = 3
@@ -215,7 +216,7 @@ Tabs.Soluna:AddButton({
         end
 
         if Settings.ScriptToggles.Soluna_Modern then
-            Fluent:Notify({
+            Library:Notify({
                 Title = "Soluna",
                 Content = "Loading Modern...",
                 Duration = 3
@@ -224,7 +225,7 @@ Tabs.Soluna:AddButton({
         end
 
         if not Settings.ScriptToggles.Soluna_Classic and not Settings.ScriptToggles.Soluna_Modern then
-            Fluent:Notify({
+            Library:Notify({
                 Title = "Soluna",
                 Content = "No scripts selected to load",
                 Duration = 3
@@ -233,9 +234,7 @@ Tabs.Soluna:AddButton({
     end
 })
 
-local RivalsSection = Tabs.Rivals:AddSection("Rival Scripts")
-
-local rivalsClassicToggle = Tabs.Rivals:AddToggle("RivalsClassicToggle", {
+local rivalsClassicToggle = Tabs.Rivals:CreateToggle("RivalsClassicToggle", {
     Title = "Rivals Classic",
     Default = Settings.ScriptToggles.Rivals_Classic,
     Callback = function(Value)
@@ -244,7 +243,7 @@ local rivalsClassicToggle = Tabs.Rivals:AddToggle("RivalsClassicToggle", {
     end
 })
 
-local rivalsModernToggle = Tabs.Rivals:AddToggle("RivalsModernToggle", {
+local rivalsModernToggle = Tabs.Rivals:CreateToggle("RivalsModernToggle", {
     Title = "Rivals Modern",
     Default = Settings.ScriptToggles.Rivals_Modern,
     Callback = function(Value)
@@ -253,12 +252,12 @@ local rivalsModernToggle = Tabs.Rivals:AddToggle("RivalsModernToggle", {
     end
 })
 
-Tabs.Rivals:AddButton({
+Tabs.Rivals:CreateButton({
     Title = "Load Selected Rivals Scripts",
     Description = "Load all toggled Rivals scripts",
     Callback = function()
         if Settings.ScriptToggles.Rivals_Classic then
-            Fluent:Notify({
+            Library:Notify({
                 Title = "Rivals",
                 Content = "Loading Classic...",
                 Duration = 3
@@ -267,7 +266,7 @@ Tabs.Rivals:AddButton({
         end
 
         if Settings.ScriptToggles.Rivals_Modern then
-            Fluent:Notify({
+            Library:Notify({
                 Title = "Rivals",
                 Content = "Loading Modern...",
                 Duration = 3
@@ -276,7 +275,7 @@ Tabs.Rivals:AddButton({
         end
 
         if not Settings.ScriptToggles.Rivals_Classic and not Settings.ScriptToggles.Rivals_Modern then
-            Fluent:Notify({
+            Library:Notify({
                 Title = "Rivals",
                 Content = "No scripts selected to load",
                 Duration = 3
@@ -285,7 +284,7 @@ Tabs.Rivals:AddButton({
     end
 })
 
-local universalToggle = Tabs.Universal:AddToggle("UniversalToggle", {
+local universalToggle = Tabs.Universal:CreateToggle("UniversalToggle", {
     Title = "Universal Script",
     Default = Settings.ScriptToggles.Universal,
     Callback = function(Value)
@@ -294,19 +293,19 @@ local universalToggle = Tabs.Universal:AddToggle("UniversalToggle", {
     end
 })
 
-Tabs.Universal:AddButton({
+Tabs.Universal:CreateButton({
     Title = "Load Universal Script",
     Description = "Load Universal script that works across many games",
     Callback = function()
         if Settings.ScriptToggles.Universal then
-            Fluent:Notify({
+            Library:Notify({
                 Title = "Universal",
                 Content = "Loading Universal script...",
                 Duration = 3
             })
             loadstring(game:HttpGet("https://soluna-script.vercel.app/universal.lua", true))()
         else
-            Fluent:Notify({
+            Library:Notify({
                 Title = "Universal",
                 Content = "Universal script is not toggled on",
                 Duration = 3
@@ -315,9 +314,7 @@ Tabs.Universal:AddButton({
     end
 })
 
-local OtherSection = Tabs.Other:AddSection("Game-Specific Scripts")
-
-local arsenalToggle = Tabs.Other:AddToggle("ArsenalToggle", {
+local arsenalToggle = Tabs.Other:CreateToggle("ArsenalToggle", {
     Title = "Arsenal",
     Default = Settings.ScriptToggles.Arsenal,
     Callback = function(Value)
@@ -326,7 +323,7 @@ local arsenalToggle = Tabs.Other:AddToggle("ArsenalToggle", {
     end
 })
 
-local bigPaintball2Toggle = Tabs.Other:AddToggle("BigPaintball2Toggle", {
+local bigPaintball2Toggle = Tabs.Other:CreateToggle("BigPaintball2Toggle", {
     Title = "Big Paintball 2",
     Default = Settings.ScriptToggles.BigPaintball2,
     Callback = function(Value)
@@ -335,7 +332,7 @@ local bigPaintball2Toggle = Tabs.Other:AddToggle("BigPaintball2Toggle", {
     end
 })
 
-local aimbotFFAToggle = Tabs.Other:AddToggle("AimbotFFAToggle", {
+local aimbotFFAToggle = Tabs.Other:CreateToggle("AimbotFFAToggle", {
     Title = "[🐰] Aimbot FFA 🎯",
     Default = Settings.ScriptToggles.AimbotFFA,
     Callback = function(Value)
@@ -344,14 +341,23 @@ local aimbotFFAToggle = Tabs.Other:AddToggle("AimbotFFAToggle", {
     end
 })
 
-Tabs.Other:AddButton({
+local bladeballToggle = Tabs.Other:CreateToggle("BladeballToggle", {
+    Title = "Bladeball",
+    Default = Settings.ScriptToggles.Bladeball,
+    Callback = function(Value)
+        Settings.ScriptToggles.Bladeball = Value
+        saveSettings()
+    end
+})
+
+Tabs.Other:CreateButton({
     Title = "Load Selected Game Scripts",
     Description = "Load all toggled game-specific scripts",
     Callback = function()
         local scriptsLoaded = false
 
         if Settings.ScriptToggles.Arsenal then
-            Fluent:Notify({
+            Library:Notify({
                 Title = "Arsenal",
                 Content = "Loading Arsenal script...",
                 Duration = 3
@@ -361,7 +367,7 @@ Tabs.Other:AddButton({
         end
 
         if Settings.ScriptToggles.BigPaintball2 then
-            Fluent:Notify({
+            Library:Notify({
                 Title = "Big Paintball 2",
                 Content = "Loading script...",
                 Duration = 3
@@ -371,7 +377,7 @@ Tabs.Other:AddButton({
         end
 
         if Settings.ScriptToggles.AimbotFFA then
-            Fluent:Notify({
+            Library:Notify({
                 Title = "Aimbot FFA",
                 Content = "Loading script...",
                 Duration = 3
@@ -380,8 +386,18 @@ Tabs.Other:AddButton({
             scriptsLoaded = true
         end
 
+        if Settings.ScriptToggles.Bladeball then
+            Library:Notify({
+                Title = "Bladeball",
+                Content = "Loading script...",
+                Duration = 3
+            })
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/bladeball.lua", true))()
+            scriptsLoaded = true
+        end
+
         if not scriptsLoaded then
-            Fluent:Notify({
+            Library:Notify({
                 Title = "Game Scripts",
                 Content = "No scripts selected to load",
                 Duration = 3
@@ -390,9 +406,7 @@ Tabs.Other:AddButton({
     end
 })
 
-local SettingsSection = Tabs.Settings:AddSection("Loader Settings")
-
-local autoLoadToggle = Tabs.Settings:AddToggle("AutoLoadToggle", {
+local autoLoadToggle = Tabs.Settings:CreateToggle("AutoLoadToggle", {
     Title = "Auto-Load Selected Scripts",
     Default = Settings.AutoLoadEnabled,
     Callback = function(Value)
@@ -401,7 +415,7 @@ local autoLoadToggle = Tabs.Settings:AddToggle("AutoLoadToggle", {
     end
 })
 
-local teleportLoadToggle = Tabs.Settings:AddToggle("TeleportLoadToggle", {
+local teleportLoadToggle = Tabs.Settings:CreateToggle("TeleportLoadToggle", {
     Title = "Load on Teleport",
     Default = Settings.TeleportLoadEnabled,
     Callback = function(Value)
@@ -410,7 +424,7 @@ local teleportLoadToggle = Tabs.Settings:AddToggle("TeleportLoadToggle", {
     end
 })
 
-local disableScriptLoaderToggle = Tabs.Settings:AddToggle("DisableScriptLoaderToggle", {
+local disableScriptLoaderToggle = Tabs.Settings:CreateToggle("DisableScriptLoaderToggle", {
     Title = "Disable Script Loader",
     Description = "Completely disables the script loader on next execution",
     Default = Settings.DisableScriptLoader,
@@ -419,13 +433,13 @@ local disableScriptLoaderToggle = Tabs.Settings:AddToggle("DisableScriptLoaderTo
         saveSettings()
 
         if Value then
-            Fluent:Notify({
+            Library:Notify({
                 Title = "Script Loader",
                 Content = "Script Loader will be disabled on next execution",
                 Duration = 5
             })
         else
-            Fluent:Notify({
+            Library:Notify({
                 Title = "Script Loader",
                 Content = "Script Loader will be enabled on next execution",
                 Duration = 5
@@ -434,11 +448,11 @@ local disableScriptLoaderToggle = Tabs.Settings:AddToggle("DisableScriptLoaderTo
     end
 })
 
-Tabs.Settings:AddButton({
+Tabs.Settings:CreateButton({
     Title = "Reload Script Loader",
     Description = "Reloads the script loader with the latest settings",
     Callback = function()
-        Fluent:Notify({
+        Library:Notify({
             Title = "Script Loader",
             Content = "Reloading Script Loader...",
             Duration = 3
@@ -449,10 +463,15 @@ Tabs.Settings:AddButton({
     end
 })
 
+SaveManager:SetLibrary(Library)
+InterfaceManager:SetLibrary(Library)
+
+SaveManager:IgnoreThemeSettings()
+
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
-Fluent:Notify({
+Library:Notify({
     Title = "Soluna Script Loader",
     Content = "Enhanced UI loaded successfully!",
     Duration = 5
