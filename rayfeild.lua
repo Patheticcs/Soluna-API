@@ -2976,7 +2976,7 @@ function Tab:CreateKeybind(KeybindSettings)
         TweenService:Create(Keybind, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
     end)
 
-    -- Handle mouse buttons (1-5) and keyboard inputs
+    -- Handle mouse buttons and keyboard inputs
     UserInputService.InputBegan:Connect(function(input, processed)
         if CheckingForKey then
             if input.UserInputType == Enum.UserInputType.MouseButton1 or
@@ -2985,7 +2985,8 @@ function Tab:CreateKeybind(KeybindSettings)
                input.UserInputType == Enum.UserInputType.MouseButton4 or
                input.UserInputType == Enum.UserInputType.MouseButton5 then
                 -- Get mouse button name directly from the input type
-                local mouseButtonName = tostring(input.UserInputType)
+                local mouseButtonName = tostring(input.UserInputType):split(".")
+                mouseButtonName = mouseButtonName[#mouseButtonName] -- Get the last part (MouseButton#)
                 Keybind.KeybindFrame.KeybindBox.Text = mouseButtonName
                 KeybindSettings.CurrentKeybind = mouseButtonName
                 Keybind.KeybindFrame.KeybindBox:ReleaseFocus()
@@ -3012,18 +3013,14 @@ function Tab:CreateKeybind(KeybindSettings)
             -- Check if the current input matches the stored keybind
             local isMatch = false
             
-            -- Check for mouse button inputs
-            if KeybindSettings.CurrentKeybind == "MouseButton1" and input.UserInputType == Enum.UserInputType.MouseButton1 then
-                isMatch = true
-            elseif KeybindSettings.CurrentKeybind == "MouseButton2" and input.UserInputType == Enum.UserInputType.MouseButton2 then
-                isMatch = true
-            elseif KeybindSettings.CurrentKeybind == "MouseButton3" and input.UserInputType == Enum.UserInputType.MouseButton3 then
-                isMatch = true
-            elseif KeybindSettings.CurrentKeybind == "MouseButton4" and input.UserInputType == Enum.UserInputType.MouseButton4 then
-                isMatch = true
-            elseif KeybindSettings.CurrentKeybind == "MouseButton5" and input.UserInputType == Enum.UserInputType.MouseButton5 then
-                isMatch = true
-            -- Check for keyboard inputs
+            -- Check if it's a mouse button input (begins with "MouseButton")
+            if string.match(KeybindSettings.CurrentKeybind, "^MouseButton%d$") then
+                -- Extract the mouse button type from the stored keybind
+                local expectedInputType = Enum.UserInputType[KeybindSettings.CurrentKeybind]
+                if expectedInputType and input.UserInputType == expectedInputType then
+                    isMatch = true
+                end
+            -- Otherwise check for keyboard inputs
             elseif input.KeyCode == Enum.KeyCode[KeybindSettings.CurrentKeybind] then
                 isMatch = true
             end
@@ -3098,7 +3095,6 @@ function Tab:CreateKeybind(KeybindSettings)
 
     return KeybindSettings
 end
-
 		-- Toggle
 		function Tab:CreateToggle(ToggleSettings)
 			local ToggleValue = {}
