@@ -2931,171 +2931,185 @@ function RayfieldLibrary:CreateWindow(Settings)
 			return DropdownSettings
 		end
 
--- Keybind
-function Tab:CreateKeybind(KeybindSettings)
-    local CheckingForKey = false
-    local Keybind = Elements.Template.Keybind:Clone()
-    Keybind.Name = KeybindSettings.Name
-    Keybind.Title.Text = KeybindSettings.Name
-    Keybind.Visible = true
-    Keybind.Parent = TabPage
+        -- Keybind
+		function Tab:CreateKeybind(KeybindSettings)
+			local CheckingForKey = false
+			local Keybind = Elements.Template.Keybind:Clone()
+			Keybind.Name = KeybindSettings.Name
+			Keybind.Title.Text = KeybindSettings.Name
+			Keybind.Visible = true
+			Keybind.Parent = TabPage
 
-    Keybind.BackgroundTransparency = 1
-    Keybind.UIStroke.Transparency = 1
-    Keybind.Title.TextTransparency = 1
+			Keybind.BackgroundTransparency = 1
+			Keybind.UIStroke.Transparency = 1
+			Keybind.Title.TextTransparency = 1
 
-    Keybind.KeybindFrame.BackgroundColor3 = SelectedTheme.InputBackground
-    Keybind.KeybindFrame.UIStroke.Color = SelectedTheme.InputStroke
+			Keybind.KeybindFrame.BackgroundColor3 = SelectedTheme.InputBackground
+			Keybind.KeybindFrame.UIStroke.Color = SelectedTheme.InputStroke
 
-    TweenService:Create(Keybind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-    TweenService:Create(Keybind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
-    TweenService:Create(Keybind.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
+			TweenService:Create(Keybind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
+			TweenService:Create(Keybind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
+			TweenService:Create(Keybind.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
 
-    Keybind.KeybindFrame.KeybindBox.Text = KeybindSettings.CurrentKeybind
-    Keybind.KeybindFrame.Size = UDim2.new(0, Keybind.KeybindFrame.KeybindBox.TextBounds.X + 24, 0, 30)
+			Keybind.KeybindFrame.KeybindBox.Text = KeybindSettings.CurrentKeybind
+			Keybind.KeybindFrame.Size = UDim2.new(0, Keybind.KeybindFrame.KeybindBox.TextBounds.X + 24, 0, 30)
 
-    Keybind.KeybindFrame.KeybindBox.Focused:Connect(function()
-        CheckingForKey = true
-        Keybind.KeybindFrame.KeybindBox.Text = ""
-    end)
-    Keybind.KeybindFrame.KeybindBox.FocusLost:Connect(function()
-        CheckingForKey = false
-        if Keybind.KeybindFrame.KeybindBox.Text == nil or "" then
-            Keybind.KeybindFrame.KeybindBox.Text = KeybindSettings.CurrentKeybind
-            if not KeybindSettings.Ext then
-                SaveConfiguration()
-            end
-        end
-    end)
+			Keybind.KeybindFrame.KeybindBox.Focused:Connect(function()
+				CheckingForKey = true
+				Keybind.KeybindFrame.KeybindBox.Text = ""
+			end)
+			Keybind.KeybindFrame.KeybindBox.FocusLost:Connect(function()
+				CheckingForKey = false
+				if Keybind.KeybindFrame.KeybindBox.Text == nil or "" then
+					Keybind.KeybindFrame.KeybindBox.Text = KeybindSettings.CurrentKeybind
+					if not KeybindSettings.Ext then
+						SaveConfiguration()
+					end
+				end
+			end)
 
-    Keybind.MouseEnter:Connect(function()
-        TweenService:Create(Keybind, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackgroundHover}):Play()
-    end)
+			Keybind.MouseEnter:Connect(function()
+				TweenService:Create(Keybind, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackgroundHover}):Play()
+			end)
 
-    Keybind.MouseLeave:Connect(function()
-        TweenService:Create(Keybind, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
-    end)
+			Keybind.MouseLeave:Connect(function()
+				TweenService:Create(Keybind, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
+			end)
 
-    -- Handle mouse buttons and keyboard inputs
-    UserInputService.InputBegan:Connect(function(input, processed)
-        if CheckingForKey then
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or
-               input.UserInputType == Enum.UserInputType.MouseButton2 or
-               input.UserInputType == Enum.UserInputType.MouseButton3 or
-               input.UserInputType == Enum.UserInputType.MouseButton4 or
-               input.UserInputType == Enum.UserInputType.MouseButton5 then
-                -- Get mouse button name directly from the input type
-                local mouseButtonName = tostring(input.UserInputType):split(".")
-                mouseButtonName = mouseButtonName[#mouseButtonName] -- Get the last part (MouseButton#)
-                Keybind.KeybindFrame.KeybindBox.Text = mouseButtonName
-                KeybindSettings.CurrentKeybind = mouseButtonName
-                Keybind.KeybindFrame.KeybindBox:ReleaseFocus()
-                if not KeybindSettings.Ext then
-                    SaveConfiguration()
-                end
-                if KeybindSettings.CallOnChange then
-                    KeybindSettings.Callback(mouseButtonName)
-                end
-            elseif input.KeyCode ~= Enum.KeyCode.Unknown then
-                local SplitMessage = string.split(tostring(input.KeyCode), ".")
-                local NewKeyNoEnum = SplitMessage[3]
-                Keybind.KeybindFrame.KeybindBox.Text = tostring(NewKeyNoEnum)
-                KeybindSettings.CurrentKeybind = tostring(NewKeyNoEnum)
-                Keybind.KeybindFrame.KeybindBox:ReleaseFocus()
-                if not KeybindSettings.Ext then
-                    SaveConfiguration()
-                end
-                if KeybindSettings.CallOnChange then
-                    KeybindSettings.Callback(tostring(NewKeyNoEnum))
-                end
-            end
-        elseif not KeybindSettings.CallOnChange and KeybindSettings.CurrentKeybind ~= nil and not processed then
-            -- Check if the current input matches the stored keybind
-            local isMatch = false
-            
-            -- Check if it's a mouse button input (begins with "MouseButton")
-            if string.match(KeybindSettings.CurrentKeybind, "^MouseButton%d$") then
-                -- Extract the mouse button type from the stored keybind
-                local expectedInputType = Enum.UserInputType[KeybindSettings.CurrentKeybind]
-                if expectedInputType and input.UserInputType == expectedInputType then
-                    isMatch = true
-                end
-            -- Otherwise check for keyboard inputs
-            elseif input.KeyCode == Enum.KeyCode[KeybindSettings.CurrentKeybind] then
-                isMatch = true
-            end
-            
-            if isMatch then
-                local Held = true
-                local Connection
-                Connection = input.Changed:Connect(function(prop)
-                    if prop == "UserInputState" then
-                        Connection:Disconnect()
-                        Held = false
-                    end
-                end)
+			-- Helper function to check if a string is a mouse button input
+			local function isMouseButton(inputString)
+				return string.match(inputString, "^MouseButton%d$") ~= nil
+			end
 
-                if not KeybindSettings.HoldToInteract then
-                    local Success, Response = pcall(KeybindSettings.Callback)
-                    if not Success then
-                        TweenService:Create(Keybind, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-                        TweenService:Create(Keybind.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-                        Keybind.Title.Text = "Callback Error"
-                        print("Rayfield | "..KeybindSettings.Name.." Callback Error " ..tostring(Response))
-                        warn('Check docs.sirius.menu for help with Rayfield specific development.')
-                        task.wait(0.5)
-                        Keybind.Title.Text = KeybindSettings.Name
-                        TweenService:Create(Keybind, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
-                        TweenService:Create(Keybind.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
-                    end
-                else
-                    task.wait(0.25)
-                    if Held then
-                        local Loop; Loop = RunService.Stepped:Connect(function()
-                            if not Held then
-                                KeybindSettings.Callback(false) -- maybe pcall this
-                                Loop:Disconnect()
-                            else
-                                KeybindSettings.Callback(true) -- maybe pcall this
-                            end
-                        end)
-                    end
-                end
-            end
-        end
-    end)
+			-- Helper function to get the correct Enum type for an input string
+			local function getInputEnum(inputString)
+				if isMouseButton(inputString) then
+					return Enum.UserInputType[inputString]
+				else
+					return Enum.KeyCode[inputString]
+				end
+			end
 
-    Keybind.KeybindFrame.KeybindBox:GetPropertyChangedSignal("Text"):Connect(function()
-        TweenService:Create(Keybind.KeybindFrame, TweenInfo.new(0.55, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = UDim2.new(0, Keybind.KeybindFrame.KeybindBox.TextBounds.X + 24, 0, 30)}):Play()
-    end)
+			-- Handle mouse buttons and keyboard inputs
+			UserInputService.InputBegan:Connect(function(input, processed)
+				if CheckingForKey then
+					if input.UserInputType == Enum.UserInputType.MouseButton1 or
+					   input.UserInputType == Enum.UserInputType.MouseButton2 or
+					   input.UserInputType == Enum.UserInputType.MouseButton3 or
+					   input.UserInputType == Enum.UserInputType.MouseButton4 or
+					   input.UserInputType == Enum.UserInputType.MouseButton5 then
+						-- Get mouse button name directly from the input type
+						local mouseButtonName = tostring(input.UserInputType):split(".")
+						mouseButtonName = mouseButtonName[#mouseButtonName] -- Get the last part (MouseButton#)
+						Keybind.KeybindFrame.KeybindBox.Text = mouseButtonName
+						KeybindSettings.CurrentKeybind = mouseButtonName
+						Keybind.KeybindFrame.KeybindBox:ReleaseFocus()
+						if not KeybindSettings.Ext then
+							SaveConfiguration()
+						end
+						if KeybindSettings.CallOnChange then
+							KeybindSettings.Callback(mouseButtonName)
+						end
+					elseif input.KeyCode ~= Enum.KeyCode.Unknown then
+						local SplitMessage = string.split(tostring(input.KeyCode), ".")
+						local NewKeyNoEnum = SplitMessage[3]
+						Keybind.KeybindFrame.KeybindBox.Text = tostring(NewKeyNoEnum)
+						KeybindSettings.CurrentKeybind = tostring(NewKeyNoEnum)
+						Keybind.KeybindFrame.KeybindBox:ReleaseFocus()
+						if not KeybindSettings.Ext then
+							SaveConfiguration()
+						end
+						if KeybindSettings.CallOnChange then
+							KeybindSettings.Callback(tostring(NewKeyNoEnum))
+						end
+					end
+				elseif not KeybindSettings.CallOnChange and KeybindSettings.CurrentKeybind ~= nil and not processed then
+					-- Check if the current input matches the stored keybind
+					local isMatch = false
+					local currentKeybind = KeybindSettings.CurrentKeybind
+					
+					-- Check if it's a mouse button input
+					if isMouseButton(currentKeybind) then
+						if input.UserInputType == Enum.UserInputType[currentKeybind] then
+							isMatch = true
+						end
+					-- Otherwise check for keyboard inputs
+					elseif input.KeyCode == Enum.KeyCode[currentKeybind] then
+						isMatch = true
+					end
+					
+					if isMatch then
+						local Held = true
+						local Connection
+						Connection = input.Changed:Connect(function(prop)
+							if prop == "UserInputState" then
+								Connection:Disconnect()
+								Held = false
+							end
+						end)
 
-    function KeybindSettings:Set(NewKeybind)
-        Keybind.KeybindFrame.KeybindBox.Text = tostring(NewKeybind)
-        KeybindSettings.CurrentKeybind = tostring(NewKeybind)
-        Keybind.KeybindFrame.KeybindBox:ReleaseFocus()
-        if not KeybindSettings.Ext then
-            SaveConfiguration()
-        end
+						if not KeybindSettings.HoldToInteract then
+							local Success, Response = pcall(KeybindSettings.Callback)
+							if not Success then
+								TweenService:Create(Keybind, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
+								TweenService:Create(Keybind.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
+								Keybind.Title.Text = "Callback Error"
+								print("Rayfield | "..KeybindSettings.Name.." Callback Error " ..tostring(Response))
+								warn('Check docs.sirius.menu for help with Rayfield specific development.')
+								task.wait(0.5)
+								Keybind.Title.Text = KeybindSettings.Name
+								TweenService:Create(Keybind, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
+								TweenService:Create(Keybind.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
+							end
+						else
+							task.wait(0.25)
+							if Held then
+								local Loop; Loop = RunService.Stepped:Connect(function()
+									if not Held then
+										KeybindSettings.Callback(false) -- maybe pcall this
+										Loop:Disconnect()
+									else
+										KeybindSettings.Callback(true) -- maybe pcall this
+									end
+								end)
+							end
+						end
+					end
+				end
+			end)
 
-        if KeybindSettings.CallOnChange then
-            KeybindSettings.Callback(tostring(NewKeybind))
-        end
-    end
+			Keybind.KeybindFrame.KeybindBox:GetPropertyChangedSignal("Text"):Connect(function()
+				TweenService:Create(Keybind.KeybindFrame, TweenInfo.new(0.55, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = UDim2.new(0, Keybind.KeybindFrame.KeybindBox.TextBounds.X + 24, 0, 30)}):Play()
+			end)
 
-    if Settings.ConfigurationSaving then
-        if Settings.ConfigurationSaving.Enabled and KeybindSettings.Flag then
-            RayfieldLibrary.Flags[KeybindSettings.Flag] = KeybindSettings
-        end
-    end
+			function KeybindSettings:Set(NewKeybind)
+				Keybind.KeybindFrame.KeybindBox.Text = tostring(NewKeybind)
+				KeybindSettings.CurrentKeybind = tostring(NewKeybind)
+				Keybind.KeybindFrame.KeybindBox:ReleaseFocus()
+				if not KeybindSettings.Ext then
+					SaveConfiguration()
+				end
 
-    Rayfield.Main:GetPropertyChangedSignal('BackgroundColor3'):Connect(function()
-        Keybind.KeybindFrame.BackgroundColor3 = SelectedTheme.InputBackground
-        Keybind.KeybindFrame.UIStroke.Color = SelectedTheme.InputStroke
-    end)
+				if KeybindSettings.CallOnChange then
+					KeybindSettings.Callback(tostring(NewKeybind))
+				end
+			end
 
-    return KeybindSettings
-end
-		-- Toggle
+			if Settings.ConfigurationSaving then
+				if Settings.ConfigurationSaving.Enabled and KeybindSettings.Flag then
+					RayfieldLibrary.Flags[KeybindSettings.Flag] = KeybindSettings
+				end
+			end
+
+			Rayfield.Main:GetPropertyChangedSignal('BackgroundColor3'):Connect(function()
+				Keybind.KeybindFrame.BackgroundColor3 = SelectedTheme.InputBackground
+				Keybind.KeybindFrame.UIStroke.Color = SelectedTheme.InputStroke
+			end)
+
+			return KeybindSettings
+		end
+
+        -- Toggle
 		function Tab:CreateToggle(ToggleSettings)
 			local ToggleValue = {}
 
