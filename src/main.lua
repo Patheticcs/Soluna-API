@@ -21,7 +21,10 @@ local DefaultSettings = {
         Universal = false,
         BigPaintball2 = false,
         AimbotFFA = false,
-        Bladeball = false
+        Bladeball = false,
+        GunGroundsFFA = false,
+        CombatWarriors = false,
+        Fisch = false
     }
 }
 
@@ -92,6 +95,15 @@ if Settings.AutoLoadEnabled then
         if Settings.ScriptToggles.Bladeball then
             loadstring(game:HttpGet("https://soluna-script.vercel.app/bladeball.lua", true))()
         end
+        if Settings.ScriptToggles.GunGroundsFFA then
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/gun-grounds-ffa.lua", true))()
+        end
+        if Settings.ScriptToggles.CombatWarriors then
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/combat-warriors.lua", true))()
+        end
+        if Settings.ScriptToggles.Fisch then
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/fisch.lua", true))()
+        end
     end
 
     autoLoadSelectedScripts()
@@ -158,7 +170,7 @@ local Window = Library:CreateWindow({
 
 Window:Dialog({
     Title = "Script Updated",
-    Content = "We've added Bladeball to one of our scripts!",
+    Content = "We've added several new game scripts including Gun Grounds FFA, Combat Warriors, and Fisch!",
     Buttons = {
         {
             Title = "Okay",
@@ -350,6 +362,34 @@ local bladeballToggle = Tabs.Other:CreateToggle("BladeballToggle", {
     end
 })
 
+-- New scripts added here
+local gunGroundsFFAToggle = Tabs.Other:CreateToggle("GunGroundsFFAToggle", {
+    Title = "Gun Grounds FFA",
+    Default = Settings.ScriptToggles.GunGroundsFFA,
+    Callback = function(Value)
+        Settings.ScriptToggles.GunGroundsFFA = Value
+        saveSettings()
+    end
+})
+
+local combatWarriorsToggle = Tabs.Other:CreateToggle("CombatWarriorsToggle", {
+    Title = "Combat Warriors",
+    Default = Settings.ScriptToggles.CombatWarriors,
+    Callback = function(Value)
+        Settings.ScriptToggles.CombatWarriors = Value
+        saveSettings()
+    end
+})
+
+local fischToggle = Tabs.Other:CreateToggle("FischToggle", {
+    Title = "Fisch",
+    Default = Settings.ScriptToggles.Fisch,
+    Callback = function(Value)
+        Settings.ScriptToggles.Fisch = Value
+        saveSettings()
+    end
+})
+
 Tabs.Other:CreateButton({
     Title = "Load Selected Game Scripts",
     Description = "Load all toggled game-specific scripts",
@@ -393,6 +433,36 @@ Tabs.Other:CreateButton({
                 Duration = 3
             })
             loadstring(game:HttpGet("https://soluna-script.vercel.app/bladeball.lua", true))()
+            scriptsLoaded = true
+        end
+
+        if Settings.ScriptToggles.GunGroundsFFA then
+            Library:Notify({
+                Title = "Gun Grounds FFA",
+                Content = "Loading script...",
+                Duration = 3
+            })
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/gun-grounds-ffa.lua", true))()
+            scriptsLoaded = true
+        end
+
+        if Settings.ScriptToggles.CombatWarriors then
+            Library:Notify({
+                Title = "Combat Warriors",
+                Content = "Loading script...",
+                Duration = 3
+            })
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/combat-warriors.lua", true))()
+            scriptsLoaded = true
+        end
+
+        if Settings.ScriptToggles.Fisch then
+            Library:Notify({
+                Title = "Fisch",
+                Content = "Loading script...",
+                Duration = 3
+            })
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/fisch.lua", true))()
             scriptsLoaded = true
         end
 
