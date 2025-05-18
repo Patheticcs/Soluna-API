@@ -263,26 +263,8 @@ Tabs.Soluna:CreateButton({
 })
 
 Tabs.Rivals:CreateParagraph("Rivals Scripts", {
-    Title = "Rivals Hub",
+    Title = "Rivals",
     Content = "Select from different Rivals scripts including the new Skin Changer."
-})
-
-local rivalsClassicToggle = Tabs.Rivals:CreateToggle("RivalsClassicToggle", {
-    Title = "Rivals Classic",
-    Default = Settings.ScriptToggles.Rivals_Classic,
-    Callback = function(Value)
-        Settings.ScriptToggles.Rivals_Classic = Value
-        saveSettings()
-    end
-})
-
-local rivalsModernToggle = Tabs.Rivals:CreateToggle("RivalsModernToggle", {
-    Title = "Rivals Modern",
-    Default = Settings.ScriptToggles.Rivals_Modern,
-    Callback = function(Value)
-        Settings.ScriptToggles.Rivals_Modern = Value
-        saveSettings()
-    end
 })
 
 local rivalsSkinChangerToggle = Tabs.Rivals:CreateToggle("RivalsSkinChangerToggle", {
@@ -634,16 +616,6 @@ Tabs.Settings:CreateButton({
         loadstring(game:HttpGet("https://soluna-script.vercel.app/main.lua", true))()
     end
 })
-
-Window.TabChanged:Connect(function(newTab)
-    for name, tab in pairs(Tabs) do
-        if tab == newTab then
-            Settings.SelectedTab = name
-            saveSettings()
-            break
-        end
-    end
-end)
 
 SaveManager:SetLibrary(Library)
 InterfaceManager:SetLibrary(Library)
