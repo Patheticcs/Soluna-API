@@ -12,11 +12,13 @@ local DefaultSettings = {
     DisableScriptLoader = false,
     SelectedVersion = nil,
     SelectedTab = "Soluna",
+    ThemeColor = "Darker",
     ScriptToggles = {
         Soluna_Classic = false,
         Soluna_Modern = false,
         Rivals_Classic = false,
         Rivals_Modern = false,
+        Rivals_SkinChanger = false,
         Arsenal = false,
         Universal = false,
         BigPaintball2 = false,
@@ -75,10 +77,13 @@ if Settings.AutoLoadEnabled then
             loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/api/main.lua"))()
         end
         if Settings.ScriptToggles.Rivals_Classic then
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/v1.lua"))()
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/rivals-classic.lua"))()
         end
         if Settings.ScriptToggles.Rivals_Modern then
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/api/main.lua"))()
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/rivals-modern.lua"))()
+        end
+        if Settings.ScriptToggles.Rivals_SkinChanger then
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/skin-changer.lua", true))()
         end
         if Settings.ScriptToggles.Arsenal then
             loadstring(game:HttpGet("https://soluna-script.vercel.app/arsenal.lua", true))()
@@ -163,14 +168,14 @@ local Window = Library:CreateWindow({
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
-    Theme = "Darker",
+    Theme = Settings.ThemeColor or "Darker",
     MinSize = Vector2.new(470, 380),
     MinimizeKey = Enum.KeyCode.RightControl
 })
 
 Window:Dialog({
     Title = "Script Updated",
-    Content = "We've added several new game scripts including Gun Grounds FFA, Combat Warriors, and Fisch!",
+    Content = "We've reorganized the UI and added a Rivals Skin Changer!",
     Buttons = {
         {
             Title = "Okay",
@@ -185,11 +190,22 @@ local Tabs = {
     Soluna = Window:CreateTab({ Title = "Soluna", Icon = "code" }),
     Rivals = Window:CreateTab({ Title = "Rivals", Icon = "swords" }),
     Universal = Window:CreateTab({ Title = "Universal", Icon = "globe" }),
-    Other = Window:CreateTab({ Title = "Other", Icon = "plus" }),
+    FPS = Window:CreateTab({ Title = "FPS Games", Icon = "target" }),
+    Fighting = Window:CreateTab({ Title = "Fighting", Icon = "swords" }),
+    Misc = Window:CreateTab({ Title = "Misc Games", Icon = "layout-grid" }),
+    Theme = Window:CreateTab({ Title = "Theme", Icon = "palette" }),
     Settings = Window:CreateTab({ Title = "Settings", Icon = "settings" })
 }
 
-Window:SelectTab(1)
+local selectedTabName = Settings.SelectedTab or "Soluna"
+local selectedTabIndex = 1
+for i, tabName in pairs({"Soluna", "Rivals", "Universal", "FPS", "Fighting", "Misc", "Theme", "Settings"}) do
+    if tabName == selectedTabName then
+        selectedTabIndex = i
+        break
+    end
+end
+Window:SelectTab(selectedTabIndex)
 
 Tabs.Soluna:CreateParagraph("Welcome to Soluna", {
     Title = "Welcome to Soluna",
@@ -246,6 +262,11 @@ Tabs.Soluna:CreateButton({
     end
 })
 
+Tabs.Rivals:CreateParagraph("Rivals Scripts", {
+    Title = "Rivals Hub",
+    Content = "Select from different Rivals scripts including the new Skin Changer."
+})
+
 local rivalsClassicToggle = Tabs.Rivals:CreateToggle("RivalsClassicToggle", {
     Title = "Rivals Classic",
     Default = Settings.ScriptToggles.Rivals_Classic,
@@ -264,6 +285,15 @@ local rivalsModernToggle = Tabs.Rivals:CreateToggle("RivalsModernToggle", {
     end
 })
 
+local rivalsSkinChangerToggle = Tabs.Rivals:CreateToggle("RivalsSkinChangerToggle", {
+    Title = "Rivals Skin Changer",
+    Default = Settings.ScriptToggles.Rivals_SkinChanger,
+    Callback = function(Value)
+        Settings.ScriptToggles.Rivals_SkinChanger = Value
+        saveSettings()
+    end
+})
+
 Tabs.Rivals:CreateButton({
     Title = "Load Selected Rivals Scripts",
     Description = "Load all toggled Rivals scripts",
@@ -274,7 +304,7 @@ Tabs.Rivals:CreateButton({
                 Content = "Loading Classic...",
                 Duration = 3
             })
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/v1.lua"))()
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/rivals-classic.lua"))()
         end
 
         if Settings.ScriptToggles.Rivals_Modern then
@@ -283,10 +313,19 @@ Tabs.Rivals:CreateButton({
                 Content = "Loading Modern...",
                 Duration = 3
             })
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/api/main.lua"))()
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/rivals-modern.lua"))()
         end
 
-        if not Settings.ScriptToggles.Rivals_Classic and not Settings.ScriptToggles.Rivals_Modern then
+        if Settings.ScriptToggles.Rivals_SkinChanger then
+            Library:Notify({
+                Title = "Rivals",
+                Content = "Loading Skin Changer...",
+                Duration = 3
+            })
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/skin-changer.lua", true))()
+        end
+
+        if not Settings.ScriptToggles.Rivals_Classic and not Settings.ScriptToggles.Rivals_Modern and not Settings.ScriptToggles.Rivals_SkinChanger then
             Library:Notify({
                 Title = "Rivals",
                 Content = "No scripts selected to load",
@@ -326,7 +365,12 @@ Tabs.Universal:CreateButton({
     end
 })
 
-local arsenalToggle = Tabs.Other:CreateToggle("ArsenalToggle", {
+Tabs.FPS:CreateParagraph("FPS Game Scripts", {
+    Title = "FPS Games",
+    Content = "Select from various FPS game scripts below."
+})
+
+local arsenalToggle = Tabs.FPS:CreateToggle("ArsenalToggle", {
     Title = "Arsenal",
     Default = Settings.ScriptToggles.Arsenal,
     Callback = function(Value)
@@ -335,7 +379,7 @@ local arsenalToggle = Tabs.Other:CreateToggle("ArsenalToggle", {
     end
 })
 
-local bigPaintball2Toggle = Tabs.Other:CreateToggle("BigPaintball2Toggle", {
+local bigPaintball2Toggle = Tabs.FPS:CreateToggle("BigPaintball2Toggle", {
     Title = "Big Paintball 2",
     Default = Settings.ScriptToggles.BigPaintball2,
     Callback = function(Value)
@@ -344,7 +388,7 @@ local bigPaintball2Toggle = Tabs.Other:CreateToggle("BigPaintball2Toggle", {
     end
 })
 
-local aimbotFFAToggle = Tabs.Other:CreateToggle("AimbotFFAToggle", {
+local aimbotFFAToggle = Tabs.FPS:CreateToggle("AimbotFFAToggle", {
     Title = "[🐰] Aimbot FFA 🎯",
     Default = Settings.ScriptToggles.AimbotFFA,
     Callback = function(Value)
@@ -353,17 +397,7 @@ local aimbotFFAToggle = Tabs.Other:CreateToggle("AimbotFFAToggle", {
     end
 })
 
-local bladeballToggle = Tabs.Other:CreateToggle("BladeballToggle", {
-    Title = "Bladeball",
-    Default = Settings.ScriptToggles.Bladeball,
-    Callback = function(Value)
-        Settings.ScriptToggles.Bladeball = Value
-        saveSettings()
-    end
-})
-
--- New scripts added here
-local gunGroundsFFAToggle = Tabs.Other:CreateToggle("GunGroundsFFAToggle", {
+local gunGroundsFFAToggle = Tabs.FPS:CreateToggle("GunGroundsFFAToggle", {
     Title = "Gun Grounds FFA",
     Default = Settings.ScriptToggles.GunGroundsFFA,
     Callback = function(Value)
@@ -372,27 +406,9 @@ local gunGroundsFFAToggle = Tabs.Other:CreateToggle("GunGroundsFFAToggle", {
     end
 })
 
-local combatWarriorsToggle = Tabs.Other:CreateToggle("CombatWarriorsToggle", {
-    Title = "Combat Warriors",
-    Default = Settings.ScriptToggles.CombatWarriors,
-    Callback = function(Value)
-        Settings.ScriptToggles.CombatWarriors = Value
-        saveSettings()
-    end
-})
-
-local fischToggle = Tabs.Other:CreateToggle("FischToggle", {
-    Title = "Fisch",
-    Default = Settings.ScriptToggles.Fisch,
-    Callback = function(Value)
-        Settings.ScriptToggles.Fisch = Value
-        saveSettings()
-    end
-})
-
-Tabs.Other:CreateButton({
-    Title = "Load Selected Game Scripts",
-    Description = "Load all toggled game-specific scripts",
+Tabs.FPS:CreateButton({
+    Title = "Load Selected FPS Scripts",
+    Description = "Load all toggled FPS game scripts",
     Callback = function()
         local scriptsLoaded = false
 
@@ -426,16 +442,6 @@ Tabs.Other:CreateButton({
             scriptsLoaded = true
         end
 
-        if Settings.ScriptToggles.Bladeball then
-            Library:Notify({
-                Title = "Bladeball",
-                Content = "Loading script...",
-                Duration = 3
-            })
-            loadstring(game:HttpGet("https://soluna-script.vercel.app/bladeball.lua", true))()
-            scriptsLoaded = true
-        end
-
         if Settings.ScriptToggles.GunGroundsFFA then
             Library:Notify({
                 Title = "Gun Grounds FFA",
@@ -443,6 +449,55 @@ Tabs.Other:CreateButton({
                 Duration = 3
             })
             loadstring(game:HttpGet("https://soluna-script.vercel.app/gun-grounds-ffa.lua", true))()
+            scriptsLoaded = true
+        end
+
+        if not scriptsLoaded then
+            Library:Notify({
+                Title = "FPS Scripts",
+                Content = "No scripts selected to load",
+                Duration = 3
+            })
+        end
+    end
+})
+
+Tabs.Fighting:CreateParagraph("Fighting Game Scripts", {
+    Title = "Fighting Games",
+    Content = "Select from various fighting game scripts below."
+})
+
+local bladeballToggle = Tabs.Fighting:CreateToggle("BladeballToggle", {
+    Title = "Bladeball",
+    Default = Settings.ScriptToggles.Bladeball,
+    Callback = function(Value)
+        Settings.ScriptToggles.Bladeball = Value
+        saveSettings()
+    end
+})
+
+local combatWarriorsToggle = Tabs.Fighting:CreateToggle("CombatWarriorsToggle", {
+    Title = "Combat Warriors",
+    Default = Settings.ScriptToggles.CombatWarriors,
+    Callback = function(Value)
+        Settings.ScriptToggles.CombatWarriors = Value
+        saveSettings()
+    end
+})
+
+Tabs.Fighting:CreateButton({
+    Title = "Load Selected Fighting Scripts",
+    Description = "Load all toggled fighting game scripts",
+    Callback = function()
+        local scriptsLoaded = false
+
+        if Settings.ScriptToggles.Bladeball then
+            Library:Notify({
+                Title = "Bladeball",
+                Content = "Loading script...",
+                Duration = 3
+            })
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/bladeball.lua", true))()
             scriptsLoaded = true
         end
 
@@ -456,6 +511,36 @@ Tabs.Other:CreateButton({
             scriptsLoaded = true
         end
 
+        if not scriptsLoaded then
+            Library:Notify({
+                Title = "Fighting Scripts",
+                Content = "No scripts selected to load",
+                Duration = 3
+            })
+        end
+    end
+})
+
+Tabs.Misc:CreateParagraph("Miscellaneous Game Scripts", {
+    Title = "Misc Games",
+    Content = "Other game scripts that don't fit into the main categories."
+})
+
+local fischToggle = Tabs.Misc:CreateToggle("FischToggle", {
+    Title = "Fisch",
+    Default = Settings.ScriptToggles.Fisch,
+    Callback = function(Value)
+        Settings.ScriptToggles.Fisch = Value
+        saveSettings()
+    end
+})
+
+Tabs.Misc:CreateButton({
+    Title = "Load Selected Misc Scripts",
+    Description = "Load all toggled miscellaneous game scripts",
+    Callback = function()
+        local scriptsLoaded = false
+
         if Settings.ScriptToggles.Fisch then
             Library:Notify({
                 Title = "Fisch",
@@ -468,11 +553,28 @@ Tabs.Other:CreateButton({
 
         if not scriptsLoaded then
             Library:Notify({
-                Title = "Game Scripts",
+                Title = "Misc Scripts",
                 Content = "No scripts selected to load",
                 Duration = 3
             })
         end
+    end
+})
+
+Tabs.Theme:CreateParagraph("UI Customization", {
+    Title = "Theme Settings",
+    Content = "Customize the look and feel of the Soluna Script Loader."
+})
+
+local ThemeDropdown = Tabs.Theme:CreateDropdown("ThemeDropdown", {
+    Title = "UI Theme",
+    Values = {"Darker", "Dark", "Light", "Ocean", "Aqua", "Rose", "Violet", "Cyan"},
+    Multi = false,
+    Default = Settings.ThemeColor or "Darker",
+    Callback = function(Value)
+        Settings.ThemeColor = Value
+        Library:SetTheme(Value)
+        saveSettings()
     end
 })
 
@@ -532,6 +634,16 @@ Tabs.Settings:CreateButton({
         loadstring(game:HttpGet("https://soluna-script.vercel.app/main.lua", true))()
     end
 })
+
+Window.TabChanged:Connect(function(newTab)
+    for name, tab in pairs(Tabs) do
+        if tab == newTab then
+            Settings.SelectedTab = name
+            saveSettings()
+            break
+        end
+    end
+end)
 
 SaveManager:SetLibrary(Library)
 InterfaceManager:SetLibrary(Library)
