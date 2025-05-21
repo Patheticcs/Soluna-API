@@ -26,7 +26,9 @@ local DefaultSettings = {
         Bladeball = false,
         GunGroundsFFA = false,
         CombatWarriors = false,
-        Fisch = false
+        Fisch = false,
+        -- NEW: Murder Mystery 2 Toggle
+        MurderMystery2 = false
     }
 }
 
@@ -109,6 +111,10 @@ if Settings.AutoLoadEnabled then
         if Settings.ScriptToggles.Fisch then
             loadstring(game:HttpGet("https://soluna-script.vercel.app/fisch.lua", true))()
         end
+        -- NEW: Auto-load for Murder Mystery 2
+        if Settings.ScriptToggles.MurderMystery2 then
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/murder-mystery-2.lua",true))()
+        end
     end
 
     autoLoadSelectedScripts()
@@ -175,7 +181,7 @@ local Window = Library:CreateWindow({
 
 Window:Dialog({
     Title = "Script Updated",
-    Content = "We've reorganized the UI and added a Rivals Skin Changer!",
+    Content = "Added Murder Mystery 2",
     Buttons = {
         {
             Title = "Okay",
@@ -517,6 +523,16 @@ local fischToggle = Tabs.Misc:CreateToggle("FischToggle", {
     end
 })
 
+-- NEW: Murder Mystery 2 Toggle
+local murderMystery2Toggle = Tabs.Misc:CreateToggle("MurderMystery2Toggle", {
+    Title = "Murder Mystery 2",
+    Default = Settings.ScriptToggles.MurderMystery2,
+    Callback = function(Value)
+        Settings.ScriptToggles.MurderMystery2 = Value
+        saveSettings()
+    end
+})
+
 Tabs.Misc:CreateButton({
     Title = "Load Selected Misc Scripts",
     Description = "Load all toggled miscellaneous game scripts",
@@ -530,6 +546,17 @@ Tabs.Misc:CreateButton({
                 Duration = 3
             })
             loadstring(game:HttpGet("https://soluna-script.vercel.app/fisch.lua", true))()
+            scriptsLoaded = true
+        end
+
+        -- NEW: Load Murder Mystery 2 script
+        if Settings.ScriptToggles.MurderMystery2 then
+            Library:Notify({
+                Title = "Murder Mystery 2",
+                Content = "Loading script...",
+                Duration = 3
+            })
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/murder-mystery-2.lua",true))()
             scriptsLoaded = true
         end
 
@@ -626,7 +653,7 @@ InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
 Library:Notify({
-    Title = "Soluna Script Loader",
-    Content = "Enhanced UI loaded successfully!",
+    Title = "Soluna",
+    Content = "Script Loaded Successfully!",
     Duration = 5
 })
