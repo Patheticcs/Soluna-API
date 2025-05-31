@@ -11,13 +11,12 @@ local DefaultSettings = {
     TeleportLoadEnabled = false,
     DisableScriptLoader = false,
     SelectedVersion = nil,
-    SelectedTab = "Soluna",
+    SelectedTab = "Rivals", 
     ThemeColor = "Darker",
     ScriptToggles = {
-        Soluna_Classic = false,
-        Soluna_Modern = false,
-        Rivals_Classic = false,
-        Rivals_Modern = false,
+
+        Rivals_Classic = false, 
+        Rivals_Modern = false, 
         Rivals_SkinChanger = false,
         Arsenal = false,
         Universal = false,
@@ -27,8 +26,9 @@ local DefaultSettings = {
         GunGroundsFFA = false,
         CombatWarriors = false,
         Fisch = false,
-        -- NEW: Murder Mystery 2 Toggle
-        MurderMystery2 = false
+        MurderMystery2 = false,
+        FleeTheFacility = false, 
+        Forsaken = false 
     }
 }
 
@@ -40,6 +40,7 @@ local function loadSettings()
     end)
 
     if success and savedSettings then
+
         for key, value in pairs(DefaultSettings) do
             if savedSettings[key] == nil then
                 savedSettings[key] = value
@@ -49,10 +50,18 @@ local function loadSettings()
         if not savedSettings.ScriptToggles then
             savedSettings.ScriptToggles = DefaultSettings.ScriptToggles
         else
+
             for key, value in pairs(DefaultSettings.ScriptToggles) do
                 if savedSettings.ScriptToggles[key] == nil then
                     savedSettings.ScriptToggles[key] = value
                 end
+            end
+
+            if savedSettings.ScriptToggles.Soluna_Classic ~= nil then
+                savedSettings.ScriptToggles.Soluna_Classic = nil
+            end
+            if savedSettings.ScriptToggles.Soluna_Modern ~= nil then
+                savedSettings.ScriptToggles.Soluna_Modern = nil
             end
         end
 
@@ -72,12 +81,7 @@ end
 
 if Settings.AutoLoadEnabled then
     local function autoLoadSelectedScripts()
-        if Settings.ScriptToggles.Soluna_Classic then
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/v1.lua"))()
-        end
-        if Settings.ScriptToggles.Soluna_Modern then
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/api/main.lua"))()
-        end
+
         if Settings.ScriptToggles.Rivals_Classic then
             loadstring(game:HttpGet("https://soluna-script.vercel.app/rivals-classic.lua"))()
         end
@@ -111,18 +115,30 @@ if Settings.AutoLoadEnabled then
         if Settings.ScriptToggles.Fisch then
             loadstring(game:HttpGet("https://soluna-script.vercel.app/fisch.lua", true))()
         end
-        -- NEW: Auto-load for Murder Mystery 2
         if Settings.ScriptToggles.MurderMystery2 then
             loadstring(game:HttpGet("https://soluna-script.vercel.app/murder-mystery-2.lua",true))()
+        end
+
+        if Settings.ScriptToggles.FleeTheFacility then
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/flee-the-facility.lua",true))()
+        end
+
+        if Settings.ScriptToggles.Forsaken then
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/forsaken",true))()
         end
     end
 
     autoLoadSelectedScripts()
 
+    local anyScriptEnabled = false
     for _, enabled in pairs(Settings.ScriptToggles) do
         if enabled then
-            return
+            anyScriptEnabled = true
+            break
         end
+    end
+    if anyScriptEnabled then
+        return
     end
 end
 
@@ -181,7 +197,7 @@ local Window = Library:CreateWindow({
 
 Window:Dialog({
     Title = "Script Updated",
-    Content = "Added Murder Mystery 2",
+    Content = "Added Flee the Facility and Forsaken, updated Rivals tab!", 
     Buttons = {
         {
             Title = "Okay",
@@ -193,7 +209,7 @@ Window:Dialog({
 })
 
 local Tabs = {
-    Soluna = Window:CreateTab({ Title = "Soluna", Icon = "code" }),
+
     Rivals = Window:CreateTab({ Title = "Rivals", Icon = "swords" }),
     Universal = Window:CreateTab({ Title = "Universal", Icon = "globe" }),
     FPS = Window:CreateTab({ Title = "FPS Games", Icon = "target" }),
@@ -203,9 +219,10 @@ local Tabs = {
     Settings = Window:CreateTab({ Title = "Settings", Icon = "settings" })
 }
 
-local selectedTabName = Settings.SelectedTab or "Soluna"
+local selectedTabName = Settings.SelectedTab or "Rivals"
 local selectedTabIndex = 1
-for i, tabName in pairs({"Soluna", "Rivals", "Universal", "FPS", "Fighting", "Misc", "Theme", "Settings"}) do
+local tabOrder = {"Rivals", "Universal", "FPS", "Fighting", "Misc", "Theme", "Settings"}
+for i, tabName in pairs(tabOrder) do
     if tabName == selectedTabName then
         selectedTabIndex = i
         break
@@ -213,64 +230,27 @@ for i, tabName in pairs({"Soluna", "Rivals", "Universal", "FPS", "Fighting", "Mi
 end
 Window:SelectTab(selectedTabIndex)
 
-Tabs.Soluna:CreateParagraph("Welcome to Soluna", {
-    Title = "Welcome to Soluna",
-    Content = "Toggle your preferred version of the Soluna script below, then click Load Selected."
-})
-
-local solunaClassicToggle = Tabs.Soluna:CreateToggle("SolunaClassicToggle", {
-    Title = "Soluna Classic",
-    Default = Settings.ScriptToggles.Soluna_Classic,
-    Callback = function(Value)
-        Settings.ScriptToggles.Soluna_Classic = Value
-        saveSettings()
-    end
-})
-
-local solunaModernToggle = Tabs.Soluna:CreateToggle("SolunaModernToggle", {
-    Title = "Soluna Modern",
-    Default = Settings.ScriptToggles.Soluna_Modern,
-    Callback = function(Value)
-        Settings.ScriptToggles.Soluna_Modern = Value
-        saveSettings()
-    end
-})
-
-Tabs.Soluna:CreateButton({
-    Title = "Load Selected Soluna Scripts",
-    Description = "Load all toggled Soluna scripts",
-    Callback = function()
-        if Settings.ScriptToggles.Soluna_Classic then
-            Library:Notify({
-                Title = "Soluna",
-                Content = "Loading Classic...",
-                Duration = 3
-            })
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/v1.lua"))()
-        end
-
-        if Settings.ScriptToggles.Soluna_Modern then
-            Library:Notify({
-                Title = "Soluna",
-                Content = "Loading Modern...",
-                Duration = 3
-            })
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/Soluna-API/refs/heads/main/src/api/main.lua"))()
-        end
-
-        if not Settings.ScriptToggles.Soluna_Classic and not Settings.ScriptToggles.Soluna_Modern then
-            Library:Notify({
-                Title = "Soluna",
-                Content = "No scripts selected to load",
-                Duration = 3
-            })
-        end
-    end
-})
-
 Tabs.Rivals:CreateParagraph("Rivals Scripts", {
     Title = "Rivals",
     Content = "Select from different Rivals scripts including the new Skin Changer."
+})
+
+local rivalsClassicToggle = Tabs.Rivals:CreateToggle("RivalsClassicToggle", {
+    Title = "Rivals Classic", 
+    Default = Settings.ScriptToggles.Rivals_Classic,
+    Callback = function(Value)
+        Settings.ScriptToggles.Rivals_Classic = Value
+        saveSettings()
+    end
+})
+
+local rivalsModernToggle = Tabs.Rivals:CreateToggle("RivalsModernToggle", {
+    Title = "Rivals Modern",
+    Default = Settings.ScriptToggles.Rivals_Modern,
+    Callback = function(Value)
+        Settings.ScriptToggles.Rivals_Modern = Value
+        saveSettings()
+    end
 })
 
 local rivalsSkinChangerToggle = Tabs.Rivals:CreateToggle("RivalsSkinChangerToggle", {
@@ -286,22 +266,25 @@ Tabs.Rivals:CreateButton({
     Title = "Load Selected Rivals Scripts",
     Description = "Load all toggled Rivals scripts",
     Callback = function()
+        local scriptsLoaded = false
         if Settings.ScriptToggles.Rivals_Classic then
             Library:Notify({
                 Title = "Rivals",
-                Content = "Loading Classic...",
+                Content = "Loading Rivals Classic...", 
                 Duration = 3
             })
             loadstring(game:HttpGet("https://soluna-script.vercel.app/rivals-classic.lua"))()
+            scriptsLoaded = true
         end
 
         if Settings.ScriptToggles.Rivals_Modern then
             Library:Notify({
                 Title = "Rivals",
-                Content = "Loading Modern...",
+                Content = "Loading Rivals Modern...", 
                 Duration = 3
             })
             loadstring(game:HttpGet("https://soluna-script.vercel.app/rivals-modern.lua"))()
+            scriptsLoaded = true
         end
 
         if Settings.ScriptToggles.Rivals_SkinChanger then
@@ -311,9 +294,10 @@ Tabs.Rivals:CreateButton({
                 Duration = 3
             })
             loadstring(game:HttpGet("https://soluna-script.vercel.app/skin-changer.lua", true))()
+            scriptsLoaded = true
         end
 
-        if not Settings.ScriptToggles.Rivals_Classic and not Settings.ScriptToggles.Rivals_Modern and not Settings.ScriptToggles.Rivals_SkinChanger then
+        if not scriptsLoaded then
             Library:Notify({
                 Title = "Rivals",
                 Content = "No scripts selected to load",
@@ -394,6 +378,15 @@ local gunGroundsFFAToggle = Tabs.FPS:CreateToggle("GunGroundsFFAToggle", {
     end
 })
 
+local forsakenToggle = Tabs.FPS:CreateToggle("ForsakenToggle", {
+    Title = "Forsaken",
+    Default = Settings.ScriptToggles.Forsaken,
+    Callback = function(Value)
+        Settings.ScriptToggles.Forsaken = Value
+        saveSettings()
+    end
+})
+
 Tabs.FPS:CreateButton({
     Title = "Load Selected FPS Scripts",
     Description = "Load all toggled FPS game scripts",
@@ -437,6 +430,16 @@ Tabs.FPS:CreateButton({
                 Duration = 3
             })
             loadstring(game:HttpGet("https://soluna-script.vercel.app/gun-grounds-ffa.lua", true))()
+            scriptsLoaded = true
+        end
+
+        if Settings.ScriptToggles.Forsaken then
+            Library:Notify({
+                Title = "Forsaken",
+                Content = "Loading script...",
+                Duration = 3
+            })
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/forsaken", true))()
             scriptsLoaded = true
         end
 
@@ -523,12 +526,20 @@ local fischToggle = Tabs.Misc:CreateToggle("FischToggle", {
     end
 })
 
--- NEW: Murder Mystery 2 Toggle
 local murderMystery2Toggle = Tabs.Misc:CreateToggle("MurderMystery2Toggle", {
     Title = "Murder Mystery 2",
     Default = Settings.ScriptToggles.MurderMystery2,
     Callback = function(Value)
         Settings.ScriptToggles.MurderMystery2 = Value
+        saveSettings()
+    end
+})
+
+local fleeTheFacilityToggle = Tabs.Misc:CreateToggle("FleeTheFacilityToggle", {
+    Title = "Flee the Facility",
+    Default = Settings.ScriptToggles.FleeTheFacility,
+    Callback = function(Value)
+        Settings.ScriptToggles.FleeTheFacility = Value
         saveSettings()
     end
 })
@@ -549,7 +560,6 @@ Tabs.Misc:CreateButton({
             scriptsLoaded = true
         end
 
-        -- NEW: Load Murder Mystery 2 script
         if Settings.ScriptToggles.MurderMystery2 then
             Library:Notify({
                 Title = "Murder Mystery 2",
@@ -557,6 +567,16 @@ Tabs.Misc:CreateButton({
                 Duration = 3
             })
             loadstring(game:HttpGet("https://soluna-script.vercel.app/murder-mystery-2.lua",true))()
+            scriptsLoaded = true
+        end
+
+        if Settings.ScriptToggles.FleeTheFacility then
+            Library:Notify({
+                Title = "Flee the Facility",
+                Content = "Loading script...",
+                Duration = 3
+            })
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/flee-the-facility.lua",true))()
             scriptsLoaded = true
         end
 
