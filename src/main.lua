@@ -82,6 +82,10 @@
 
 
 
+
+
+
+
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
@@ -273,7 +277,7 @@ local Window = Library:CreateWindow({
 
 Window:Dialog({
 	Title = "Script Updated",
-	Content = "Added Flee the Facility, Forsaken, and moved Blue Lock Rivals to Misc tab!",
+	Content = "Added Bluelock Rivals!",
 	Buttons = {
 		{
 			Title = "Okay",
