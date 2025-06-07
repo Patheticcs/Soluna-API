@@ -117,6 +117,7 @@ local DefaultSettings = {
 		FleeTheFacility = false,
 		Forsaken = false,
 		BlueLock_Rivals = false,
+		GrowAGarden = false, 
 	}
 }
 
@@ -208,6 +209,9 @@ if Settings.AutoLoadEnabled then
 		if Settings.ScriptToggles.BlueLock_Rivals then
 			loadstring(game:HttpGet("https://soluna-script.vercel.app/blue-lock-rivals.lua", true))()
 		end
+        if Settings.ScriptToggles.GrowAGarden then 
+			loadstring(game:HttpGet("https://soluna-script.vercel.app/grow-a-garden.lua", true))()
+		end
 	end
 	autoLoadSelectedScripts()
 	local anyScriptEnabled = false
@@ -277,7 +281,7 @@ local Window = Library:CreateWindow({
 
 Window:Dialog({
 	Title = "Script Updated",
-	Content = "Added Bluelock Rivals!",
+	Content = "Added Grow a Garden!",
 	Buttons = {
 		{
 			Title = "Okay",
@@ -649,6 +653,15 @@ local blueLockRivalsToggle = Tabs.Misc:CreateToggle("BlueLockRivalsToggle", {
 	end
 })
 
+local growAGardenToggle = Tabs.Misc:CreateToggle("GrowAGardenToggle", {
+    Title = "Grow a Garden",
+    Default = Settings.ScriptToggles.GrowAGarden,
+    Callback = function(Value)
+        Settings.ScriptToggles.GrowAGarden = Value
+        saveSettings()
+    end
+})
+
 Tabs.Misc:CreateButton({
 	Title = "Load Selected Misc Scripts",
 	Description = "Load all toggled miscellaneous game scripts",
@@ -688,6 +701,15 @@ Tabs.Misc:CreateButton({
 				Duration = 3
 			})
 			loadstring(game:HttpGet("https://soluna-script.vercel.app/blue-lock-rivals.lua", true))()
+			scriptsLoaded = true
+		end
+		if Settings.ScriptToggles.GrowAGarden then 
+			Library:Notify({
+				Title = "Grow a Garden",
+				Content = "Loading script...",
+				Duration = 3
+			})
+			loadstring(game:HttpGet("https://soluna-script.vercel.app/grow-a-garden.lua", true))()
 			scriptsLoaded = true
 		end
 		if not scriptsLoaded then
