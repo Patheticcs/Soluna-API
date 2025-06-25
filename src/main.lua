@@ -778,7 +778,7 @@ local ThemeDropdown = Tabs.Theme:CreateDropdown("ThemeDropdown", {
 
 Tabs.Info:CreateParagraph("Development Team", {
     Title = "Script Information",
-    Content = "This script was made by the Soluna Development Team.\n\nOwner: @keepmesmerizing\n\nContributing Team Members:\n@aidanqm\n@rvd1\n\nThank you for your contributions!"
+    Content = "This script was made by the Soluna Development Team.\n\nOwner: @keepmesmerizing\n\nContributing Team Members:\n@aidanqm\n@rvd1\n\nSpecial thanks to @nervigemuecke for helping with the Rivals script.\n\nThank you for your contributions!"
 })
 
 Tabs.Info:CreateButton({
