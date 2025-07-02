@@ -117,8 +117,9 @@ local DefaultSettings = {
 		FleeTheFacility = false,
 		Forsaken = false,
 		BlueLock_Rivals = false,
-		GrowAGarden = false, 
-        Brookhaven = false,
+		GrowAGarden = false,
+		Brookhaven = false,
+		MurderersVsSheriffsDuels = false,
 	}
 }
 
@@ -210,12 +211,15 @@ if Settings.AutoLoadEnabled then
 		if Settings.ScriptToggles.BlueLock_Rivals then
 			loadstring(game:HttpGet("https://soluna-script.vercel.app/blue-lock-rivals.lua", true))()
 		end
-        if Settings.ScriptToggles.GrowAGarden then 
+		if Settings.ScriptToggles.GrowAGarden then
 			loadstring(game:HttpGet("https://soluna-script.vercel.app/grow-a-garden.lua", true))()
 		end
-        if Settings.ScriptToggles.Brookhaven then
-            loadstring(game:HttpGet("https://soluna-script.vercel.app/brookhaven.lua", true))
-        end
+		if Settings.ScriptToggles.Brookhaven then
+			loadstring(game:HttpGet("https://soluna-script.vercel.app/brookhaven.lua", true))()
+		end
+		if Settings.ScriptToggles.MurderersVsSheriffsDuels then
+			loadstring(game:HttpGet("https://soluna-script.vercel.app/murderers-vs-sheriffs-duels.lua", true))()
+		end
 	end
 	autoLoadSelectedScripts()
 	local anyScriptEnabled = false
@@ -285,7 +289,7 @@ local Window = Library:CreateWindow({
 
 Window:Dialog({
 	Title = "Script Updated",
-	Content = "Added Brookhaven!",
+	Content = "Added Murderers vs Sheriffs Duels!",
 	Buttons = {
 		{
 			Title = "Okay",
@@ -298,9 +302,9 @@ Window:Dialog({
 
 local Tabs = {
 	Info = Window:CreateTab({
-        Title = "Info",
-        Icon = "info"
-    }),
+		Title = "Info",
+		Icon = "info"
+	}),
 	Rivals = Window:CreateTab({
 		Title = "Rivals",
 		Icon = "swords"
@@ -341,7 +345,7 @@ local tabOrder = {
 	"Misc",
 	"Theme",
 	"Settings",
-    "Info"
+	"Info"
 }
 for i, tabName in pairs(tabOrder) do
 	if tabName == selectedTabName then
@@ -505,6 +509,15 @@ local forsakenToggle = Tabs.FPS:CreateToggle("ForsakenToggle", {
 	end
 })
 
+local murderersVsSheriffsDuelsToggle = Tabs.FPS:CreateToggle("MurderersVsSheriffsDuelsToggle", {
+	Title = "Murderers vs Sheriffs Duels",
+	Default = Settings.ScriptToggles.MurderersVsSheriffsDuels,
+	Callback = function(Value)
+		Settings.ScriptToggles.MurderersVsSheriffsDuels = Value
+		saveSettings()
+	end
+})
+
 Tabs.FPS:CreateButton({
 	Title = "Load Selected FPS Scripts",
 	Description = "Load all toggled FPS game scripts",
@@ -553,6 +566,15 @@ Tabs.FPS:CreateButton({
 				Duration = 3
 			})
 			loadstring(game:HttpGet("https://soluna-script.vercel.app/forsaken", true))()
+			scriptsLoaded = true
+		end
+		if Settings.ScriptToggles.MurderersVsSheriffsDuels then
+			Library:Notify({
+				Title = "Murderers vs Sheriffs Duels",
+				Content = "Loading script...",
+				Duration = 3
+			})
+			loadstring(game:HttpGet("https://soluna-script.vercel.app/murderers-vs-sheriffs-duels.lua", true))()
 			scriptsLoaded = true
 		end
 		if not scriptsLoaded then
@@ -663,21 +685,21 @@ local blueLockRivalsToggle = Tabs.Misc:CreateToggle("BlueLockRivalsToggle", {
 })
 
 local growAGardenToggle = Tabs.Misc:CreateToggle("GrowAGardenToggle", {
-    Title = "Grow a Garden",
-    Default = Settings.ScriptToggles.GrowAGarden,
-    Callback = function(Value)
-        Settings.ScriptToggles.GrowAGarden = Value
-        saveSettings()
-    end
+	Title = "Grow a Garden",
+	Default = Settings.ScriptToggles.GrowAGarden,
+	Callback = function(Value)
+		Settings.ScriptToggles.GrowAGarden = Value
+		saveSettings()
+	end
 })
 
 local brookhavenToggle = Tabs.Misc:CreateToggle("BrookhavenToggle", {
-    Title = "Brookhaven",
-    Default = Settings.ScriptToggles.Brookhaven,
-    Callback = function(Value)
-        Settings.ScriptToggles.Brookhaven = Value
-        saveSettings()
-    end
+	Title = "Brookhaven",
+	Default = Settings.ScriptToggles.Brookhaven,
+	Callback = function(Value)
+		Settings.ScriptToggles.Brookhaven = Value
+		saveSettings()
+	end
 })
 
 
@@ -722,7 +744,7 @@ Tabs.Misc:CreateButton({
 			loadstring(game:HttpGet("https://soluna-script.vercel.app/blue-lock-rivals.lua", true))()
 			scriptsLoaded = true
 		end
-		if Settings.ScriptToggles.GrowAGarden then 
+		if Settings.ScriptToggles.GrowAGarden then
 			Library:Notify({
 				Title = "Grow a Garden",
 				Content = "Loading script...",
@@ -731,15 +753,15 @@ Tabs.Misc:CreateButton({
 			loadstring(game:HttpGet("https://soluna-script.vercel.app/grow-a-garden.lua", true))()
 			scriptsLoaded = true
 		end
-        if Settings.ScriptToggles.Brookhaven then
-            Library:Notify({
-                Title = "Brookhaven",
-                Content = "Loading Brookhaven script...",
-                Duration = 3
-            })
-            loadstring(game:HttpGet("https://soluna-script.vercel.app/brookhaven.lua", true)) 
-            scriptsLoaded = true
-        end
+		if Settings.ScriptToggles.Brookhaven then
+			Library:Notify({
+				Title = "Brookhaven",
+				Content = "Loading Brookhaven script...",
+				Duration = 3
+			})
+			loadstring(game:HttpGet("https://soluna-script.vercel.app/brookhaven.lua", true))()
+			scriptsLoaded = true
+		end
 		if not scriptsLoaded then
 			Library:Notify({
 				Title = "Misc Scripts",
@@ -777,24 +799,24 @@ local ThemeDropdown = Tabs.Theme:CreateDropdown("ThemeDropdown", {
 })
 
 Tabs.Info:CreateParagraph("Development Team", {
-    Title = "Script Information",
-    Content = "This script was made by the Soluna Development Team.\n\nOwner: @keepmesmerizing\n\nContributing Team Members:\n@aidanqm\n@rvd1\n\nSpecial thanks to @nervigemuecke for helping with the Rivals script.\n\nThank you for your contributions!"
+	Title = "Script Information",
+	Content = "This script was made by the Soluna Development Team.\n\nOwner: @keepmesmerizing\n\nContributing Team Members:\n@aidanqm\n@rvd1\n\nSpecial thanks to @nervigemuecke for helping with the Rivals script.\n\nThank you for your contributions!"
 })
 
 Tabs.Info:CreateButton({
-    Title = "Copy Discord Link",
-    Description = "Click to copy the Soluna Discord server link to your clipboard.",
-    Callback = function()
-        local discordLink = "https://discord.gg/gdpCUVj6uS"
-        pcall(function()
-            setclipboard(discordLink)
-            Library:Notify({
-                Title = "Discord Link",
-                Content = "Discord link copied to clipboard!",
-                Duration = 3
-            })
-        end)
-    end
+	Title = "Copy Discord Link",
+	Description = "Click to copy the Soluna Discord server link to your clipboard.",
+	Callback = function()
+		local discordLink = "https://discord.gg/gdpCUVj6uS"
+		pcall(function()
+			setclipboard(discordLink)
+			Library:Notify({
+				Title = "Discord Link",
+				Content = "Discord link copied to clipboard!",
+				Duration = 3
+			})
+		end)
+	end
 })
 
 local autoLoadToggle = Tabs.Settings:CreateToggle("AutoLoadToggle", {
