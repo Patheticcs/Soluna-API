@@ -120,6 +120,8 @@ local DefaultSettings = {
 		GrowAGarden = false,
 		Brookhaven = false,
 		MurderersVsSheriffsDuels = false,
+        NightsInTheForest = false, -- Added
+        Fling2Climb = false, -- Added
 	}
 }
 
@@ -220,6 +222,12 @@ if Settings.AutoLoadEnabled then
 		if Settings.ScriptToggles.MurderersVsSheriffsDuels then
 			loadstring(game:HttpGet("https://soluna-script.vercel.app/murderers-vs-sheriffs-duels.lua", true))()
 		end
+        if Settings.ScriptToggles.NightsInTheForest then -- Added
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/99-Nights-in-the-Forest.lua",true))()
+        end
+        if Settings.ScriptToggles.Fling2Climb then -- Added
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/fling-2-climb.lua",true))()
+        end
 	end
 	autoLoadSelectedScripts()
 	local anyScriptEnabled = false
@@ -241,7 +249,7 @@ if Settings.TeleportLoadEnabled then
             local LocalPlayer = Players.LocalPlayer
 
             local function isGameLoaded()
-                return game:IsLoaded() and LocalPlayer and LocalPlayer.Character and 
+                return game:IsLoaded() and LocalPlayer and LocalPlayer.Character and
                        LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and
                        workspace.CurrentCamera
             end
@@ -289,7 +297,7 @@ local Window = Library:CreateWindow({
 
 Window:Dialog({
 	Title = "Script Updated",
-	Content = "Added Murderers vs Sheriffs Duels!",
+	Content = "Added Fling to Climb and 99 Nights in the Forest!",
 	Buttons = {
 		{
 			Title = "Okay",
@@ -702,6 +710,24 @@ local brookhavenToggle = Tabs.Misc:CreateToggle("BrookhavenToggle", {
 	end
 })
 
+local nightsInTheForestToggle = Tabs.Misc:CreateToggle("NightsInTheForestToggle", { -- Added
+	Title = "99 Nights in the Forest 🔦",
+	Default = Settings.ScriptToggles.NightsInTheForest,
+	Callback = function(Value)
+		Settings.ScriptToggles.NightsInTheForest = Value
+		saveSettings()
+	end
+})
+
+local fling2ClimbToggle = Tabs.Misc:CreateToggle("Fling2ClimbToggle", { -- Added
+	Title = "Fling 2 Climb",
+	Default = Settings.ScriptToggles.Fling2Climb,
+	Callback = function(Value)
+		Settings.ScriptToggles.Fling2Climb = Value
+		saveSettings()
+	end
+})
+
 
 Tabs.Misc:CreateButton({
 	Title = "Load Selected Misc Scripts",
@@ -762,6 +788,24 @@ Tabs.Misc:CreateButton({
 			loadstring(game:HttpGet("https://soluna-script.vercel.app/brookhaven.lua", true))()
 			scriptsLoaded = true
 		end
+        if Settings.ScriptToggles.NightsInTheForest then -- Added
+            Library:Notify({
+                Title = "99 Nights in the Forest",
+                Content = "Loading script...",
+                Duration = 3
+            })
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/99-Nights-in-the-Forest.lua",true))()
+            scriptsLoaded = true
+        end
+        if Settings.ScriptToggles.Fling2Climb then -- Added
+            Library:Notify({
+                Title = "Fling 2 Climb",
+                Content = "Loading script...",
+                Duration = 3
+            })
+            loadstring(game:HttpGet("https://soluna-script.vercel.app/fling-2-climb.lua",true))()
+            scriptsLoaded = true
+        end
 		if not scriptsLoaded then
 			Library:Notify({
 				Title = "Misc Scripts",
